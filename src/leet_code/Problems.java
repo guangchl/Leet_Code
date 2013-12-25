@@ -1,11 +1,9 @@
 package leet_code;
 
-import java.util.Arrays;
-
-import sun.awt.image.OffScreenImage;
+import java.util.ArrayList;
 
 public class Problems {
-	// **************************** HELPER CLASS ****************************
+	// ********************** HELPER CLASS AND FUNCTIONS **********************
 	/** Definition for binary tree */
 	public class TreeNode {
 		int val;
@@ -25,6 +23,40 @@ public class Problems {
 			next = null;
 		}
 	}
+	
+	public ListNode arrayToList(int[] A) {
+		if (A.length == 0) {
+			return null;
+		}
+		
+		ListNode head = new ListNode(A[0]);
+		ListNode iter = head;
+		
+		for (int i = 1; i < A.length; i++) {
+			iter.next = new ListNode(A[i]);
+			iter = iter.next;
+		}
+		
+		return head;
+	}
+	
+	public void printList(ListNode head) {
+		while (head != null) {
+			System.out.print(head.val + " -> ");
+			head = head.next;
+		}
+		System.out.println("null");
+	}
+	
+	/** Definition for binary tree with next pointer */
+	public class TreeLinkNode {
+		int val;
+		TreeLinkNode left, right, next;
+
+		TreeLinkNode(int x) {
+			val = x;
+		}
+	}
 
 	// ****************************** SOLUTIONS ******************************
 	/**
@@ -32,6 +64,8 @@ public class Problems {
 	 * 
 	 * Given an array of integers, every element appears twice except for one.
 	 * Find that single one. Time: O(n). Space: O(0).
+	 * 
+	 * If there's no space constraint, Map should be a common solution
 	 */
 	public int singleNumber(int[] A) {
 		// Since A^B^A == B, xor every other element with first one of the A
@@ -39,6 +73,38 @@ public class Problems {
 			A[0] ^= A[i];
 		}
 		return A[0];
+	}
+	
+	/**
+	 * Single Number II
+	 * 
+	 * Given an array of integers, every element appears three times except for
+	 * one. Find that single one. Time: O(n). Space: O(0).
+	 * 
+	 * So tricky!!! Three bitmask variables.
+	 */
+	public int singleNumber2(int[] A) {
+		int ones = 0; // represent the ith bit has appear once
+		int twos = 0; // represent the ith bit has appear twice
+		int threes = 0; // represent the ith bit has appear three times
+		
+		for (int i = 0; i < A.length; i++) {
+			threes = (threes & ~A[i]) | (twos & A[i]);
+			twos = (twos & ~A[i]) | (ones & A[i]);
+			ones = (ones ^ A[i]) & ~(threes | twos);
+		}
+		
+		return ones;
+		// Another solution
+//		int ones = 0, twos = 0, threes = 0;
+//		for (int i = 0; i < n; i++) {
+//			twos |= ones & A[i];
+//			ones ^= A[i];
+//			threes = ones & twos;
+//			ones &= ~threes;
+//			twos &= ~threes;
+//		}
+//		return ones;
 	}
 
 	/**
@@ -90,15 +156,15 @@ public class Problems {
 	}
 
 	/**
-	 * Best Time to Buy and Sell Stock I
+	 * Best Time to Buy and Sell Stock
 	 * 
 	 * Say you have an array for which the ith element is the price of a given
 	 * stock on day i. If you were only permitted to complete at most one
 	 * transaction (ie, buy one and sell one share of the stock), design an
 	 * algorithm to find the maximum profit.
 	 */
-	public int maxProfit1(int[] prices) {
-		int[]
+	public int maxProfit(int[] prices) {
+		
 	}
 
 	/**
@@ -152,6 +218,40 @@ public class Problems {
 	}
 	
 	/**
+	 * Unique Binary Search Trees II
+	 * 
+	 * Given n, generate all structurally unique BST's (binary search trees)
+	 * that store values 1...n.
+	 */
+	public ArrayList<TreeNode> generateTrees(int n) {
+        return generateTrees(1, n);
+    }
+	
+	public ArrayList<TreeNode> generateTrees(int left, int right) {
+		ArrayList<TreeNode> trees = new ArrayList<TreeNode>();
+		
+		// base case
+		if (left > right) {
+			trees.add(null);
+			return trees;
+		}
+		
+		TreeNode root;
+		for (int i = left; i <= right; i++) {
+			for (TreeNode leftTree : generateTrees(left, i - 1)) {
+				for (TreeNode rightTree : generateTrees(i + 1, right)) {
+					root = new TreeNode(i);
+					root.left = leftTree;
+					root.right = rightTree;
+					trees.add(root);
+				}
+			}
+        }
+		
+		return trees;
+	}
+	
+	/**
 	 * Linked List Cycle
 	 * 
 	 * Given a linked list, determine if it has a cycle in it.
@@ -175,6 +275,44 @@ public class Problems {
 		return false;
 	}
 	
+	/**
+	 * Linked List Cycle II
+	 * 
+	 * Given a linked list, return the node where the cycle begins. If there is
+	 * no cycle, return null.
+	 * 
+	 * Follow up: Can you solve it without using extra space?
+	 */
+    public ListNode detectCycle(ListNode head) {
+    	// set two runners
+        ListNode slow = head;
+        ListNode fast = head;
+        
+		// first time meet: fast runner move 2 steps at one time while slow
+		// runner move 1 step,
+        while (fast != null && fast.next != null) {
+			slow = slow.next;
+			fast = fast.next.next;
+			if (slow == fast) {
+				break;
+			}
+		}
+        
+        // if stopped by null, indicating no loop
+        if (fast == null || fast.next == null) {
+			return null;
+		}
+        
+        // one runner start from the head, both runner move 1 step each time
+        fast = head;
+        while (fast != slow) {
+			fast = fast.next;
+			slow = slow.next;
+		}
+        
+        return fast;
+    }
+    
 	/**
 	 * Search Insert Position
 	 * 
@@ -216,8 +354,10 @@ public class Problems {
 	 * Remove Duplicates from Sorted List
 	 * 
 	 * Given a sorted linked list, delete all duplicates such that each element
-	 * appear only once. For example: Given 1->1->2, return 1->2. Given
-	 * 1->1->2->3->3, return 1->2->3.
+	 * appear only once.
+	 * 
+	 * For example: Given 1->1->2, return 1->2. Given 1->1->2->3->3, return
+	 * 1->2->3.
 	 */
 	public ListNode deleteDuplicates(ListNode head) {
 		if (head != null) {
@@ -233,9 +373,100 @@ public class Problems {
 		return head;
 	}
 
+	/**
+	 * Remove Duplicates from Sorted List II
+	 * 
+	 * Given a sorted linked list, delete all nodes that have duplicate numbers,
+	 * leaving only distinct numbers from the original list.
+	 * 
+	 * For example, Given 1->2->3->3->4->4->5, return 1->2->5. Given
+	 * 1->1->1->2->3, return 2->3.
+	 */
+	public ListNode deleteDuplicates2(ListNode head) {
+		// set the dummy head
+		ListNode root = new ListNode(0);
+		root.next = head;
+		
+		ListNode prev = root;
+		ListNode iter = head;
+		
+		while (iter != null) {
+			// find the last one for each number along the list
+			while (iter.next != null && iter.val == iter.next.val) {
+				iter = iter.next;
+			}
+			
+			// check duplication
+			if (prev.next == iter) {
+				prev = iter;
+			} else {
+				prev.next = iter.next;
+			}
+			
+			// begin next round iteration
+			iter = iter.next;
+		}
+		
+		return root.next;
+	}
+	
+	/**
+	 * Populating Next Right Pointers in Each Node
+	 * 
+	 * Populate each next pointer to point to its next right node. If there is
+	 * no next right node, the next pointer should be set to NULL. Initially,
+	 * all next pointers are set to NULL.
+	 * 
+	 * Note: You may only use constant extra space. You may assume that it is a
+	 * perfect binary tree (ie, all leaves are at the same level, and every
+	 * parent has two children).
+	 * 
+	 * For example,
+	 *         1 -> NULL
+	 *       /  \
+	 *      2 -> 3 -> NULL
+	 *     / \  / \
+	 *    4->5->6->7 -> NULL
+	 */
+	public void connect(TreeLinkNode root) {
+		connectChildrenPairs(root);
+		connectMiddlePairs(root);
+	}
+
+	public void connectChildrenPairs(TreeLinkNode root) {
+		if (root == null || root.left == null) {
+			return;
+		} else {
+			root.left.next = root.right;
+			connectChildrenPairs(root.left);
+			connectChildrenPairs(root.right);
+			return;
+		}
+	}
+
+	public void connectMiddlePairs(TreeLinkNode root) {
+		if (root == null || root.left == null) {
+			return;
+		}
+
+		// connect all middle links
+		TreeLinkNode left = root.left.right;
+		TreeLinkNode right = root.right.left;
+		while (left != null) {
+			left.next = right;
+			left = left.right;
+			right = right.left;
+		}
+
+		// recursive in-order traverse the tree
+		connectMiddlePairs(root.left);
+		connectMiddlePairs(root.right);
+	}
+	
 	public void test() {
-		int[] A = { 1, 3 };
-		System.out.println(searchInsert(A, 0));
+		int[] A = { 1, 2, 3, 3, 4, 4, 5 };
+		printList(arrayToList(A));
+		printList(deleteDuplicates2(arrayToList(A)));
 	}
 
 	public static void main(String[] args) {
