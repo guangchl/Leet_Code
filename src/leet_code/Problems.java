@@ -1,6 +1,8 @@
 package leet_code;
 
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Stack;
 
 public class Problems {
 	// ********************** HELPER CLASS AND FUNCTIONS **********************
@@ -231,6 +233,7 @@ public class Problems {
 		ArrayList<TreeNode> trees = new ArrayList<TreeNode>();
 		
 		// base case
+		// Notice: here we need a null to represent empty tree
 		if (left > right) {
 			trees.add(null);
 			return trees;
@@ -462,12 +465,324 @@ public class Problems {
 		connectMiddlePairs(root.left);
 		connectMiddlePairs(root.right);
 	}
+
+	/**
+	 * Binary Tree Inorder Traversal
+	 * 
+	 * Given a binary tree, return the inorder traversal of its nodes' values.
+	 * 
+	 * For example: Given binary tree {1,#,2,3}, return [1, 3, 2]
+	 * 
+	 * Note: Recursive solution is trivial, could you do it iteratively?
+	 */
+	public ArrayList<Integer> inorderTraversalIterative(TreeNode root) {
+		ArrayList<Integer> inList = new ArrayList<Integer>();
+		
+		// the while loop below don't handle null, so null won't be pushed in s
+		if (root == null) {
+			return inList;
+		}
+
+		// initial the stack which will store the TreeNodes inorderly
+		Stack<TreeNode> s = new Stack<TreeNode>();
+		s.push(root);
+
+		TreeNode n;
+		while (!s.isEmpty()) {
+			n = s.pop();
+			
+			if (n.right != null) {
+				s.push(n.right);
+			}
+			
+			if (n.left != null) {
+				s.push(new TreeNode(n.val));
+				s.push(n.left);
+			} else {
+				inList.add(n.val);
+			}
+		}
+		
+		return inList;
+	}
 	
+	public ArrayList<Integer> inorderTraversalRecursive(TreeNode root) {
+        ArrayList<Integer> preList = new ArrayList<Integer>();
+        
+        if (root == null) {
+            return preList;
+        }
+        
+        for (Integer i : inorderTraversalRecursive(root.left)) {
+            preList.add(i);
+        }
+        
+        preList.add(root.val);
+        
+        for (Integer i : inorderTraversalRecursive(root.right)) {
+            preList.add(i);
+        }
+        
+        return preList;
+    }
+	
+	/**
+	 * Binary Tree Preorder Traversal
+	 * 
+	 * Given a binary tree, return the preorder traversal of its nodes' values.
+	 * 
+	 * For example: Given binary tree {1,#,2,3}, return [1, 2, 3]
+	 * 
+	 * Note: Recursive solution is trivial, could you do it iteratively?
+	 */
+	public ArrayList<Integer> preorderTraversalIterative(TreeNode root) {
+		ArrayList<Integer> preList = new ArrayList<Integer>();
+		
+		// the while loop below don't handle null, so null won't be pushed in s
+		if (root == null) {
+			return preList;
+		}
+		
+		// initial the stack which will store the TreeNodes preorderly
+		Stack<TreeNode> s = new Stack<TreeNode>();
+		s.push(root);
+		
+		TreeNode n;
+		while (!s.isEmpty()) {
+			n = s.pop();
+			
+			if (n.right != null) {
+				s.push(n.right);
+			}
+			
+			if (n.left != null) {
+				s.push(n.left);
+			}
+			
+			preList.add(n.val);
+		}
+		
+		return preList;
+	}
+	
+	public ArrayList<Integer> preorderTraversalRecursive(TreeNode root) {
+        ArrayList<Integer> preList = new ArrayList<Integer>();
+        
+        if (root == null) {
+            return preList;
+        }
+        
+        preList.add(root.val);
+        
+        for (Integer i : preorderTraversalRecursive(root.left)) {
+            preList.add(i);
+        }
+        
+        for (Integer i : preorderTraversalRecursive(root.right)) {
+            preList.add(i);
+        }
+        
+        return preList;
+    }
+	
+	/**
+	 * Binary Tree Postorder Traversal
+	 * 
+	 * Given a binary tree, return the post-order traversal of its nodes' values.
+	 * 
+	 * For example: Given binary tree {1,#,2,3}, return [3, 2, 1]
+	 * 
+	 * Note: Recursive solution is trivial, could you do it iteratively?
+	 */
+	public ArrayList<Integer> postorderTraversalIterative(TreeNode root) {
+		ArrayList<Integer> postList = new ArrayList<Integer>();
+
+		// the while loop below don't handle null, so null won't be pushed in s
+		if (root == null) {
+			return postList;
+		}
+		
+		// initial the stack which will store the TreeNodes postorderly
+		Stack<TreeNode> s = new Stack<TreeNode>();
+		s.push(root);
+
+		TreeNode n;
+		while (!s.isEmpty()) {
+			n = s.pop();
+			
+			if (n.right == null && n.left == null) {
+				postList.add(n.val);
+			} else {
+				s.push(new TreeNode(n.val));
+				
+				if (n.right != null) {
+					s.push(n.right);
+				}
+				
+				if (n.left != null) {
+					s.push(n.left);
+				}
+			}
+		}
+		
+		return postList;
+	}
+	
+	public ArrayList<Integer> postorderTraversalRecursive(TreeNode root) {
+        ArrayList<Integer> postList = new ArrayList<Integer>();
+        
+        if (root == null) {
+            return postList;
+        }
+        
+        for (Integer i : postorderTraversalRecursive(root.left)) {
+            postList.add(i);
+        }
+        
+        for (Integer i : postorderTraversalRecursive(root.right)) {
+            postList.add(i);
+        }
+        
+        postList.add(root.val);
+        
+        return postList;
+    }
+	
+	/**
+	 * Remove Element
+	 * 
+	 * Given an array and a value, remove all instances of that value in place
+	 * and return the new length.
+	 * 
+	 * The order of elements can be changed. It doesn't matter what you leave
+	 * beyond the new length.
+	 * 
+	 * Simple optimization: instead of left shift every time, move the last one
+	 * to the current index.
+	 */
+	public int removeElement(int[] A, int elem) {
+		int size = A.length;
+		
+		if (size == 0) {
+			return size;
+		}
+		
+		for (int i = 0; i < size; i++) {
+			if (A[i] == elem) {
+				A[i] = A[size - 1];
+				i--;
+				size--;
+			}
+		}
+		
+		return size;
+	}
+	
+	/**
+	 * Remove Duplicates from Sorted Array
+	 * 
+	 * Given a sorted array, remove the duplicates in place such that each
+	 * element appear only once and return the new length.
+	 * 
+	 * Do not allocate extra space for another array, you must do this in place
+	 * with constant memory.
+	 * 
+	 * For example, Given input array A = [1,1,2],
+	 * 
+	 * Your function should return length = 2, and A is now [1,2].
+	 * 
+	 * Simple optimization: instead of left shift one step every time, find all
+	 * the duplicates then shift. This will be efficient if a lot same
+	 * duplicates appear
+	 */
+	public int removeDuplicates(int[] A) {
+		int size = A.length;
+		
+		// case with no duplicates
+		if (size < 2) {
+			return size;
+		}
+		
+		// once a duplicate is found, shift all following numbers left
+		int n = A[0];
+		for (int i = 1; i < size; i++) {
+			if (A[i] == n) {
+				int end; // end index of the same duplicate
+				for (end = i; end + 1 < size && A[end + 1] == n;) {
+					end++;
+				}
+				int len = end - i + 1; // length of this set of duplicates
+				
+				// left shift the part at the right of the set of duplicates
+				for (int j = i; j + len < size; j++) {
+					A[j] = A[j + len]; 
+				}
+				size -= len;
+			}
+			
+			// set a new value to find duplicates with
+			n = A[i];
+		}
+		
+		return size;
+	}
+	
+	/**
+	 * Climbing Stairs
+	 * 
+	 * You are climbing a stair case. It takes n steps to reach to the top.
+	 * 
+	 * Each time you can either climb 1 or 2 steps. In how many distinct ways
+	 * can you climb to the top?
+	 * 
+	 * Too simple, it's just like Fibonacci, we can even make it O(logn) or O(1)
+	 */
+	public int climbStairs(int n) {
+		int[] steps = new int[n + 1];
+		
+		steps[0] = 1;
+		steps[1] = 1;
+        
+		for (int i = 2; i <= n; i++) {
+			steps[i] = steps[i - 1] + steps[i - 2];
+		}
+        
+        return steps[n];
+    }
+	
+	/**
+	 * Maximum Subarray
+	 * 
+	 * Find the contiguous subarray within an array (containing at least one
+	 * number) which has the largest sum.
+	 * 
+	 * For example, given the array [-2,1,-3,4,-1,2,1,-5,4], the contiguous
+	 * subarray [4,-1,2,1] has the largest sum = 6.
+	 * 
+	 * If you have figured out the O(n) solution, try coding another solution
+	 * using the divide and conquer approach, which is more subtle.
+	 */
+	public int maxSubArray(int[] A) {
+		int max = A[0];
+		int endingMax = A[0];
+
+		for (int i = 1; i < A.length; i++) {
+			// calculate the possible max value ends at i
+			endingMax = Math.max(A[i], endingMax + A[i]);
+			
+			// compare the max with the new possible max ends at i
+			max = Math.max(endingMax, max);
+		}
+		
+		return max;
+	}
+
 	public void test() {
 		int[] A = { 1, 2, 3, 3, 4, 4, 5 };
-		printList(arrayToList(A));
-		printList(deleteDuplicates2(arrayToList(A)));
+		System.out.println("new length : " + removeDuplicates(A));
+		System.out.println(Arrays.toString(A));
 	}
+
 
 	public static void main(String[] args) {
 		Problems m = new Problems();
