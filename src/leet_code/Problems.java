@@ -1,7 +1,6 @@
 package leet_code;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Stack;
 
 public class Problems {
@@ -777,10 +776,173 @@ public class Problems {
 		return max;
 	}
 
+	/**
+	 * Symmetric Tree
+	 * 
+	 * Given a binary tree, check whether it is a mirror of itself (ie,
+	 * symmetric around its center).
+	 */
+	public boolean isSymmetricIterative(TreeNode root) {
+		if (root == null) {
+			return true;
+		}
+		
+		ArrayList<TreeNode> level = new ArrayList<TreeNode>();
+		level.add(root);
+		
+		while (!level.isEmpty()) {
+			int size = level.size();
+			
+			for (int i = 0; i < size / 2; i++) {
+				if ((level.get(i) == null && level.get(size - i - 1) != null)
+						|| (level.get(i) != null && level.get(size - i - 1) == null)) {
+					return false;
+				} else if (level.get(i) != null && level.get(size - i - 1) != null) {
+					if (level.get(i).val != level.get(size - i - 1).val) {
+						return false;
+					}
+				}
+			}
+			
+			ArrayList<TreeNode> newLevel = new ArrayList<TreeNode>(size * 2);
+			for (int i = 0; i < size; i++) {
+				if (level.get(i) != null) {
+					newLevel.add(level.get(i).left);
+					newLevel.add(level.get(i).right);
+				}
+			}
+			level = newLevel;
+		}
+		
+		return true;
+	}
+	
+	public boolean isSymmetricRecursive(TreeNode root) {
+		
+	}
+	
+	/**
+	 * Merge Two Sorted Lists
+	 * 
+	 * Merge two sorted linked lists and return it as a new list. The new list
+	 * should be made by splicing together the nodes of the first two lists.
+	 */
+	public ListNode mergeTwoLists(ListNode l1, ListNode l2) {
+		// if one of the list is empty, return the other one
+		if (l1 == null) {
+            return l2;
+        } else if (l2 == null) {
+            return l1;
+        }
+        
+        // find the head node
+		ListNode head;
+		if (l1.val < l2.val) {
+			head = l1;
+			l1 = l1.next;
+		} else {
+			head = l2;
+			l2 = l2.next;
+		}
+		
+		// set a pointer pointing to the last element in merged list
+		ListNode current = head;
+		
+		// merge the two lists until one of them gets empty
+		while (l1 != null && l2 != null) {
+			if (l1.val < l2.val) {
+				current.next = l1;
+				l1 = l1.next;
+			} else {
+				current.next = l2;
+				l2 = l2.next;
+			}
+			current = current.next;
+		}
+		
+		// add the remaining elements to the merged list
+		if (l1 != null) {
+			current.next = l1;
+		} else {
+			current.next = l2;
+		}
+		
+		return head;
+	}
+	
+	/**
+	 * Merge Sorted Array
+	 * 
+	 * Given two sorted integer arrays A and B, merge B into A as one sorted
+	 * array.
+	 * 
+	 * Note: You may assume that A has enough space to hold additional elements
+	 * from B. The number of elements initialized in A and B are m and n
+	 * respectively.
+	 */
+    public void mergeTwoArrays(int A[], int m, int B[], int n) {
+    	// index to insert number
+        int index = m + n - 1;
+        
+		// move the largest one of remaining elements to the end of A, before
+		// last moved one
+        m--;
+        n--;
+        while (n >= 0 && m >= 0) {
+			if (A[m] > B[n]) {
+				A[index] = A[m];
+				m--;
+			} else {
+				A[index] = B[n];
+				n--;
+			}
+			index--;
+		}
+        
+        // if n is not empty, copy remaining elements to the beginning of A
+        if (n >= 0) {
+			for (int i = 0; i <= n; i++) {
+				A[i] = B[i];
+			}
+		}
+    }
+    
+    /**
+	 * Convert Sorted Array to Binary Search Tree
+	 * 
+	 * Given an array where elements are sorted in ascending order, convert it
+	 * to a height balanced BST.
+	 */
+	public TreeNode sortedArrayToBST(int[] num) {
+		
+	}
+
+	/**
+	 * Roman to Integer
+	 * 
+	 * Given a Roman numeral, convert it to an integer.
+	 * 
+	 * Input is guaranteed to be within the range from 1 to 3999.
+	 */
+	public int romanToInt(String s) {
+        
+    }
+	
+	/**
+	 * Integer to Roman
+	 * 
+	 * Given an integer, convert it to a roman numeral.
+	 * 
+	 * Input is guaranteed to be within the range from 1 to 3999.
+	 */
+	public String intToRoman(int num) {
+        
+    }
+	
 	public void test() {
-		int[] A = { 1, 2, 3, 3, 4, 4, 5 };
-		System.out.println("new length : " + removeDuplicates(A));
-		System.out.println(Arrays.toString(A));
+		//int[] A = { 1, 2, 3, 3, 4, 4, 5 };
+		TreeNode node = new TreeNode(1);
+		System.out.println(isSymmetricIterative(node));
 	}
 
 
