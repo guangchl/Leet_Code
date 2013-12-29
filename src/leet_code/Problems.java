@@ -1,6 +1,8 @@
 package leet_code;
 
 import java.util.ArrayList;
+import java.util.LinkedList;
+import java.util.Queue;
 import java.util.Stack;
 
 public class Problems {
@@ -648,6 +650,71 @@ public class Problems {
     }
     
     /**
+	 * Binary Tree Level Order Traversal
+	 * 
+	 * Given a binary tree, return the level order traversal of its nodes'
+	 * values. (ie, from left to right, level by level).
+	 */
+    public ArrayList<ArrayList<Integer>> levelOrder(TreeNode root) {
+    	// construct the level order list
+    	ArrayList<ArrayList<Integer>> lol = new ArrayList<ArrayList<Integer>>();
+    	
+    	if (root == null) {
+			return lol;
+		}
+    	
+    	// store the TreeNode in sequence of visit
+    	Queue<TreeNode> queue = new LinkedList<TreeNode>();
+    	queue.add(root);
+    	queue.add(null); // use null to separate different level
+    	
+        while (!queue.isEmpty()) {
+        	// store integer of each level
+        	ArrayList<Integer> level = new ArrayList<Integer>();
+        	
+        	while (queue.peek() != null) {
+        		TreeNode n = queue.poll();
+				
+				if (n.left != null) {
+					queue.add(n.left);
+				}
+				if (n.right != null) {
+					queue.add(n.right);
+				}
+				
+				level.add(n.val);
+			}
+        	
+        	queue.poll();
+        	lol.add(level);
+        	
+        	if (!queue.isEmpty()) {
+        		queue.add(null);
+			}
+        }
+        
+		return lol;
+    }
+    
+    /**
+	 * Binary Tree Level Order Traversal II
+	 * 
+	 * Given a binary tree, return the bottom-up level order traversal of its
+	 * nodes' values. (ie, from left to right, level by level from leaf to
+	 * root).
+	 */
+    public ArrayList<ArrayList<Integer>> levelOrderBottom(TreeNode root) {
+        ArrayList<ArrayList<Integer>> lol = levelOrder(root);
+        ArrayList<ArrayList<Integer>> lob = new ArrayList<ArrayList<Integer>>(lol.size());
+        
+        for (int i = lol.size() - 1; i >= 0; i--) {
+			lob.add(lol.get(i));
+		}
+        
+        return lob;
+    }
+	
+    /**
      * Remove Element
      * 
      * Given an array and a value, remove all instances of that value in place
@@ -787,34 +854,13 @@ public class Problems {
             return true;
         }
         
-        ArrayList<TreeNode> level = new ArrayList<TreeNode>();
-        level.add(root);
+        Queue<TreeNode> queue = new LinkedList<TreeNode>();
+        queue.add(root.left);
+        queue.add(root.right);
         
-        while (!level.isEmpty()) {
-            int size = level.size();
-            
-            for (int i = 0; i < size / 2; i++) {
-                if ((level.get(i) == null && level.get(size - i - 1) != null)
-                        || (level.get(i) != null && level.get(size - i - 1) == null)) {
-                    return false;
-                } else if (level.get(i) != null && level.get(size - i - 1) != null) {
-                    if (level.get(i).val != level.get(size - i - 1).val) {
-                        return false;
-                    }
-                }
-            }
-            
-            ArrayList<TreeNode> newLevel = new ArrayList<TreeNode>(size * 2);
-            for (int i = 0; i < size; i++) {
-                if (level.get(i) != null) {
-                    newLevel.add(level.get(i).left);
-                    newLevel.add(level.get(i).right);
-                }
-            }
-            level = newLevel;
-        }
-        
-        return true;
+        while (!queue.isEmpty()) {
+			
+		}
     }
     
     public boolean isSymmetricRecursive(TreeNode root) {
@@ -957,12 +1003,67 @@ public class Problems {
      * to a height balanced BST.
      */
     public TreeNode sortedArrayToBST(int[] num) {
-        
+    	if (num.length == 0) {
+            return null;
+        }
+        return sortedArrayToBST(num, 0, num.length - 1);
     }
     
     public TreeNode sortedArrayToBST(int[] num, int start, int end) {
+        if (end == start) {
+			return new TreeNode(num[start]);
+		} else if (end - start == 1) {
+			TreeNode root = new TreeNode(num[start]);
+			root.right = new TreeNode(num[end]);
+			return root;
+		} else if (end - start == 2) {
+			TreeNode root = new TreeNode(num[start + 1]);
+			root.left = new TreeNode(num[start]);
+			root.right = new TreeNode(num[end]);
+			return root;
+		}
+    	
+        int mid = (start + end) / 2;
+        TreeNode root = new TreeNode(num[mid]);
+        root.left = sortedArrayToBST(num, start, mid - 1);
+        root.right = sortedArrayToBST(num, mid + 1, end);
         
+        return root;
     }
+    
+    /**
+     * Pascal's Triangle
+     * 
+     * Given numRows, generate the first numRows of Pascal's triangle.
+     */
+	public ArrayList<ArrayList<Integer>> generate(int numRows) {
+		ArrayList<ArrayList<Integer>> pascal = new ArrayList<ArrayList<Integer>>();
+		
+		if (numRows == 0) {
+			return pascal;
+		}
+		
+		ArrayList<Integer> firstRow = new ArrayList<Integer>();
+		firstRow.add(1);
+		pascal.add(firstRow);
+		
+		for (int i = 2; i <= numRows; i++) {
+			ArrayList<Integer> prevRow = pascal.get(i - 2);
+			ArrayList<Integer> row = new ArrayList<Integer>(i);
+			
+			row.add(1);
+			
+			for (int j = 1; j < i - 1; j++) {
+				row.add(prevRow.get(j - 1) + prevRow.get(j));
+			}
+			
+			row.add(1);
+			
+			pascal.add(row);
+		}
+		
+		return pascal;
+	}
 
     /**
      * Roman to Integer
@@ -989,7 +1090,8 @@ public class Problems {
     public void test() {
         //int[] A = { 1, 2, 3, 3, 4, 4, 5 };
         TreeNode node = new TreeNode(1);
-        System.out.println(isSymmetricIterative(node));
+        node.left = new TreeNode(2);
+        System.out.println(levelOrder(node));
     }
 
 
