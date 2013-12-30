@@ -1,7 +1,9 @@
 package leet_code;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.LinkedList;
+import java.util.Map;
 import java.util.Queue;
 import java.util.Stack;
 
@@ -761,36 +763,81 @@ public class Problems {
 	 */
 	public int removeDuplicates(int[] A) {
 		int size = A.length;
-
+		
 		// case with no duplicates
 		if (size < 2) {
 			return size;
 		}
-
+		
 		// once a duplicate is found, shift all following numbers left
-		int n = A[0];
+		int dup = A[0];
 		for (int i = 1; i < size; i++) {
-			if (A[i] == n) {
+			if (A[i] == dup) {
 				int end; // end index of the same duplicate
-				for (end = i; end + 1 < size && A[end + 1] == n;) {
+				for (end = i; end + 1 < size && A[end + 1] == dup;) {
 					end++;
 				}
 				int len = end - i + 1; // length of this set of duplicates
-
+				
 				// left shift the part at the right of the set of duplicates
 				for (int j = i; j + len < size; j++) {
-					A[j] = A[j + len];
+					A[j] = A[j + len]; 
 				}
 				size -= len;
 			}
-
-			// set a new value to find duplicates with
-			n = A[i];
+			
+			dup = A[i];
 		}
-
+		
 		return size;
 	}
 
+	/**
+	 * Remove Duplicates from Sorted Array II
+	 * 
+	 * Follow up for "Remove Duplicates": What if duplicates are allowed at most
+	 * twice?
+	 * 
+	 * For example, Given sorted array A = [1,1,1,2,2,3], your function should
+	 * return length = 5, and A is now [1,1,2,2,3].
+	 */
+	public int removeDuplicates2(int[] A) {
+        int size = A.length;
+		
+		// case with no duplicates
+		if (size < 3) {
+			return size;
+		}
+		
+		// once a duplicate is found, shift all following numbers left
+		int dup = A[0];
+		for (int i = 1; i < size; i++) {
+			if (A[i] == dup) {
+				int end; // end index of the same duplicate
+				for (end = i; end + 1 < size && A[end + 1] == dup;) {
+					end++;
+				}
+				int len = end - i + 1; // length of this set of duplicates
+				
+				// the only additional code for this follow up problem
+				if (len > 1) {
+				    len--;
+				    i++;
+    				// left shift the part at the right of the set of duplicates
+    				for (int j = i; j + len < size; j++) {
+    					A[j] = A[j + len]; 
+    				}
+    				size -= len;
+				}
+			}
+			
+			// update the duplicate value
+			dup = A[i];
+		}
+		
+		return size;
+    }
+	
 	/**
 	 * Climbing Stairs
 	 * 
@@ -1133,27 +1180,213 @@ public class Problems {
 	}
 	
 	/**
+	 * Gray Code
+	 * 
+	 * The gray code is a binary numeral system where two successive
+	 * values differ in only one bit.
+	 * 
+	 * Given a non-negative integer n representing the total number of bits in
+	 * the code, print the sequence of gray code. A gray code sequence must
+	 * begin with 0.
+	 * 
+	 * For example, given n = 2, return [0,1,3,2]. Its gray code sequence is:
+	 * 00 - 0
+	 * 01 - 1
+	 * 11 - 3
+	 * 10 - 2
+	 */
+	public ArrayList<Integer> grayCode(int n) {
+		// initialize an ArrayList with length 2^n
+        ArrayList<Integer> code = new ArrayList<Integer>(1 << n);
+        
+        // add initial code
+        code.add(0);
+
+        // add derivative code
+        for (int i = 0; i < n; i++) {
+            int addend = 1 << i;
+            for (int j = code.size() - 1; j >= 0; j--) {
+                code.add(code.get(j) + addend);
+            }
+        }
+        
+        return code;
+    }
+	
+	/**
+	 * Permutations
+	 * 
+	 * Given a collection of numbers, return all possible permutations.
+	 * 
+	 * For example, [1,2,3] have the following permutations: [1,2,3], [1,3,2],
+	 * [2,1,3], [2,3,1], [3,1,2], and [3,2,1].
+	 */
+	public ArrayList<ArrayList<Integer>> permute(int[] num) {
+        ArrayList<ArrayList<Integer>> permutations = new ArrayList<ArrayList<Integer>>();
+        
+        if (num.length == 0) {
+            return permutations;
+        }
+        
+        // add a initial empty list
+        permutations.add(new ArrayList<Integer>());
+        
+        // add one integer in original array each time
+        for (Integer i : num) {
+        	// construct a new list to new generated permutations
+        	ArrayList<ArrayList<Integer>> update = new ArrayList<ArrayList<Integer>>();
+        	
+        	// add the integer to every old permutation
+        	for (ArrayList<Integer> permutation : permutations) {
+        		// add the new integer to any possible position
+				for (int j = 0; j < permutation.size() + 1; j++) {
+					ArrayList<Integer> newPermutation = new ArrayList<Integer>();
+					newPermutation.addAll(permutation); // add existing elements
+					newPermutation.add(j, i); // add new integer at position j
+					update.add(newPermutation);
+				}
+			}
+        	
+        	// set the result to updated list of permutations
+        	permutations = update;
+        }
+        
+        return permutations;
+    }
+	
+	/**
 	 * Roman to Integer
 	 * 
 	 * Given a Roman numeral, convert it to an integer.
 	 * 
 	 * Input is guaranteed to be within the range from 1 to 3999.
+	 * 
+	 * I(1), V(5), X(10), L(50), C(100), D(500), M(1000)
+	 * 
+	 * the following solution is copied from leetcode discussion
 	 */
 	public int romanToInt(String s) {
-
+		if (s.length() == 0) return 0;
+		
+		// map the characters in Roman number to corresponding value
+        Map<Character, Integer> map = new HashMap<Character, Integer>();
+        map.put('I', 1);
+        map.put('V', 5);
+        map.put('X', 10);
+        map.put('L', 50);
+        map.put('C', 100);
+        map.put('D', 500);
+        map.put('M', 1000);
+    
+        int n = s.length();
+        int sum = map.get(s.charAt(n-1));
+        // calculate each character in reverse order
+        for (int i = n - 2; i >= 0; i--) {
+			// clean and beautiful logic: characters should be in ascending
+			// order from right to left, except for prefix
+            if (map.get(s.charAt(i+1)) <= map.get(s.charAt(i)))
+                sum += map.get(s.charAt(i));
+            else
+                sum -= map.get(s.charAt(i));
+        }
+        
+        return sum;
 	}
 
 	/**
 	 * Integer to Roman
 	 * 
-	 * Given an integer, convert it to a roman numeral.
+	 * Given an integer, convert it to a Roman numeral.
 	 * 
 	 * Input is guaranteed to be within the range from 1 to 3999.
+	 * 
+	 * I(1), V(5), X(10), L(50), C(100), D(500) M(1000)
 	 */
 	public String intToRoman(int num) {
+		int thousand = num / 1000;
+		int hundred = (num % 1000) / 100;
+		int ten = (num % 100) / 10;
+		int one = (num % 10);
+		
+		StringBuffer sb = new StringBuffer();
 
+		// thousand
+		for (int i = 0; i < thousand; i++) {
+			sb.append("M");
+		}
+		
+		// hundred
+		if (hundred == 9) {
+			sb.append("CM");
+		} else if (hundred == 4) {
+			sb.append("CD");
+		} else {
+			if (hundred > 4) {
+				sb.append("D");
+				hundred -=5;
+			}
+			for (int i = 0; i < hundred; i++) {
+				sb.append("C");
+			}
+		}
+		
+		// ten
+		if (ten == 9) {
+			sb.append("XC");
+		} else if (ten == 4) {
+			sb.append("XL");
+		} else {
+			if (ten > 4) {
+				sb.append("L");
+				ten -=5;
+			}
+			for (int i = 0; i < ten; i++) {
+				sb.append("X");
+			}
+		}
+		
+		// one
+		if (one == 9) {
+			sb.append("IX");
+		} else if (one == 4) {
+			sb.append("IV");
+		} else {
+			if (one > 4) {
+				sb.append("V");
+				one -=5;
+			}
+			for (int i = 0; i < one; i++) {
+				sb.append("I");
+			}
+		}
+
+		return sb.toString();
 	}
 
+	/**
+	 * Generate Parentheses
+	 * 
+	 * Given n pairs of parentheses, write a function to generate all
+	 * combinations of well-formed parentheses.
+	 * 
+	 * For example, given n = 3, a solution set is:
+	 * "((()))", "(()())", "(())()", "()(())", "()()()"
+	 */
+	public ArrayList<String> generateParenthesis(int n) {
+        ArrayList<String> list = new ArrayList<String>();
+        
+        StringBuffer sb = new StringBuffer();
+        for (int i = 0; i < n; i++) {
+            sb.append("(");
+        }
+        for (int i = 0; i < n; i++) {
+            sb.append(")");
+        }
+        list.add(sb.toString());
+        
+        sb.
+    }
+	
 	public void test() {
 		// int[] A = { 1, 2, 3, 3, 4, 4, 5 };
 		TreeNode node = new TreeNode(1);
