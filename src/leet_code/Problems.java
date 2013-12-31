@@ -1373,25 +1373,346 @@ public class Problems {
 	 * "((()))", "(()())", "(())()", "()(())", "()()()"
 	 */
 	public ArrayList<String> generateParenthesis(int n) {
-        ArrayList<String> list = new ArrayList<String>();
+        ArrayList<String> result = new ArrayList<String>();
         
         StringBuffer sb = new StringBuffer();
-        for (int i = 0; i < n; i++) {
-            sb.append("(");
-        }
-        for (int i = 0; i < n; i++) {
-            sb.append(")");
-        }
-        list.add(sb.toString());
+
+        parenthesisRecursive(n, n, sb, result);
         
-        sb.
+        return result;
     }
+	
+	public void parenthesisRecursive(int openStock, int closeStock, StringBuffer sb, ArrayList<String> result) {
+		// if no "(" and ")" left, done with one combination
+		if (openStock == 0 && closeStock == 0) {
+			result.add(sb.toString());
+			return;
+		}
+		
+		// if still have "(" in stock
+		if (openStock > 0) {
+			sb.append("(");
+			parenthesisRecursive(openStock - 1, closeStock, sb, result);
+			sb.deleteCharAt(sb.length() - 1);
+		}
+		
+		// if still have ")" in stock and in a valid position
+		if (closeStock > openStock) {
+			sb.append(")");
+			parenthesisRecursive(openStock, closeStock - 1, sb, result);
+			sb.deleteCharAt(sb.length() - 1);
+		}
+	}
+	
+	/**
+	 * Minimum Path Sum
+	 * 
+	 * Given a m x n grid filled with non-negative numbers, find a path from top
+	 * left to bottom right which minimizes the sum of all numbers along its
+	 * path.
+	 * 
+	 * Note: You can only move either down or right at any point in time.
+	 */
+	public int minPathSum(int[][] grid) {
+        int length = grid.length;
+        int width = grid[0].length;
+        
+        int[][] minSum = new int[length][width];
+        
+        // initialize the first row
+        minSum[0][0] = grid[0][0];
+        for (int i = 1; i < width; i++) {
+            minSum[0][i] = minSum[0][i-1] + grid[0][i];
+        }
+        
+        // initialize the first column
+        for (int i = 1; i < length; i++) {
+            minSum[i][0] = minSum[i-1][0] + grid[i][0];
+        }
+        
+        // fill all blank left
+        for (int i = 1; i < length; i++) {
+            for (int j = 1; j < width; j++) {
+                minSum[i][j] = Math.min(minSum[i-1][j], minSum[i][j-1]) + grid[i][j];
+            }
+        }
+        
+        return minSum[length-1][width-1];
+    }
+	
+	/**
+	 * Unique Paths
+	 * 
+	 * A robot is located at the top-left corner of a m x n grid (marked 'Start'
+	 * in the diagram below).
+	 * 
+	 * The robot can only move either down or right at any point in time. The
+	 * robot is trying to reach the bottom-right corner of the grid (marked
+	 * 'Finish' in the diagram below).
+	 * 
+	 * How many possible unique paths are there?
+	 * 
+	 * Note: m and n will be at most 100.
+	 */
+	public int uniquePaths(int m, int n) {
+		if (m == 0 || n == 0) {
+			return 0;
+		}
+		
+		int[][] pathNum = new int[m][n];
+		
+		// initialize the first line
+		for (int i = 0; i < n; i++) {
+			pathNum[0][i] = 1;
+		}
+		
+		// initialize the first column
+		for (int i = 1; i < m; i++) {
+		    pathNum[i][0] = 1;
+		}
+		
+		// fill all blanks left
+		for (int i = 1; i < m; i++) {
+		    for (int j = 1; j < n; j++) {
+		        pathNum[i][j] = pathNum[i-1][j] + pathNum[i][j-1];
+		    }
+		}
+		
+		return pathNum[m-1][n-1];
+	}
+	
+	/**
+	 * Rotate Image
+	 * 
+	 * You are given an n x n 2D matrix representing an image. Rotate the image
+	 * by 90 degrees (clockwise).
+	 * 
+	 * Follow up: Could you do this in-place?
+	 */
+	public void rotate(int[][] matrix) {
+		int n = matrix.length;
+
+		// rotate every circle level by level from outside to inside
+		for (int i = 0; i < n / 2; i++) {
+		    int boundary = n - i - 1;
+		    
+		    for (int j = i; j < boundary; j++) {
+		        int temp = matrix[i][j];
+		        matrix[i][j] = matrix[n - j - 1][i];
+		        matrix[n - j - 1][i] = matrix[boundary][n - j - 1];
+		        matrix[boundary][n - j - 1] = matrix[j][boundary];
+		        matrix[j][boundary] = temp;
+		    }
+		}
+	}
+	
+	/**
+	 * Plus One
+	 * 
+	 * Given a number represented as an array of digits, plus one to the number.
+	 */
+	public int[] plusOne(int[] digits) {
+        for (int i = digits.length - 1; i >= 0; i--) {
+            if (digits[i] < 9) {
+                digits[i]++;
+                return digits;
+            } else {
+                digits[i] = 0;
+                continue;
+            }
+        }
+        
+        int[] result = new int[digits.length + 1];
+        result[0] = 1;
+        
+        return result;
+    }
+	
+	/**
+	 * Search a 2D Matrix
+	 * 
+	 * Write an efficient algorithm that searches for a value in an m x n
+	 * matrix. This matrix has the following properties:
+	 * 
+	 * Integers in each row are sorted from left to right. The first integer of
+	 * each row is greater than the last integer of the previous row.
+	 */
+	public boolean searchMatrix(int[][] matrix, int target) {
+		int length = matrix.length;
+        int width = matrix[0].length;
+        
+        int row = binarySearchRow(matrix, target, 0, length - 1);
+        if (row == -1) {
+            return false;
+        }
+        
+        return binarySearchArray(target, matrix[row], 0, width - 1);
+    }
+    
+    public int binarySearchRow(int[][] matrix, int target, int left, int right) {
+        if (left == right) {
+            if (matrix[left][0] <= target || matrix[left][matrix[0].length-1] >= target) {
+                return left;
+            } else {
+                return -1;
+            }
+        } else if (right - left == 1) {
+            if (matrix[right][0] <= target) {
+                return binarySearchRow(matrix, target, right, right);
+            } else {
+                return binarySearchRow(matrix, target, left, left);
+            }
+        } else {
+            int mid = (left + right) / 2;
+            
+            if (matrix[mid][0] > target) {
+                return binarySearchRow(matrix, target, left, mid - 1);
+            } else if (matrix[mid][matrix[0].length-1] < target) {
+                return binarySearchRow(matrix, target, mid + 1, right);
+            } else {
+                return mid;
+            }
+        }
+    }
+    
+    public boolean binarySearchArray(int target, int[] array, int left, int right) {
+        if (left == right) {
+            return target == array[left];
+        } else if (right - left == 1) {
+            return target == array[left] || target == array[right];
+        } else {
+            int mid = (left + right) / 2;
+            if (target < array[mid]) {
+                return binarySearchArray(target, array, left, mid - 1);
+            } else if (target > array[mid]) {
+                return binarySearchArray(target, array, mid + 1, right);
+            } else {
+                return true;
+            }
+        }
+	}
+	
+	/**
+	 * Set Matrix Zeroes
+	 * 
+	 * Given a m x n matrix, if an element is 0, set its entire row and column
+	 * to 0. Do it in place.
+	 */
+	public void setZeroes(int[][] matrix) {
+		boolean firstRow = false;
+        boolean firstColumn = false;
+        
+        // detect if there is 0 at first row
+        for (int i = 0; i < matrix[0].length; i++) {
+            if (matrix[0][i] == 0) {
+                firstRow = true;
+                break;
+            }
+        }
+        
+        // detect if there is 0 at first column
+        for (int i = 0; i < matrix.length; i++) {
+            if (matrix[i][0] == 0) {
+                firstColumn = true;
+                break;
+            }
+        }
+        
+        // if an element is 0, set first elements of that row and column to 0
+        for (int i = 1; i < matrix.length; i++) {
+            for (int j = 1; j < matrix[0].length; j++) {
+                if (matrix[i][j] == 0) {
+                    matrix[0][j] = 0;
+                    matrix[i][0] = 0;
+                }
+            }
+        }
+        
+        // set 0 rows
+        for (int i = 1; i < matrix.length; i++) {
+            if (matrix[i][0] == 0) {
+                for (int j = 1; j < matrix[0].length; j++) {
+                    matrix[i][j] = 0;
+                }
+            }
+        }
+        
+        // set 0 columns
+        for (int i = 1; i < matrix[0].length; i++) {
+            if (matrix[0][i] == 0) {
+                for (int j = 1; j < matrix.length; j++) {
+                    matrix[j][i] = 0;
+                }
+            }
+        }
+        
+        // set first row
+        if (firstRow == true) {
+            for (int i = 0; i < matrix[0].length; i++) {
+                matrix[0][i] = 0;
+            }
+        }
+        
+        // set first column
+        if (firstColumn == true) {
+            for (int i = 0; i < matrix.length; i++) {
+                matrix[i][0] = 0;
+            }
+        }
+    }
+	
+	/**
+	 * Container With Most Water
+	 * 
+	 * Given n non-negative integers a1, a2, ..., an, where each represents a
+	 * point at coordinate (i, ai). n vertical lines are drawn such that the two
+	 * endpoints of line i is at (i, ai) and (i, 0). Find two lines, which
+	 * together with x-axis forms a container, such that the container contains
+	 * the most water.
+	 * 
+	 * Note: You may not slant the container.
+	 * 
+	 * This solution is incredibly intelligent! From discussion on leetcode.
+	 */
+	public int maxArea(int[] height) {
+		int maxArea = 0;
+        int left = 0;
+        int right = height.length - 1;
+        
+        while (right > left) {
+            maxArea = Math.max(maxArea, (right - left) * Math.min(height[left], height[right]));
+            if (height[left] < height[right]) {
+                left++;
+            } else {
+                right--;
+            }
+        }
+        
+        return maxArea;
+	}
+	
+	/**
+	 * Sort Colors
+	 * 
+	 * Given an array with n objects colored red, white or blue, sort them so
+	 * that objects of the same color are adjacent, with the colors in the order
+	 * red, white and blue.
+	 * 
+	 * Here, we will use the integers 0, 1, and 2 to represent the color red,
+	 * white, and blue respectively.
+	 * 
+	 * Note: You are not suppose to use the library's sort function for this
+	 * problem.
+	 */
+	public void sortColors(int[] A) {
+		
+	}
 	
 	public void test() {
 		// int[] A = { 1, 2, 3, 3, 4, 4, 5 };
-		TreeNode node = new TreeNode(1);
-		node.left = new TreeNode(2);
-		System.out.println(levelOrder(node));
+		int[][] matrix = {{0,0,0,5},{4,3,1,4},{0,1,1,4},{1,2,1,3},{0,0,1,1}};
+		setZeroes(matrix);
+		System.out.println(matrix);
 	}
 
 	public static void main(String[] args) {
