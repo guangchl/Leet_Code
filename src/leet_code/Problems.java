@@ -1143,6 +1143,45 @@ public class Problems {
 
 		return pascal;
 	}
+	
+	/**
+	 * Pascal's Triangle II
+	 * 
+	 * Given an index k, return the kth row of the Pascal's triangle.
+	 * 
+	 * For example, given k = 3, Return [1,3,3,1].
+	 * 
+	 * Note: Could you optimize your algorithm to use only O(k) extra space?
+	 */
+	public ArrayList<Integer> getRow(int rowIndex) {
+        ArrayList<Integer> row = new ArrayList<Integer>();
+        
+        row.add(1);
+        if (rowIndex == 0) {
+            return row;
+        }
+        
+        row.add(1);
+        if (rowIndex == 1) {
+            return row;
+        }
+        
+        for (int i = 2; i <= rowIndex; i++) {
+            ArrayList<Integer> newRow = new ArrayList<Integer>();
+            
+            newRow.add(1);
+            
+            for (int j = 1; j < i; j++) {
+                newRow.add(row.get(j - 1) + row.get(j));
+            }
+            
+            newRow.add(1);
+            
+            row = newRow;
+        }
+        
+        return row;
+    }
 
 	/**
 	 * Balanced Binary Tree
@@ -1705,14 +1744,316 @@ public class Problems {
 	 * problem.
 	 */
 	public void sortColors(int[] A) {
-		
+		int start = 0; // index to put 0
+        int end = A.length - 1; // index to put 2
+        
+        // traverse the array, move all 0 to beginning, all 1 to end
+        for (int i = 0; i <= end;) {
+            if (A[i] == 0) {
+                A[i] = A[start];
+                A[start] = 0;
+                start++;
+                i++;
+            } else if (A[i] == 2) {
+                A[i] = A[end];
+                A[end] = 2;
+                end--;
+            } else {
+                i++;
+            }
+        }
 	}
+	
+	/**
+	 * Path Sum
+	 * 
+	 * Given a binary tree and a sum, determine if the tree has a root-to-leaf
+	 * path such that adding up all the values along the path equals the given
+	 * sum.
+	 */
+	public boolean hasPathSum(TreeNode root, int sum) {
+        if (root == null) {
+            return false;
+        }
+        
+        if (root.left == null && root.right == null) {
+            return sum == root.val;
+        }
+        
+        boolean left = false;
+        if (root.left != null) {
+            left = hasPathSum(root.left, sum - root.val);
+        }
+        
+        boolean right = false;
+        if (root.right != null) {
+            right = hasPathSum(root.right, sum - root.val);
+        }
+        
+        return left || right;
+    }
+	
+	/**
+	 * Combinations
+	 * 
+	 * Given two integers n and k, return all possible combinations of k numbers
+	 * out of 1 ... n.
+	 */
+	public ArrayList<ArrayList<Integer>> combine(int n, int k) {
+        ArrayList<ArrayList<Integer>> combinations = new ArrayList<ArrayList<Integer>>();
+        
+        if (n == 0 || k == 0 || n < k) {
+            return combinations;
+        }
+        
+        combinations.add(new ArrayList<Integer>());
+        
+        for (int i = 1; i <= n; i++) {
+            int len = combinations.size();
+            System.out.println(i + " " +combinations);
+            // add new lists that contain i for lists that are not full
+            for (int j = 0; j < len; j++) {
+                ArrayList<Integer> oldList = combinations.get(j);
+                
+                // list that not full
+                if (oldList.size() < k) {
+                    // list that must contain all last integers
+                    if (k - oldList.size() == n - i + 1) {
+                        // add all last integers to the list
+                        for (int num = i; num <= n; num++) {
+                            oldList.add(num);
+                        }
+                    } else {
+                        // copy the old list and add i to it,
+                        // then add the new list to the combinations
+                        ArrayList<Integer> newList = new ArrayList<Integer>(oldList);
+                        newList.add(i);
+                        combinations.add(newList);
+                    }
+                }
+            }
+        }
+        
+        return combinations;
+    }
+	
+	/**
+	 * Remove Nth Node From End of List
+	 * 
+	 * Given a linked list, remove the nth node from the end of list and return
+	 * its head.
+	 */
+	public ListNode removeNthFromEnd(ListNode head, int n) {
+        // two runner method
+        ListNode slow = head;
+        ListNode fast = head;
+        
+        // move the fast runner to forward by n steps
+        for (int i = 0; i < n; i++) {
+            fast = fast.next;
+        }
+        
+        // the length of the list is n
+        if (fast == null) {
+            return head.next;
+        }
+        
+        // move fast and slow simultaneously until fast hit the end
+        while (fast.next != null) {
+            slow = slow.next;
+            fast = fast.next;
+        }
+        
+        // delete the node next to slow
+        slow.next = slow.next.next;
+        
+        return head;
+    }
+	
+	/**
+	 * Spiral Matrix
+	 * 
+	 * Given a matrix of m x n elements (m rows, n columns), return all elements
+	 * of the matrix in spiral order.
+	 */
+	public ArrayList<Integer> spiralOrder(int[][] matrix) {
+		ArrayList<Integer> list = new ArrayList<Integer>();
+        
+        int m = matrix.length;
+        if (m == 0) {
+        	return list;
+        }
+        
+        int n = matrix[0].length;
+        if (n == 0) {
+            return list;
+        }
+        
+        // find the boudary of the innermost loop
+        int center = Math.min((m - 1) / 2, (n - 1) / 2);
+        
+        // adding in spiral order
+        for(int i = 0; i <= center; i++) {
+            
+            // only one row or column elements in the loop
+            if (i == m - i - 1 && i == n - i - 1) {
+                list.add(matrix[i][i]);
+                
+            } else if (i == m - i - 1) { // only one row
+                // add the row
+                for (int j = i; j < n - i; j++) {
+                    list.add(matrix[i][j]);
+                }
+                
+            } else if (i == n - i - 1) { // only one column
+                // add the column
+                for (int j = i; j < m - i; j++) {
+                    list.add(matrix[j][i]);
+                }
+                
+            } else { // more than one element in the loop
+                // upper edge
+                for (int j = i; j < n - i - 1; j++) {
+                    list.add(matrix[i][j]);
+                }
+                
+                // right edge
+                for (int j = i; j < m - i - 1; j++) {
+                    list.add(matrix[j][n - i - 1]);
+                }
+                
+                // bottom edge
+                for (int j = n - i - 1; j > i; j--) {
+                    list.add(matrix[m - i - 1][j]);
+                }
+                
+                // left edge
+                for (int j = m - i - 1; j > i; j--) {
+                    list.add(matrix[j][i]);
+                }
+            }
+        }
+        
+        return list;
+    }
+	
+	/**
+	 * Spiral Matrix II
+	 * 
+	 * Given an integer n, generate a square matrix filled with elements from 1
+	 * to n2 in spiral order.
+	 */
+	public int[][] generateMatrix(int n) {
+		int[][] matrix = new int[n][n];
+        
+        int num = 1;
+        
+        // traverse the matrix in spiral order
+        for (int i = 0; i <= (n - 1) / 2; i++) {
+            
+            // boundary
+            int b = n - i - 1;
+            
+            // there is only one element in the loop
+            if (i == b) {
+                matrix[i][i] = num++;
+                
+            } else { // more than one elements in the loop
+                // upper edge
+                for (int j = i; j < b; j++) {
+                    matrix[i][j] = num++;
+                }
+                
+                // right edge
+                for (int j = i; j < b; j++) {
+                    matrix[j][b] = num++;
+                }
+                
+                // bottom edge
+                for (int j = b; j > i; j--) {
+                    matrix[b][j] = num++;
+                }
+                
+                // left edge
+                for (int j = b; j > i; j--) {
+                    matrix[j][i] = num++;
+                }
+            }
+        }
+        
+        return matrix;
+    }
+	
+	/**
+	 * Search in Rotated Sorted Array
+	 * 
+	 * Suppose a sorted array is rotated at some pivot unknown to you
+	 * beforehand.
+	 * 
+	 * (i.e., 0 1 2 4 5 6 7 might become 4 5 6 7 0 1 2).
+	 * 
+	 * You are given a target value to search. If found in the array return its
+	 * index, otherwise return -1.
+	 * 
+	 * You may assume no duplicate exists in the array.
+	 */
+	public int searchRotated(int[] A, int target) {
+        return binarySearchRotated(A, 0, A.length - 1, target);
+    }
+    
+    public int binarySearchRotated(int[] A, int left, int right, int target) {
+        if (left == right) {
+            if (A[left] == target) {
+                return left;
+            } else {
+                return -1;
+            }
+            
+        } else if (right - left == 1) {
+            if (A[left] == target) {
+                return left;
+            } else if (A[right] == target) {
+                return right;
+            } else {
+                return -1;
+            }
+            
+        } else {
+            int mid = (left + right) / 2;
+            
+            if (A[mid] == target) {
+                return mid;
+            
+            } else if ((A[mid] < target && (A[right] >= target || A[right] < A[mid])) 
+            		|| (A[mid] > target && A[left] > target && A[left] < A[mid])) {
+                return binarySearchRotated(A, mid + 1, right, target);
+            
+            } else {
+                return binarySearchRotated(A, left, mid - 1, target);
+            }
+        }
+    }
+	
+	/**
+	 * Search in Rotated Sorted Array II
+	 * 
+	 * Follow up for "Search in Rotated Sorted Array": What if duplicates are
+	 * allowed?
+	 * 
+	 * Would this affect the run-time complexity? How and why?
+	 * 
+	 * Write a function to determine if a given target is in the array.
+	 */
+	public boolean searchRotatedWithDup(int[] A, int target) {
+
+	}
+	
 	
 	public void test() {
 		// int[] A = { 1, 2, 3, 3, 4, 4, 5 };
-		int[][] matrix = {{0,0,0,5},{4,3,1,4},{0,1,1,4},{1,2,1,3},{0,0,1,1}};
-		setZeroes(matrix);
-		System.out.println(matrix);
+		// int[][] matrix = {{0,0,0,5},{4,3,1,4},{0,1,1,4},{1,2,1,3},{0,0,1,1}};
+		int[][] matrix = {};
+		System.out.println(spiralOrder(matrix));
 	}
 
 	public static void main(String[] args) {
