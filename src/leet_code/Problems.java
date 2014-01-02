@@ -430,7 +430,7 @@ public class Problems {
 	 * 
 	 * For example, 1 -> NULL / \ 2 -> 3 -> NULL / \ / \ 4->5->6->7 -> NULL
 	 */
-	public void connect(TreeLinkNode root) {
+	public void connectPerfect(TreeLinkNode root) {
 		connectChildrenPairs(root);
 		connectMiddlePairs(root);
 	}
@@ -465,6 +465,61 @@ public class Problems {
 		connectMiddlePairs(root.right);
 	}
 
+	/**
+	 * Populating Next Right Pointers in Each Node II
+	 * 
+	 * Follow up for problem "Populating Next Right Pointers in Each Node".
+	 * 
+	 * What if the given tree could be any binary tree? Would your previous
+	 * solution still work?
+	 * 
+	 * Note: You may only use constant extra space.
+	 */
+	public void connect(TreeLinkNode root) {
+        TreeLinkNode head = root;
+
+        // traverse the tree in level order
+        while (head != null) {
+            // start from the first one of former level
+            TreeLinkNode parent = head;
+            TreeLinkNode current = null;
+            
+            // traverse every child of node in this level
+            while (parent != null) {
+                // left child exists
+                if (parent.left != null) {
+                    if (current == null) { // no node in next level found yet
+                        current = parent.left;
+                        head = current;
+                    } else {
+                        current.next = parent.left;
+                        current = current.next;
+                    }
+                }
+                
+                // right child exists
+                if (parent.right != null) {
+                    if (current == null) { // no node in next level found yet
+                        current = parent.right;
+                        head = current;
+                    } else {
+                        current.next = parent.right;
+                        current = current.next;
+                    }
+                }
+                
+                // update parent
+                parent = parent.next;
+            }
+            
+            // update head
+            if (current == null) {
+                head = null;
+            }
+        }
+    }
+	
+	
 	/**
 	 * Binary Tree Inorder Traversal
 	 * 
@@ -1294,6 +1349,44 @@ public class Problems {
     }
 	
 	/**
+	 * Permutations II
+	 * 
+	 * Given a collection of numbers that might contain duplicates, return all
+	 * possible unique permutations.
+	 * 
+	 * For example, [1,1,2] have the following unique permutations: [1,1,2],
+	 * [1,2,1], and [2,1,1].
+	 */
+	public ArrayList<ArrayList<Integer>> permuteUnique(int[] num) {
+        ArrayList<ArrayList<Integer>> permutations = new ArrayList<ArrayList<Integer>>();
+        
+        if (num.length == 0) {
+            return permutations;
+        }
+        
+        permutations.add(new ArrayList<Integer>());
+        
+        // add one number to the permutations at one time
+        for (Integer i : num) {
+        	ArrayList<ArrayList<Integer>> update = new ArrayList<ArrayList<Integer>>();
+        	
+        	for (ArrayList<Integer> permutation : permutations) {
+        	    int from = permutation.lastIndexOf(i) + 1;
+				for (int j = from; j < permutation.size() + 1; j++) {
+					ArrayList<Integer> newPermutation = new ArrayList<Integer>();
+					newPermutation.addAll(permutation);
+					newPermutation.add(j, i);
+					update.add(newPermutation);
+				}
+			}
+        	
+        	permutations = update;
+        }
+        
+        return permutations;
+    }
+	
+	/**
 	 * Roman to Integer
 	 * 
 	 * Given a Roman numeral, convert it to an integer.
@@ -1794,6 +1887,43 @@ public class Problems {
     }
 	
 	/**
+	 * Path Sum II
+	 * 
+	 */
+	public ArrayList<ArrayList<Integer>> pathSum(TreeNode root, int sum) {
+        ArrayList<ArrayList<Integer>> paths = new ArrayList<ArrayList<Integer>>();
+        
+        if (root == null) {
+            return paths;
+        }
+        
+        pathSum(root, sum, new ArrayList<Integer>(), paths);
+        
+        return paths;
+    }
+    
+    public void pathSum(TreeNode root, int sum, ArrayList<Integer> path, ArrayList<ArrayList<Integer>> paths) {
+        path.add(root.val);
+        sum -= root.val;
+        
+        if (root.left == null && root.right == null && sum == 0) {
+            paths.add(path);
+            return;
+        }
+        
+        if (root.left != null && root.right == null) {
+            pathSum(root.left, sum, path, paths);
+            
+        } else if (root.left == null && root.right != null) {
+            pathSum(root.right, sum, path, paths);
+            
+        } else if (root.left != null && root.right != null) {
+            pathSum(root.left, sum, new ArrayList<Integer>(path), paths);
+            pathSum(root.right, sum, path, paths);
+        }
+    }
+    
+	/**
 	 * Combinations
 	 * 
 	 * Given two integers n and k, return all possible combinations of k numbers
@@ -2043,17 +2173,92 @@ public class Problems {
 	 * Would this affect the run-time complexity? How and why?
 	 * 
 	 * Write a function to determine if a given target is in the array.
+	 * 
+	 * O(logN) ~ O(n), depends on number of duplicates.
+	 * 
+	 * This solutions is so concise and beautiful.
 	 */
 	public boolean searchRotatedWithDup(int[] A, int target) {
-
+		int left = 0;
+        int right = A.length - 1;
+        
+        while (left <= right) {
+            int mid = (left + right) / 2;
+            
+            if (A[mid] == target) {
+                return true; // or return index according to requirement
+            }
+            
+            if (A[left] < A[mid]) { // left part is sorted
+                if (A[left] <= target && A[mid] >= target) {
+                    right = mid;
+                } else {
+                    left = mid + 1;
+                }
+                
+            } else if (A[left] > A[mid]) { // right part is sorted
+                if (A[mid] <= target && A[right] >= target) {
+                    left = mid;
+                } else {
+                    right = mid - 1;
+                }
+                
+            } else {
+                left++;
+            }
+        }
+        
+        return false;
 	}
 	
+	/**
+	 * Palindrome Number
+	 * 
+	 * Determine whether an integer is a palindrome. Do this in constant space.
+	 */
+	public boolean isPalindrome(int x) {
+		// negative number can't be palindrome
+		if (x < 0) {
+			return false;
+		}
+
+		// single digit number must be palindrome
+		if (x < 10) {
+			return true;
+		}
+
+		// last digit can't be 0, since number 0 is included in former case
+		if (x % 10 == 0) {
+			return false;
+		}
+
+		int y = 0;
+		while (x != 0) {
+			// x == y means the original x is symmetrical
+			if (x == y) {
+				return true;
+			}
+
+			// update y
+			y = y * 10 + x % 10;
+
+			// deal with odd digits number
+			if (x == y) {
+				return true;
+			}
+
+			// update x
+			x /= 10;
+		}
+
+		return false;
+	}
 	
 	public void test() {
 		// int[] A = { 1, 2, 3, 3, 4, 4, 5 };
 		// int[][] matrix = {{0,0,0,5},{4,3,1,4},{0,1,1,4},{1,2,1,3},{0,0,1,1}};
-		int[][] matrix = {};
-		System.out.println(spiralOrder(matrix));
+		int x = -2147447412;
+		System.out.println(isPalindrome(x));
 	}
 
 	public static void main(String[] args) {
