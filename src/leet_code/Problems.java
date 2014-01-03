@@ -1,6 +1,7 @@
 package leet_code;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.Map;
@@ -540,7 +541,7 @@ public class Problems {
 		// initial the stack which will store the TreeNodes inorderly
 		Stack<TreeNode> s = new Stack<TreeNode>();
 		s.push(root);
-
+		
 		TreeNode n;
 		while (!s.isEmpty()) {
 			n = s.pop();
@@ -721,7 +722,7 @@ public class Problems {
 		Queue<TreeNode> queue = new LinkedList<TreeNode>();
 		queue.add(root);
 		queue.add(null); // use null to separate different level
-
+		
 		while (!queue.isEmpty()) {
 			// store integer of each level
 			ArrayList<Integer> level = new ArrayList<Integer>();
@@ -1537,6 +1538,86 @@ public class Problems {
 	}
 	
 	/**
+	 * Valid Parentheses
+	 * 
+	 * Given a string containing just the characters '(', ')', '{', '}', '[' and
+	 * ']', determine if the input string is valid.
+	 * 
+	 * The brackets must close in the correct order, "()" and "()[]{}" are all
+	 * valid but "(]" and "([)]" are not.
+	 */
+	public boolean isValid(String s) {
+        Stack<Character> trace = new Stack<Character>();
+        
+        for (int i = 0; i < s.length(); i++) {
+            char c = s.charAt(i);
+            
+            if (c == '(' || c == '[' || c == '{') {
+                trace.push(c);
+            } else {
+                if (trace.isEmpty()) {
+                    return false;
+                }
+                
+                char cc = trace.pop().charValue();
+                
+                switch (cc) {
+                    case '(':
+                        if (c != ')') {
+                            return false;
+                        }
+                        break;
+                    case '[':
+                        if (c != ']') {
+                            return false;
+                        }
+                        break;
+                    case '{':
+                        if (c != '}') {
+                            return false;
+                        }
+                        break;
+                    default:
+                        continue;
+                }
+            }
+        }
+        
+        if (trace.isEmpty()) {
+            return true;
+        } else {
+            return false;
+        }
+    }
+	
+	/**
+	 * Longest Valid Parentheses
+	 * 
+	 * Given a string containing just the characters '(' and ')', find the
+	 * length of the longest valid (well-formed) parentheses substring.
+	 * 
+	 * An example is ")()())", where the longest valid parentheses substring is
+	 * "()()", which has length = 4.
+	 */
+	public int longestValidParentheses(String s) {
+        int max = 0;
+
+        Stack<Integer> stack = new Stack<Integer>();
+
+        for (int i = 0; i < s.length(); i++) {
+            if (s.charAt(i) == '(' || stack.isEmpty() || s.charAt(stack.peek()) == ')') {
+                stack.push(i);
+            } else {
+                stack.pop();
+                int lastEnd = stack.isEmpty() ? -1 : stack.peek();
+                max = Math.max(max, i - lastEnd);
+            }
+        }
+        
+        return max;
+    }
+	
+	/**
 	 * Minimum Path Sum
 	 * 
 	 * Given a m x n grid filled with non-negative numbers, find a path from top
@@ -2254,11 +2335,349 @@ public class Problems {
 		return false;
 	}
 	
+	/**
+	 * Minimum Depth of Binary Tree
+	 * 
+	 * Given a binary tree, find its minimum depth.
+	 * 
+	 * The minimum depth is the number of nodes along the shortest path from the
+	 * root node down to the nearest leaf node.
+	 */
+	public int minDepth(TreeNode root) {
+        if (root == null) {
+            return 0;
+        }
+        
+        int depth = 1;
+        
+        // construct queue with first level which only contains root
+        Queue<LinkedList<TreeNode>> queues = new LinkedList<LinkedList<TreeNode>>();
+        LinkedList<TreeNode> firstLevel = new LinkedList<TreeNode>();
+        firstLevel.add(root);
+        queues.add(firstLevel);
+        
+        while (!queues.isEmpty()) {
+        	LinkedList<TreeNode> queue = queues.poll();
+            
+        	// construct list of next level
+        	LinkedList<TreeNode> nextLevel = new LinkedList<TreeNode>();
+            for (TreeNode n : queue) {
+                if (n.left == null && n.right == null) { // leaf node
+                    return depth;
+                    
+                } else {
+                    if (n.left != null) {
+                        nextLevel.add(n.left);
+                    }
+                    
+                    if (n.right != null) {
+                        nextLevel.add(n.right);
+                    }
+                }
+            }
+            
+            depth++;
+            queues.add(nextLevel);
+        }
+        
+        return depth;
+    }
+	
+	/**
+	 * Sum Root to Leaf Numbers
+	 * 
+	 * Given a binary tree containing digits from 0-9 only, each root-to-leaf
+	 * path could represent a number.
+	 * 
+	 * An example is the root-to-leaf path 1->2->3 which represents the number
+	 * 123.
+	 * 
+	 * Find the total sum of all root-to-leaf numbers.
+	 */
+	public int sumNumbers(TreeNode root) {
+        if (root == null) {
+            return 0;
+        }
+        
+        return sumNumbers(root, 0);
+    }
+    
+    public int sumNumbers(TreeNode root, int num) {
+        num *= 10;
+        num += root.val;
+        
+        if (root.left == null && root.right == null) {
+            return num;
+        }
+        
+        int left = 0;
+        if (root.left != null) {
+            left = sumNumbers(root.left, num);
+        }
+        
+        int right = 0;
+        if (root.right != null) {
+            right = sumNumbers(root.right, num);
+        }
+        
+        return left + right;
+    }
+    
+    /**
+	 * 3Sum Closest
+	 * 
+	 * Given an array S of n integers, find three integers in S such that the
+	 * sum is closest to a given number, target. Return the sum of the three
+	 * integers. You may assume that each input would have exactly one solution.
+	 * 
+	 * For example, given array S = {-1 2 1 -4}, and target = 1.
+	 * 
+	 * The sum that is closest to the target is 2. (-1 + 2 + 1 = 2).
+	 */
+    public int threeSumClosest(int[] num, int target) {
+        Arrays.sort(num);
+        
+        int sum = num[0] + num[1] + num[2];
+        
+        // traverse the array for every possible position of first number
+        for (int i = 0; i < num.length - 2; i++) {
+            // second number start from the one next to first one
+            // third number start from the last number in the array
+            for (int j = i + 1, k = num.length - 1; j < k;) {
+                int temp = num[i] + num[j] + num[k];
+                
+                // compare temp with target
+                if (temp == target) {
+                    return temp;
+                } else {
+                    // update sum
+                    if (Math.abs(temp - target) < Math.abs(sum - target)) {
+                        sum = temp;
+                    }
+                    
+                    //update j and k
+                    if (temp > target) {
+                        k--;
+                    } else {
+                        j++;
+                    }
+                }
+            }
+        }
+        
+        return sum;
+    }
+    
+    /**
+	 * Trapping Rain Water
+	 * 
+	 * Given n non-negative integers representing an elevation map where the
+	 * width of each bar is 1, compute how much water it is able to trap after
+	 * raining.
+	 * 
+	 * For example, Given [0,1,0,2,1,0,1,3,2,1,2,1], return 6.
+	 */
+    public int trap(int[] A) {
+        if (A.length < 3) {
+            return 0;
+        }
+        
+        int sum = 0;
+        
+        int[] h = new int[A.length];
+        h[0] = 0;
+        h[A.length - 1] = 0;
+        
+        // update the left highest border
+        int highest = 0;
+        for (int i = 1; i < A.length - 1; i++) {
+            highest = Math.max(highest, A[i - 1]);
+            h[i] = highest;
+        }
+        
+        // update the right highest border
+        highest = 0;
+        for (int i = A.length - 2; i > 0; i--) {
+            highest = Math.max(highest, A[i + 1]);
+            // choose the lower border between left and right
+            h[i] = Math.min(h[i], highest);
+        }
+        
+        // calculate the heights of the water and add them together
+        for (int i = 1; i < A.length - 1; i++) {
+            h[i] = Math.max(h[i] - A[i], 0);
+            sum += h[i];
+        }
+        
+        return sum;
+    }
+    
+    /**
+	 * Length of Last Word
+	 * 
+	 * Given a string s consists of upper/lower-case alphabets and empty space
+	 * characters ' ', return the length of last word in the string.
+	 * 
+	 * If the last word does not exist, return 0.
+	 * 
+	 * Note: A word is defined as a character sequence consists of non-space
+	 * characters only.
+	 * 
+	 * For example, Given s = "Hello World", return 5.
+	 */
+    public int lengthOfLastWord(String s) {
+        int length = 0;
+        int index = s.length() - 1;
+        
+        // ignore the white space at the end of the string
+        while (index >= 0 && s.charAt(index) == ' ') {
+            index--;
+        }
+        
+        // calculate the length of the last word
+        while (index >= 0) {
+            if (s.charAt(index) == ' ') {
+                break;
+            } else {
+                length++;
+                index--;
+            }
+        }
+        
+        return length;
+    }
+    
+    /**
+	 * Subsets
+	 * 
+	 * Given a set of distinct integers, S, return all possible subsets.
+	 * 
+	 * Note: Elements in a subset must be in non-descending order. The solution
+	 * set must not contain duplicate subsets.
+	 */
+    public ArrayList<ArrayList<Integer>> subsets(int[] S) {
+        ArrayList<ArrayList<Integer>> sets = new ArrayList<ArrayList<Integer>>();
+        
+        // empty S
+        if (S.length == 0) {
+            return sets;
+        } else {
+            Arrays.sort(S);
+        }
+        
+        // add initial empty set
+        sets.add(new ArrayList<Integer>());
+        
+        // add one element to subsets at one time
+        for (int i = 0; i < S.length; i++) {
+            // add the new element to old subsets to construct new ones
+            ArrayList<ArrayList<Integer>> newSubsets = new ArrayList<ArrayList<Integer>>();
+            for (ArrayList<Integer> subset : sets) {
+                ArrayList<Integer> newSubset = new ArrayList<Integer>(subset);
+                newSubset.add(S[i]);
+                newSubsets.add(newSubset);
+            }
+            sets.addAll(newSubsets);
+        }
+        
+        return sets;
+    }
+    
+    /**
+     * Subsets II
+     * 
+     * 
+     */
+    public ArrayList<ArrayList<Integer>> subsetsWithDup(int[] num) {
+        ArrayList<ArrayList<Integer>> sets = new ArrayList<ArrayList<Integer>>();
+        
+        // empty Array num
+        if (num.length == 0) {
+            return sets;
+        } else {
+            Arrays.sort(num);
+        }
+        
+        // add initial empty set
+        sets.add(new ArrayList<Integer>());
+        
+        // add one element to subsets at one time
+        for (int i = 0; i < num.length; i++) {
+            int dup = 1;
+            while (i + 1 < num.length && num[i] == num[i + 1]) {
+                i++;
+                dup++;
+            }
+            
+            // add the new element to old subsets to construct new ones
+            ArrayList<ArrayList<Integer>> oldSubsets = sets;
+            while (dup > 0) {
+                ArrayList<ArrayList<Integer>> newSubsets = new ArrayList<ArrayList<Integer>>();
+                
+                for (ArrayList<Integer> subset : oldSubsets) {
+                    // add new subset only if the old one contains the new number
+                    ArrayList<Integer> newSubset = new ArrayList<Integer>(subset);
+                    newSubset.add(num[i]);
+                    newSubsets.add(newSubset);
+                }
+                
+                // add new generated subsets to result
+                sets.addAll(newSubsets);
+                // update oldSubsets
+                oldSubsets = newSubsets;
+                
+                dup--;
+            }
+        }
+        
+        return sets;
+    }
+    
+	/**
+	 * Longest Common Prefix
+	 * 
+	 * Write a function to find the longest common prefix string amongst an
+	 * array of strings.
+	 */
+    public String longestCommonPrefix(String[] strs) {
+        if (strs.length == 0) {
+            return "";
+        }
+        
+        // use StringBuffer to store every temporary prefix
+        StringBuffer prefix = new StringBuffer();
+        prefix.append(strs[0]);
+        
+        for (int i = 1; i < strs.length; i++) {
+            String s = strs[i];
+            
+            // trim the size of the prefix
+            if (s.length() < prefix.length()) {
+                prefix.delete(s.length(), prefix.length());
+            }
+            
+            // compare the old prefix and new string
+            for (int j = 0; j < prefix.length(); j++) {
+                if (prefix.charAt(j) != s.charAt(j)) {
+                    prefix.delete(j, prefix.length());
+                    break;
+                }
+            }
+            
+            // prefix become empty string means no new prefix any more
+            if (prefix.length() == 0) {
+                break;
+            }
+        }
+        
+        return prefix.toString();
+    }
+    
 	public void test() {
 		// int[] A = { 1, 2, 3, 3, 4, 4, 5 };
 		// int[][] matrix = {{0,0,0,5},{4,3,1,4},{0,1,1,4},{1,2,1,3},{0,0,1,1}};
-		int x = -2147447412;
-		System.out.println(isPalindrome(x));
+		int[] A = {0};
+		System.out.println(subsetsWithDup(A));
 	}
 
 	public static void main(String[] args) {
