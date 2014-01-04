@@ -1167,6 +1167,49 @@ public class Problems {
 	}
 
 	/**
+	 * Convert Sorted List to Binary Search Tree
+	 * 
+	 * Given a singly linked list where elements are sorted in ascending order,
+	 * convert it to a height balanced BST.
+	 */
+	public TreeNode sortedListToBST(ListNode head) {
+        if (head == null) {
+            return null;
+        }
+        
+        // convert the list to ArrayList
+        ArrayList<Integer> list = new ArrayList<Integer>();
+        while (head != null) {
+            list.add(head.val);
+            head = head.next;
+        }
+        
+        // recursively construct the binary search tree
+        return sortedListToBST(list, 0, list.size() - 1);
+    }
+    
+    public TreeNode sortedListToBST(ArrayList<Integer> list, int start, int end) {
+        // only 1 element
+        if (start == end) {
+            return new TreeNode(list.get(start));
+        }
+        
+        // only 2 elements
+        if (end - start == 1) {
+            TreeNode root = new TreeNode(list.get(end));
+            root.left = new TreeNode(list.get(start));
+            return root;
+        }
+        
+        // 3 or more elements
+        int mid = (start + end) / 2;
+        TreeNode root = new TreeNode(list.get(mid));
+        root.left = sortedListToBST(list, start, mid - 1);
+        root.right = sortedListToBST(list, mid + 1, end);
+        return root;
+    }
+    
+	/**
 	 * Pascal's Triangle
 	 * 
 	 * Given numRows, generate the first numRows of Pascal's triangle.
@@ -1693,6 +1736,66 @@ public class Problems {
 		
 		return pathNum[m-1][n-1];
 	}
+	
+	/**
+	 * Unique Paths II
+	 * 
+	 * Follow up for "Unique Paths":
+	 * 
+	 * Now consider if some obstacles are added to the grids. How many unique
+	 * paths would there be?
+	 * 
+	 * An obstacle and empty space is marked as 1 and 0 respectively in the
+	 * grid.
+	 * 
+	 * Note: You can only move either down or right at any point in time.
+	 */
+	public int uniquePathsWithObstacles(int[][] obstacleGrid) {
+        int m = obstacleGrid.length;
+        if (m == 0) {
+            return 0;
+        }
+        
+        int n = obstacleGrid[0].length;
+        if (n == 0) {
+            return 0;
+        }
+        
+        // construct the cache matrix
+        int[][] pathNum = new int[m][n];
+        
+        // fill the first column
+        pathNum[0][0] = (obstacleGrid[0][0] == 0 ? 1 : 0);
+        for (int i = 1; i < m; i++) {
+            if (pathNum[i - 1][0] == 0 || obstacleGrid[i][0] == 1) {
+                pathNum[i][0] = 0;
+            } else {
+                pathNum[i][0] = 1;
+            }
+        }
+        
+        // fill the first row
+        for (int i = 1; i < n; i++) {
+            if (pathNum[0][i - 1] == 0 || obstacleGrid[0][i] == 1) {
+                pathNum[0][i] = 0;
+            } else {
+                pathNum[0][i] = 1;
+            }
+        }
+        
+        // fill all the remaining
+        for (int i = 1; i < m; i++) {
+            for (int j = 1; j < n; j++) {
+                if (obstacleGrid[i][j] == 1) {
+                    pathNum[i][j] = 0;
+                } else {
+                    pathNum[i][j] = pathNum[i - 1][j] + pathNum[i][j - 1];
+                }
+            }
+        }
+        
+        return pathNum[m - 1][n - 1];
+    }
 	
 	/**
 	 * Rotate Image
@@ -2673,11 +2776,336 @@ public class Problems {
         return prefix.toString();
     }
     
+    /**
+	 * Jump Game
+	 * 
+	 * Given an array of non-negative integers, you are initially positioned at
+	 * the first index of the array.
+	 * 
+	 * Each element in the array represents your maximum jump length at that
+	 * position.
+	 * 
+	 * Determine if you are able to reach the last index.
+	 * 
+	 * For example: A = [2,3,1,1,4], return true. A = [3,2,1,0,4], return false.
+	 */
+    public boolean canJump(int[] A) {
+        // farthest distance can be reach
+        int distance = 0;
+        
+        // traverse A to update the distance
+        for (int i = 0; i < A.length && i <= distance; i++) {
+            distance = Math.max(distance, i + A[i]);
+        }
+        
+        return distance >= A.length - 1;
+    }
+    
+    /**
+	 * Jump Game II
+	 * 
+	 * Given an array of non-negative integers, you are initially positioned at
+	 * the first index of the array.
+	 * 
+	 * Each element in the array represents your maximum jump length at that
+	 * position.
+	 * 
+	 * Your goal is to reach the last index in the minimum number of jumps.
+	 * 
+	 * For example: Given array A = [2,3,1,1,4]. The minimum number of jumps to
+	 * reach the last index is 2. (Jump 1 step from index 0 to 1, then 3 steps
+	 * to the last index.)
+	 */
+    public int jump(int[] A) {
+        // store the shortest number of step to every position
+        int[] step = new int[A.length];
+        
+        // initial step
+        step[0] = 0;
+        for (int i = 1; i < step.length; i++) {
+            step[i] = Integer.MAX_VALUE;
+        }
+        
+        // update step base on A
+        for (int j = 1; j <= A[0] && j < step.length; j++) {
+            step[j] = Math.min(step[j], step[0] + 1);
+        }
+        
+        for (int i = 1; i < A.length; i++) {
+            if (A[i] >= A[i - 1]) {
+                for (int j = i + 1; j <= i + A[i] && j < step.length; j++) {
+                    step[j] = Math.min(step[j], step[i] + 1);
+                }
+            }
+        }
+        
+        return step[step.length - 1];
+    }
+    
+    /**
+	 * Search for a Range
+	 * 
+	 * Given a sorted array of integers, find the starting and ending position
+	 * of a given target value.
+	 * 
+	 * Your algorithm's runtime complexity must be in the order of O(log n).
+	 * 
+	 * If the target is not found in the array, return [-1, -1].
+	 * 
+	 * For example, Given [5, 7, 7, 8, 8, 10] and target value 8, return [3, 4].
+	 */
+    public int[] searchRange(int[] A, int target) {
+        int[] range = new int[2];
+        
+        // empty A
+        if (A.length == 0) {
+            range[0] = -1;
+            range[1] = -1;
+            return range;
+        }
+
+        range[0] = searchStart(A, target, 0, A.length - 1);
+        range[1] = range[0] == -1 ? -1 : searchEnd(A, target, range[0], A.length - 1);
+        
+        return range;
+    }
+
+    public int searchStart(int[] A, int target, int left, int right) {
+        // base case
+        if (left == right) {
+            if (A[left] == target) {
+                return left;
+            } else {
+                return -1;
+            }
+        }
+        
+        // recursive search
+        int mid = (left + right) / 2; // tend to choose left mid
+        if (A[mid] >= target) {
+            return searchStart(A, target, left, mid);
+        } else {
+            return searchStart(A, target, mid + 1, right);
+        }
+    }
+    
+    public int searchEnd(int[] A, int target, int left, int right) {
+        // base case
+        if (left == right) {
+            if (A[left] == target) {
+                return left;
+            } else {
+                return -1;
+            }
+        }
+        
+        // recursive search
+        int mid = (left + right + 1) / 2; // tend to choose right mid
+        if (A[mid] <= target) {
+            return searchEnd(A, target, mid, right);
+        } else {
+            return searchEnd(A, target, left, mid - 1);
+        }
+    }
+    
+    /**
+	 * Valid Sudoku
+	 * 
+	 * Determine if a Sudoku is valid, according to: Sudoku Puzzles - The Rules.
+	 * 
+	 * The Sudoku board could be partially filled, where empty cells are filled
+	 * with the character '.'.
+	 */
+    public boolean isValidSudoku(char[][] board) {
+        // check board size
+        int m = board.length;
+        if (m != 9) {
+            return false;
+        }
+        int n = board[0].length;
+        if (n != 9) {
+            return false;
+        }
+        
+        // 1 to 9 array, used for duplication check
+        boolean[] flag = new boolean[9];
+        
+        // check each row
+        for (int i = 0; i < m; i++) {
+            // check row i
+            for (int j = 0; j < n; j++) {
+                // the element is valid number
+                int num = board[i][j] - 48; // '0' is 48
+                if (num >= 1 && num <= 9) {
+                    if (flag[num - 1] == true) {
+                        return false;
+                    } else {
+                        flag[num - 1] = true;
+                    }
+                }
+            }
+            
+            // reset the flag array to all false
+            resetArray(flag);
+        }
+        
+        // check each column
+        for (int j = 0; j < n; j++) {
+            // check column j
+            for (int i = 0; i < m; i++) {
+                // the element is valid number
+                int num = board[i][j] - 48; // '0' is 48
+                if (num >= 1 && num <= 9) {
+                    if (flag[num - 1] == true) {
+                        return false;
+                    } else {
+                        flag[num - 1] = true;
+                    }
+                }
+            }
+            
+            // reset the flag array to all false
+            resetArray(flag);
+        }
+        
+        // check each unit
+        for (int i = 0; i < m; i += 3) {
+            for (int j = 0; j < n; j += 3) {
+                
+                // traverse 9 grids in one unit
+                for (int p = i; p < i + 3; p++) {
+                    for (int q = j; q < j + 3; q++) {
+                        // the element is valid number
+                        int num = board[p][q] - 48; // '0' is 48
+                        if (num >= 1 && num <= 9) {
+                            if (flag[num - 1] == true) {
+                                return false;
+                            } else {
+                                flag[num - 1] = true;
+                            }
+                        }
+                    }
+                }
+                
+                // reset flag array
+                resetArray(flag);
+            }
+        }
+        
+        return true;
+    }
+    
+    public void resetArray(boolean[] A) {
+        for (int i = 0; i < A.length; i++) {
+            A[i] = false;
+        }
+    }
+    
+    /**
+	 * Reverse Linked List II
+	 * 
+	 * Reverse a linked list from position m to n. Do it in-place and in
+	 * one-pass.
+	 * 
+	 * For example: Given 1->2->3->4->5->NULL, m = 2 and n = 4, return
+	 * 1->4->3->2->5->NULL.
+	 * 
+	 * Note: m, n satisfy the following condition: 1 ¡Ü m ¡Ü n ¡Ü length of list.
+	 */
+    public ListNode reverseBetween(ListNode head, int m, int n) {
+        if (head == null) {
+            return null;
+        } else if (m == n) {
+            return head;
+        }
+        
+        // dummy head
+        ListNode dummy = new ListNode(0);
+        dummy.next = head;
+        head = dummy;
+        
+        // find the node before the first one we want to reverse
+        ListNode left = head;
+        for (int i = 0; i < m - 1; i++) {
+            left = left.next;
+        }
+        
+        // mark the last one in the reversed part
+        ListNode tail = left.next;
+        
+        // reverse the node from m to n
+        ListNode prev = tail;
+        ListNode current = tail.next;
+        for (int i = 0; i < n - m - 1; i++) {
+            ListNode next = current.next;
+            current.next = prev;
+            prev = current;
+            current = next;
+        }
+        
+        // connect the reversed part with its left and right parts
+        tail.next = current.next;
+        current.next = prev;
+        left.next = current;
+        
+        return head.next;
+    }
+    
+    /**
+	 * Count and Say
+	 * 
+	 * The count-and-say sequence is the sequence of integers beginning as
+	 * follows:
+	 * 1, 11, 21, 1211, 111221, ...
+	 * 
+	 * 1 is read off as "one 1" or 11.
+	 * 11 is read off as "two 1s" or 21.
+	 * 21 is read off as "one 2, then one 1" or 1211.
+	 * 
+	 * Given an integer n, generate the nth sequence.
+	 * 
+	 * Note: The sequence of integers will be represented as a string.
+	 */
+    public String countAndSay(int n) {
+        StringBuffer result = new StringBuffer("1");
+        
+        for (int i = 2; i <= n; i++) {
+            int index = 0;
+            
+            // construct new StringBuffer to store new string
+            StringBuffer newLine= new StringBuffer();
+            
+            // traverse the previous string
+            while (index < result.length()) {
+                // select the new number to count
+                char num = result.charAt(index);
+                int count = 1;
+                index++;
+                
+                // count the number
+                while (index < result.length() && result.charAt(index) == num) {
+                    count++;
+                    index++;
+                }
+                
+                // append the count of the number to end of current string
+                newLine.append(count);
+                newLine.append(num);
+            }
+            
+            // update the result
+            result = newLine;
+        }
+        
+        return result.toString();
+    }
+    
 	public void test() {
 		// int[] A = { 1, 2, 3, 3, 4, 4, 5 };
 		// int[][] matrix = {{0,0,0,5},{4,3,1,4},{0,1,1,4},{1,2,1,3},{0,0,1,1}};
-		int[] A = {0};
-		System.out.println(subsetsWithDup(A));
+		char[][] board = {{'.','8','7','6','5','4','3','2','1'},{'2','.','.','.','.','.','.','.','.'},{'3','.','.','.','.','.','.','.','.'},{'4','.','.','.','.','.','.','.','.'},{'5','.','.','.','.','.','.','.','.'},{'6','.','.','.','.','.','.','.','.'},{'7','.','.','.','.','.','.','.','.'},{'8','.','.','.','.','.','.','.','.'},{'9','.','.','.','.','.','.','.','.'}};
+
+		System.out.println(isValidSudoku(board));		
 	}
 
 	public static void main(String[] args) {
