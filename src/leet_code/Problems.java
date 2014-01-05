@@ -3,6 +3,8 @@ package leet_code;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.Map;
 import java.util.Queue;
@@ -769,7 +771,7 @@ public class Problems {
 
 		return lob;
 	}
-
+	
 	/**
 	 * Remove Element
 	 * 
@@ -3076,7 +3078,7 @@ public class Problems {
             StringBuffer newLine= new StringBuffer();
             
             // traverse the previous string
-            while (index < result.length()) {
+			while (index < result.length()) {
                 // select the new number to count
                 char num = result.charAt(index);
                 int count = 1;
@@ -3100,12 +3102,186 @@ public class Problems {
         return result.toString();
     }
     
+    /**
+	 * Longest Consecutive Sequence
+	 * 
+	 * Given an unsorted array of integers, find the length of the longest
+	 * consecutive elements sequence.
+	 * 
+	 * For example, Given [100, 4, 200, 1, 3, 2], The longest consecutive
+	 * elements sequence is [1, 2, 3, 4]. Return its length: 4.
+	 * 
+	 * Your algorithm should run in O(n) complexity.
+	 */
+    public int longestConsecutive(int[] num) {
+        HashSet<Integer> set = new HashSet<Integer>();
+        
+        // add all elements in num to the set
+        for (int i = 0; i < num.length; i++) {
+            set.add(num[i]);
+        }
+        
+        int max = 0;
+        
+        // while the set have more elements, search left and right
+        while (set.size() > 0) {
+        	Iterator<Integer> iter = set.iterator();
+            int n = iter.next();
+            int count = 1;
+            iter.remove();
+            
+            // search left
+            for (int i = n - 1; set.contains(i); i--) {
+                count++;
+                set.remove(i);
+            }
+            
+            // search right
+            for (int i = n + 1; set.contains(i); i++) {
+                count++;
+                set.remove(i);
+            }
+            
+            max = Math.max(count, max);
+        }
+        
+        return max;
+    }
+    
+    /**
+	 * Partition List
+	 * 
+	 * Given a linked list and a value x, partition it such that all nodes less
+	 * than x come before nodes greater than or equal to x.
+	 * 
+	 * You should preserve the original relative order of the nodes in each of
+	 * the two partitions.
+	 * 
+	 * For example, Given 1->4->3->2->5->2 and x = 3, return 1->2->2->4->3->5.
+	 */
+    public ListNode partition(ListNode head, int x) {
+        if (head == null) {
+            return null;
+        }
+        
+        // construct a list store all node greater or equals to x
+        ListNode greaterHead = null;
+        ListNode greaterTail = null;
+        
+        // construct a dummy node to be head
+        ListNode dummy = new ListNode(x - 1);
+        dummy.next = head;
+        head = dummy;
+        ListNode current = head;
+
+        // find the first node belongs to the greater part
+        while (current.next != null && current.next.val < x) {
+            current = current.next;
+        }
+        
+        // if no node have val greater or equals to x
+        if (current.next == null) {
+            return head.next;
+        } else { // find the first one, add it to greater list
+            greaterHead = current.next;
+            greaterTail = current.next;
+            current.next = current.next.next;
+        }
+        
+        // traverse remaining nodes, add greater node to greater list
+        while (current.next != null) {
+            if (current.next.val >= x) {
+                greaterTail.next = current.next;
+                greaterTail = greaterTail.next;
+                current.next = current.next.next;
+            } else {
+                current = current.next;
+            }
+        }
+        
+        // connect the greater list next to the original list
+        current.next = greaterHead;
+        greaterTail.next = null;
+        
+        return head.next;
+    }
+    
+    /**
+     * Flatten Binary Tree to Linked List
+     * 
+     * Given a binary tree, flatten it to a linked list in-place.
+     * 
+     * For example, given
+     *          1
+     *         / \
+     *        2   5
+     *       / \   \
+     *      3   4   6
+     * The flattened tree should look like:
+     * 1
+     *  \
+     *   2
+     *    \
+     *     3
+     *      \
+     *       4
+     *        \
+     *         5
+     *          \
+     *           6
+     */
+    private static TreeNode lastVisited = null;
+    
+    public void flattenRecursive(TreeNode root) {
+        if (root == null) return;
+    	
+        lastVisited = root;
+        TreeNode right = root.right;
+        
+        root.right = root.left;
+        root.left = null;
+        flattenRecursive(root.right);
+        
+        lastVisited.right = right;
+        flattenRecursive(right);
+    }
+    
+    public void flatten(TreeNode root) {
+        if (root == null) return;
+        
+        Stack<TreeNode> stack = new Stack<TreeNode>();
+        
+        if (root.right != null) {
+            stack.push(root.right);
+        }
+        
+        if (root.left != null) {
+            stack.push(root.left);
+        }
+        
+        while (!stack.isEmpty()) {
+            TreeNode n = stack.pop();
+            
+            if (n.right != null) {
+                stack.push(n.right);
+            }
+            
+            if (n.left != null) {
+                stack.push(n.left);
+            }
+            
+            root.left = null;
+            root.right = n;
+            root = root.right;
+        }
+    }
+    
 	public void test() {
 		// int[] A = { 1, 2, 3, 3, 4, 4, 5 };
 		// int[][] matrix = {{0,0,0,5},{4,3,1,4},{0,1,1,4},{1,2,1,3},{0,0,1,1}};
-		char[][] board = {{'.','8','7','6','5','4','3','2','1'},{'2','.','.','.','.','.','.','.','.'},{'3','.','.','.','.','.','.','.','.'},{'4','.','.','.','.','.','.','.','.'},{'5','.','.','.','.','.','.','.','.'},{'6','.','.','.','.','.','.','.','.'},{'7','.','.','.','.','.','.','.','.'},{'8','.','.','.','.','.','.','.','.'},{'9','.','.','.','.','.','.','.','.'}};
-
-		System.out.println(isValidSudoku(board));		
+		//char[][] board = {{'.','8','7','6','5','4','3','2','1'},{'2','.','.','.','.','.','.','.','.'},{'3','.','.','.','.','.','.','.','.'},{'4','.','.','.','.','.','.','.','.'},{'5','.','.','.','.','.','.','.','.'},{'6','.','.','.','.','.','.','.','.'},{'7','.','.','.','.','.','.','.','.'},{'8','.','.','.','.','.','.','.','.'},{'9','.','.','.','.','.','.','.','.'}};
+		int[] a = {0, -1};
+		System.out.println(longestConsecutive(a));		
 	}
 
 	public static void main(String[] args) {
