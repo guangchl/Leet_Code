@@ -773,6 +773,58 @@ public class Problems {
 	}
 	
 	/**
+	 * Binary Tree Zigzag Level Order Traversal
+	 * 
+	 * Given a binary tree, return the zigzag level order traversal of its
+	 * nodes' values. (ie, from left to right, then right to left for the next
+	 * level and alternate between).
+	 */
+	public ArrayList<ArrayList<Integer>> zigzagLevelOrder(TreeNode root) {
+        ArrayList<ArrayList<Integer>> levels = new ArrayList<ArrayList<Integer>>();
+        
+        if (root == null) {
+            return levels;
+        }
+        
+        ArrayList<TreeNode> levelNodes = new ArrayList<TreeNode>();
+        levelNodes.add(root);
+        
+        // indicate the node should be add from right to left
+        boolean leftDirection = false;
+
+        while (!levelNodes.isEmpty()) {
+            ArrayList<TreeNode> newLevelNodes = new ArrayList<TreeNode>();
+            ArrayList<Integer> level = new ArrayList<Integer>();
+            
+            if (leftDirection) {
+                for (int i = levelNodes.size() - 1; i >= 0; i--) {
+                    level.add(levelNodes.get(i).val);
+                }
+            } else {
+                for (TreeNode n : levelNodes) {
+                    level.add(n.val);
+                }
+            }
+            
+            for (TreeNode n : levelNodes) {
+                if (n.left != null) {
+                    newLevelNodes.add(n.left);
+                }
+                
+                if (n.right != null) {
+                    newLevelNodes.add(n.right);
+                }
+            }
+
+            levels.add(level);
+            leftDirection = !leftDirection;
+            levelNodes = newLevelNodes;
+        }
+        
+        return levels;
+    }
+
+	/**
 	 * Remove Element
 	 * 
 	 * Given an array and a value, remove all instances of that value in place
@@ -3274,6 +3326,258 @@ public class Problems {
             root.right = n;
             root = root.right;
         }
+    }
+    
+    /**
+	 * Triangle
+	 * 
+	 * Given a triangle, find the minimum path sum from top to bottom. Each step
+	 * you may move to adjacent numbers on the row below.
+	 * 
+	 * Note: Bonus point if you are able to do this using only O(n) extra space,
+	 * where n is the total number of rows in the triangle.
+	 */
+    public int minimumTotal(ArrayList<ArrayList<Integer>> triangle) {
+        int depth = triangle.size();
+        int[] minPath = new int[depth];
+        
+        // start from the last level
+        ArrayList<Integer> lastLevel = triangle.get(depth - 1);
+        for (int i = 0; i < depth; i++) {
+            minPath[i] = lastLevel.get(i);
+        }
+        
+        // calculate the minimum path to each node
+        for (int i = depth - 2; i >= 0; i--) {
+            ArrayList<Integer> level = triangle.get(i);
+            
+            for (int j = 0; j < level.size(); j++) {
+                minPath[j] = level.get(j) + Math.min(minPath[j], minPath[j + 1]);
+            }
+        }
+        
+        return minPath[0];
+    }
+    
+    /**
+	 * Combination Sum
+	 * 
+	 * Given a set of candidate numbers (C) and a target number (T), find all
+	 * unique combinations in C where the candidate numbers sums to T.
+	 * 
+	 * The same repeated number may be chosen from C unlimited number of times.
+	 * 
+	 * Note: All numbers (including target) will be positive integers. Elements
+	 * in a combination (a1, a2, ... , ak) must be in non-descending order. (ie,
+	 * a1 ¡Ü a2 ¡Ü ... ¡Ü ak). The solution set must not contain duplicate
+	 * combinations.
+	 * 
+	 * For example, given candidate set 2,3,6,7 and target 7, A solution set is:
+	 * [7] [2, 2, 3]
+	 */
+    public ArrayList<ArrayList<Integer>> combinationSum(int[] candidates, int target) {
+        ArrayList<ArrayList<Integer>> lists = new ArrayList<ArrayList<Integer>>();
+        
+        Arrays.sort(candidates);
+        combinationSum(candidates, 0, target, new ArrayList<Integer>(), lists);
+        
+        return lists;
+    }
+    
+    public void combinationSum(int[] candidates, int start, int target, ArrayList<Integer> list, ArrayList<ArrayList<Integer>> lists) {
+        if (target == 0) {
+            lists.add(list);
+            return;
+        }
+        
+        if (start == candidates.length || target < 0) {
+            return;
+        }
+        
+        for (int i = start; i < candidates.length; i++) {
+            ArrayList<Integer> newList = new ArrayList<Integer>(list);
+            newList.add(candidates[i]);
+            combinationSum(candidates, i, target - candidates[i], newList, lists);
+        }
+    }
+    
+    /**
+	 * Combination Sum II
+	 * 
+	 * Given a collection of candidate numbers (C) and a target number (T), find
+	 * all unique combinations in C where the candidate numbers sums to T.
+	 * 
+	 * Each number in C may only be used once in the combination.
+	 * 
+	 * Note: All numbers (including target) will be positive integers. Elements
+	 * in a combination (a1, a2, ... , ak) must be in non-descending order. (ie,
+	 * a1 ¡Ü a2 ¡Ü ... ¡Ü ak). The solution set must not contain duplicate
+	 * combinations.
+	 * 
+	 * For example, given candidate set 10,1,2,7,6,1,5 and target
+	 * 8, A solution set is: [1, 7] [1, 2, 5] [2, 6] [1, 1, 6]
+	 */
+    public ArrayList<ArrayList<Integer>> combinationSum2(int[] num, int target) {
+        ArrayList<ArrayList<Integer>> lists = new ArrayList<ArrayList<Integer>>();
+        
+        Arrays.sort(num);
+        combinationSum(num, 0, target, new ArrayList<Integer>(), lists);
+        
+        return lists;
+    }
+    
+    public void combinationSum2(int[] num, int start, int target, ArrayList<Integer> list, ArrayList<ArrayList<Integer>> lists) {
+        if (target == 0) {
+            lists.add(list);
+            return;
+        }
+        
+        if (start == num.length || target < 0) {
+            return;
+        }
+        
+        for (int i = start; i < num.length;) {
+            int end = i;
+            while (end + 1 < num.length && num[end + 1] == num[end]) {
+                end++;
+            }
+            
+            int savedTarget = target;
+            ArrayList<Integer> addList = new ArrayList<Integer>(list);
+            
+            for (; i <= end; i++) {
+                addList.add(num[i]);
+                ArrayList<Integer> newList = new ArrayList<Integer>(addList);
+                target -= num[i];
+                combinationSum(num, end + 1, target, newList, lists);
+            }
+            
+            target = savedTarget;
+        }
+    }
+    
+    /**
+     * Pow(x, n)
+     * 
+     * Implement pow(x, n).
+     */
+    public double pow(double x, int n) {
+        if (n == 0) {
+            return 1;
+        } else if (n == 1) {
+            return x;
+        } else if (n == -1) {
+            return 1 / x;
+        }
+        
+        double u = pow(x, n / 2);
+        double result = u * u;
+        
+        if (n % 2 == 1) {
+            result *= x;
+        } else if (n % 2 == -1) {
+            result /= x;
+        }
+        
+        return result;
+    }
+    
+    /**
+	 * Validate Binary Search Tree
+	 * 
+	 * Given a binary tree, determine if it is a valid binary search tree (BST).
+	 * 
+	 * Assume a BST is defined as follows: The left subtree of a node contains
+	 * only nodes with keys less than the node's key. The right subtree of a
+	 * node contains only nodes with keys greater than the node's key. Both the
+	 * left and right subtrees must also be binary search trees.
+	 */
+    public boolean isValidBST(TreeNode root) {
+        return isBST(root, Integer.MIN_VALUE, Integer.MAX_VALUE);
+    }
+    
+    public boolean isBST(TreeNode root, int min, int max) {
+        if (root == null) {
+            return true;
+        }
+
+        return root.val > min && root.val < max && isBST(root.left, min, root.val) && isBST(root.right, root.val, max);
+    }
+    
+    /**
+	 * Next Permutation
+	 * 
+	 * Implement next permutation, which rearranges numbers into the
+	 * lexicographically next greater permutation of numbers.
+	 * 
+	 * If such arrangement is not possible, it must rearrange it as the lowest
+	 * possible order (ie, sorted in ascending order).
+	 * 
+	 * The replacement must be in-place, do not allocate extra memory.
+	 * 
+	 * Here are some examples. Inputs are in the left-hand column and its
+	 * corresponding outputs are in the right-hand column.
+	 * 1,2,3 ¡ú 1,3,2
+	 * 3,2,1 ¡ú 1,2,3
+	 * 1,1,5 ¡ú 1,5,1
+	 */
+    public void nextPermutation(int[] num) {
+        int maxIndex = num.length - 1;
+        
+        int i;
+        for (i = num.length - 2; i >= 0; i--) {
+            // find the first position which should be changed
+            if (num[i] < num[maxIndex]) {
+                // find the minimum among all number larger than num[i]
+                int greaterMin = maxIndex;
+                for (int j = i + 1; j < num.length; j++) {
+                    if (num[j] > num[i] && num [j] < num[greaterMin]) {
+                        greaterMin = j;
+                    }
+                }
+                
+                // swap the num[i] and the number we found
+                int temp = num[i];
+                num[i] = num[greaterMin];
+                num[greaterMin] = temp;
+                break;
+            } else {
+                maxIndex = i;
+            }
+        }
+        
+        Arrays.sort(num, i + 1, num.length);
+    }
+    
+    /**
+	 * Add Binary
+	 * 
+	 * Given two binary strings, return their sum (also a binary string).
+	 * 
+	 * For example, a = "11" b = "1" Return "100".
+	 */
+    public String addBinary(String a, String b) {
+        int aEnd = a.length() - 1;
+        int bEnd = b.length() - 1;
+        
+        StringBuffer sb = new StringBuffer();
+        
+        int carry = 0;
+        while (aEnd >= 0 || bEnd >= 0) {
+            int aInt = (aEnd >= 0) ? a.charAt(aEnd--) - 48 : 0;
+            int bInt = (bEnd >= 0) ? b.charAt(bEnd--) - 48 : 0;
+            
+            int sum = carry + aInt + bInt;
+            
+            carry = sum / 2;
+            sb.append(sum % 2);
+        }
+        
+        if (carry == 1) {
+            sb.append(1);
+        }
+        
+        return sb.reverse().toString();
     }
     
 	public void test() {
