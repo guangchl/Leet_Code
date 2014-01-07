@@ -8,6 +8,7 @@ import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.Map;
 import java.util.Queue;
+import java.util.Set;
 import java.util.Stack;
 
 public class Problems {
@@ -3795,6 +3796,35 @@ public class Problems {
                 if(s.charAt(i) == s.charAt(j) && (j <= i+2 || isPal[i+1][j-1])) {
                     isPal[i][j] = true;
                     dp[i] = Math.min(dp[i], dp[j+1] + 1);
+                }
+            }
+        }
+        return dp[0];
+    }
+    
+    /**
+	 * Word Break
+	 * 
+	 * Given a string s and a dictionary of words dict, determine if s can be
+	 * segmented into a space-separated sequence of one or more dictionary
+	 * words.
+	 * 
+	 * For example, given s = "leetcode", dict = ["leet", "code"].
+	 * Return true because "leetcode" can be segmented as "leet code".
+	 * 
+	 * Bottom up DP seems quick useful
+	 */
+    public boolean wordBreak(String s, Set<String> dict) {
+        int len = s.length();
+        boolean[] dp = new boolean[len + 1];
+        dp[len] = true;
+
+        for (int i = len - 1; i >= 0; i--) {
+            for (int j = i; j < len; j++) {
+                String str = s.substring(i,j + 1);
+                if (dict.contains(str) && dp[j + 1]) {
+                    dp[i] = true;
+                    break;
                 }
             }
         }
