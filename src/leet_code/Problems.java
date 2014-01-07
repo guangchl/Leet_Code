@@ -3483,6 +3483,48 @@ public class Problems {
     }
     
     /**
+	 * Sqrt(x)
+	 * 
+	 * Implement int sqrt(int x).
+	 * 
+	 * Compute and return the square root of x.
+	 */
+    public int sqrt(int x) {
+        if (x == 0) return 0;
+        
+        // calculate the number of digits in x
+        int copy = x;
+        int digits = 0;
+        while (copy > 0) {
+            copy /= 10;
+            digits++;
+        }
+        
+        // calculate the number of digits in result
+        digits = (digits + 1) / 2;
+        
+        // calculate the range of result
+        int l = 1;
+        while (--digits > 0) {
+            l *= 10;
+        }
+        int r = l * 10 - 1;
+        
+        // binary search for the result
+        while (r - l > 1) {
+            int mid = (l + r) / 2;
+            int n = mid * mid;
+            if (n > x || n < 0) {
+                r = mid;
+            } else {
+                l = mid;
+            }
+        }
+        
+        return l;
+    }    
+    
+    /**
 	 * Validate Binary Search Tree
 	 * 
 	 * Given a binary tree, determine if it is a valid binary search tree (BST).
@@ -3580,12 +3622,191 @@ public class Problems {
         return sb.reverse().toString();
     }
     
+    /**
+	 * Letter Combinations of a Phone Number
+	 * 
+	 * Given a digit string, return all possible letter combinations that the
+	 * number could represent.
+	 * 
+	 * Input:Digit string "23"
+	 * Output: ["ad", "ae", "af", "bd", "be", "bf", "cd", "ce", "cf"].
+	 */
+    public ArrayList<String> letterCombinations(String digits) {
+        ArrayList<String> combinations = new ArrayList<String>();
+        combinations.add("");
+
+        for (int i = 0; i < digits.length(); i++) {
+            // find the character to add
+            char c1, c2, c3;
+            char c4 = 0;
+            switch (digits.charAt(i)) {
+                case '2':
+                    c1 = 'a';
+                    c2 = 'b';
+                    c3 = 'c';
+                    break;
+                case '3':
+                    c1 = 'd';
+                    c2 = 'e';
+                    c3 = 'f';
+                    break;
+                case '4':
+                    c1 = 'g';
+                    c2 = 'h';
+                    c3 = 'i';
+                    break;
+                case '5':
+                    c1 = 'j';
+                    c2 = 'k';
+                    c3 = 'l';
+                    break;
+                case '6':
+                    c1 = 'm';
+                    c2 = 'n';
+                    c3 = 'o';
+                    break;
+                case '7':
+                    c1 = 'p';
+                    c2 = 'q';
+                    c3 = 'r';
+                    c4 = 's';
+                    break;
+                case '8':
+                    c1 = 't';
+                    c2 = 'u';
+                    c3 = 'v';
+                    break;
+                case '9':
+                    c1 = 'w';
+                    c2 = 'x';
+                    c3 = 'y';
+                    c4 = 'z';
+                    break;
+                default:
+                    c1 = 0;
+                    c2 = 0;
+                    c3 = 0;
+            }
+            
+            // add new characters to old strings
+            ArrayList<String> newCombinations = new ArrayList<String>();
+            for (String s : combinations) {
+                newCombinations.add(s + c1);
+                newCombinations.add(s + c2);
+                newCombinations.add(s + c3);
+                if (c4 != 0) {
+                    newCombinations.add(s + c4);
+                }
+            }
+            combinations = newCombinations;
+        }
+        
+        return combinations;
+    }
+    
+    /**
+	 * Palindrome Partitioning
+	 * 
+	 * Given a string s, partition s such that every substring of the partition
+	 * is a palindrome.
+	 * 
+	 * Return all possible palindrome partitioning of s.
+	 * 
+	 * For example, given s = "aab", Return [ ["aa","b"], ["a","a","b"] ]
+	 */
+    public ArrayList<ArrayList<String>> partition(String s) {
+        ArrayList<ArrayList<String>> partitions = new ArrayList<ArrayList<String>>();
+        
+        // separate every single letter
+        ArrayList<String> singleList = new ArrayList<String>();
+        for (int i = 0; i < s.length(); i++) {
+            singleList.add(s.substring(i, i + 1));
+        }
+        partitions.add(singleList);
+        
+        partition(new ArrayList<String>(singleList), 0, partitions);
+        return partitions;
+    }
+    
+    public void partition(ArrayList<String> list, int start, ArrayList<ArrayList<String>> partitions) {
+        for (int i = start; i < list.size() - 1; i++) {
+            // search combinations at every possible length
+            for (int j = i + 1; j < list.size(); j++) {
+                // test validness
+                int l = i, r = j;
+                while (l < r) {
+                    if (!areSymmetric(list.get(l), list.get(r))) {
+                        break;
+                    }
+                    l++;
+                    r--;
+                }
+                
+                // add new case if valid
+                if (l >= r) {
+                    ArrayList<String> newList = new ArrayList<String>(list.subList(0, i));
+                    String s = "";
+                    for (int k = i; k <= j; k++) {
+                        s += list.get(k);
+                    }
+                    newList.add(s);
+                    if (j + 1 < list.size()) {
+                        newList.addAll(list.subList(j + 1, list.size()));
+                    }
+                    partitions.add(newList);
+                    partition(new ArrayList<String>(newList), i, partitions);
+                }
+            }
+        }
+    }
+    
+    public boolean areSymmetric(String s1, String s2) {
+        if (s1.length() != s2.length()) return false;
+
+        int len = s1.length();
+        for (int i = 0; i < len; i++) {
+            if (s1.charAt(i) != s2.charAt(len - i - 1)) return false;
+        }
+        
+        return true;
+    }
+    
+    /**
+	 * Palindrome Partitioning II
+	 * 
+	 * Given a string s, partition s such that every substring of the partition
+	 * is a palindrome.
+	 * 
+	 * Return the minimum cuts needed for a palindrome partitioning of s.
+	 * 
+	 * For example, given s = "aab", Return 1 since the palindrome partitioning
+	 * ["aa","b"] could be produced using 1 cut.
+	 */
+    public int minCut(String s) {
+        int len = s.length();
+        boolean[][] isPal = new boolean[len][len];
+        int[] dp = new int[len + 1];
+        
+        for(int i = 0; i <= len; i++)
+            dp[i] = len - 1 - i;
+            
+        for(int i = len - 2; i >=0; i--) {
+            for(int j = i; j < len; j++) {
+                if(s.charAt(i) == s.charAt(j) && (j <= i+2 || isPal[i+1][j-1])) {
+                    isPal[i][j] = true;
+                    dp[i] = Math.min(dp[i], dp[j+1] + 1);
+                }
+            }
+        }
+        return dp[0];
+    }
+    
 	public void test() {
 		// int[] A = { 1, 2, 3, 3, 4, 4, 5 };
 		// int[][] matrix = {{0,0,0,5},{4,3,1,4},{0,1,1,4},{1,2,1,3},{0,0,1,1}};
 		//char[][] board = {{'.','8','7','6','5','4','3','2','1'},{'2','.','.','.','.','.','.','.','.'},{'3','.','.','.','.','.','.','.','.'},{'4','.','.','.','.','.','.','.','.'},{'5','.','.','.','.','.','.','.','.'},{'6','.','.','.','.','.','.','.','.'},{'7','.','.','.','.','.','.','.','.'},{'8','.','.','.','.','.','.','.','.'},{'9','.','.','.','.','.','.','.','.'}};
-		int[] a = {0, -1};
-		System.out.println(longestConsecutive(a));		
+		int x = 2147395599;
+		System.out.println(sqrt(x));
 	}
 
 	public static void main(String[] args) {
