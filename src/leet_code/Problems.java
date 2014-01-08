@@ -5,6 +5,7 @@ import java.util.Arrays;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
+import java.util.LinkedHashMap;
 import java.util.LinkedList;
 import java.util.Map;
 import java.util.Queue;
@@ -3831,12 +3832,454 @@ public class Problems {
         return dp[0];
     }
     
+    /**
+	 * Word Break II
+	 * 
+	 * Given a string s and a dictionary of words dict, add spaces in s to
+	 * construct a sentence where each word is a valid dictionary word.
+	 * 
+	 * Return all such possible sentences.
+	 * 
+	 * For example, given s = "catsanddog", dict = ["cat", "cats", "and",
+	 * "sand", "dog"].
+	 * 
+	 * A solution is ["cats and dog", "cat sand dog"].
+	 */
+	public ArrayList<String> wordBreak2(String s, Set<String> dict) {
+		ArrayList<String> result = new ArrayList<String>();
+
+		if (!WordBreak2(s, dict))
+			return result;
+
+		Set<Node> pending = new HashSet<Node>();
+
+		Node root = new Node("", 0);
+		pending.add(root);
+
+		while (pending.size() > 0) {
+			Set<Node> newPending = new HashSet<Node>();
+
+			for (Node node : pending) {
+				for (String word : dict) {
+					if (s.substring(node.CurrentLength, s.length()).startsWith(
+							word)) {
+						String sentence = node.CurrentSentence + " " + word;
+						int length = node.CurrentLength + word.length();
+						if (length == s.length()) {
+							result.add(sentence.substring(1, sentence.length()));
+						} else {
+							Node childNode = new Node(sentence, length);
+							newPending.add(childNode);
+						}
+					}
+				}
+			}
+
+			pending = newPending;
+		}
+
+		return result;
+	}
+
+	public boolean WordBreak2(String s, Set<String> dict) {
+		// IMPORTANT: Please reset any member data you declared, as
+		// the same Solution instance will be reused for each test case.
+
+		if (s == null | dict == null)
+			return false;
+		boolean[] dp = new boolean[s.length() + 1];
+		dp[0] = true;
+		for (int i = 1; i <= s.length(); i++) {
+			for (int k = 0; k < i; k++)
+				if (dp[k] && dict.contains(s.substring(k, i)))
+					dp[i] = true;
+
+		}
+
+		return dp[s.length()];
+	}
+
+	public class Node {
+		public String CurrentSentence;
+		public int CurrentLength;
+
+		public Node(String sentence, int length) {
+			CurrentSentence = sentence;
+			CurrentLength = length;
+		}
+	}
+
+	/**
+	 * This is my recursive solution
+	 * 
+	 * This solution will also exceed time limit
+	 */
+	public ArrayList<String> wordBreak2Recursive(String s, Set<String> dict) {
+		ArrayList<String> result = new ArrayList<String>();
+		
+		StringBuffer pending = new StringBuffer(s);
+		
+		wordBreak2Recursive(pending, 0, dict, result);
+		
+		return result;
+	}
+	
+	public void wordBreak2Recursive(StringBuffer pending, int start, Set<String> dict, ArrayList<String> result) {
+		for (int i = start; i < pending.length(); i++) {
+			String s = pending.substring(start, i + 1);
+			if (dict.contains(s)) {
+				if (i == pending.length() - 1) {
+					result.add(pending.toString());
+				} else {
+					StringBuffer newPending = new StringBuffer(pending);
+					newPending.insert(i + 1, ' ');
+					wordBreak2Recursive(newPending, i + 2, dict, result);
+				}
+			}
+		}
+	}
+	
+	/**
+	 * This is my iterative solution
+	 * 
+	 * This solution will also exceed time limit
+	 */
+	public ArrayList<String> wordBreak3Iterative(String s, Set<String> dict) {
+        ArrayList<String> result = new ArrayList<String>();
+		
+		Queue<PendingNode> queue = new LinkedList<PendingNode>();
+		StringBuffer pending = new StringBuffer(s);
+		queue.add(new PendingNode(pending, 0));
+		
+		while (!queue.isEmpty()) {
+		    Queue<PendingNode> newQueue = new LinkedList<PendingNode>();
+		    
+		    // deal with pending on previous level
+		    for (PendingNode n : queue) {
+		    	StringBuffer p = n.pending;
+		    	int start = n.start;
+		    	
+		        for (int i = start; i < p.length(); i++) {
+        			String word = p.substring(start, i + 1);
+        			if (dict.contains(word)) {
+        				if (i == p.length() - 1) {
+        					result.add(p.substring(1));
+        				} else {
+        					StringBuffer newPending = new StringBuffer(p);
+        					newPending.insert(i + 1, ' ');
+        					newQueue.add(new PendingNode(newPending, i + 2));
+        				}
+        			}
+        		}
+		    }
+		    
+		    // update pending queue
+		    queue = newQueue;
+		}
+
+		return result;
+	}
+	
+	public class PendingNode {
+		StringBuffer pending;
+		int start;
+		
+		public PendingNode(StringBuffer pending, int start) {
+			this.pending = pending;
+			this.start = start;
+		}
+	}
+	
+	/**
+	 * Rotate List
+	 * 
+	 * Given a list, rotate the list to the right by k places, where k is
+	 * non-negative.
+	 * 
+	 * For example: Given 1->2->3->4->5->NULL and k = 2, return
+	 * 4->5->1->2->3->NULL.
+	 */
+	public ListNode rotateRight(ListNode head, int n) {
+        if (head == null) return null;
+
+        ListNode slow = head;
+        ListNode fast = head;
+        
+        while (n-- > 0) {
+            if (fast.next == null) {
+                fast = head;
+            } else {
+                fast = fast.next;
+            }
+        }
+        
+        // n = k * length
+        if (fast == head) return head;
+        
+        while (fast.next != null) {
+            slow = slow.next;
+            fast = fast.next;
+        }
+        
+        fast.next = head;
+        head = slow.next;
+        slow.next = null;
+        
+        return head;
+    }
+	
+	/**
+	 * LRU Cache
+	 * 
+	 * Design and implement a data structure for Least Recently Used (LRU)
+	 * cache. It should support the following operations: get and set.
+	 * 
+	 * get(key) - Get the value (will always be positive) of the key if the key
+	 * exists in the cache, otherwise return -1. set(key, value) - Set or insert
+	 * the value if the key is not already present. When the cache reached its
+	 * capacity, it should invalidate the least recently used item before
+	 * inserting a new item.
+	 */
+	public class LRUCache {
+		private LinkedHashMap<Integer, Integer> map;
+		private int cacheSize;
+		private static final float hashTableLoadFactor = .75f;
+
+		public LRUCache(int capacity) {
+			this.cacheSize = capacity;
+			map = new LinkedHashMap<Integer, Integer>(capacity,
+					hashTableLoadFactor, true) {
+				private static final long serialVersionUID = 1L;
+
+				protected boolean removeEldestEntry(
+						Map.Entry<Integer, Integer> eldest) {
+					return size() > LRUCache.this.cacheSize;
+				}
+			};
+		}
+
+		public int get(int key) {
+			if (map.containsKey(key))
+				return map.get(key);
+			return -1;
+		}
+
+		public void set(int key, int value) {
+			map.put(key, value);
+		}
+	}
+	
+	/** This is my solution which cannot promise O(1) for any operation */
+	public class MyLRUCache {
+	    private HashMap<Integer, Integer> map;
+	    private int capacity;
+	    
+	    private LinkedList<Integer> queue;
+	    private int size;
+	    
+	    public MyLRUCache(int capacity) {
+	        map = new HashMap<Integer, Integer>(capacity);
+	        this.capacity = capacity;
+	        queue = new LinkedList<Integer>();
+	        size = 0;
+	    }
+	    
+	    public int get(int key) {
+	        if (!map.containsKey(key)) return -1;
+	        moveKeyToLast(key);
+	        return map.get(key);
+	    }
+	    
+	    public void set(int key, int value) {
+	        if (map.containsKey(key)) {
+	            map.put(key, value);
+	            moveKeyToLast(key);
+	        } else {
+	            if (size < capacity) {
+	                queue.add(key);
+	                map.put(key, value);
+	                size++;
+	            } else { // full
+	                // remove old
+	                int keyToDelete = queue.poll();
+	                map.remove(keyToDelete);
+	                
+	                // add new
+	                queue.add(key);
+	                map.put(key, value);
+	            }
+	        }
+	    }
+	    
+	    private void moveKeyToLast(int key) {
+	        for (int i = 0; i < queue.size(); i++) {
+	            if (queue.get(i) == key) {
+	                queue.remove(i);
+	                break;
+	            }
+	        }
+	        queue.add(key);
+	    }
+	}
+	
+	/**
+	 * This is my optimized solution
+	 */
+	public class MyLRUCache2 {
+	    private HashMap<Integer, DoubleLinkedNode> map;
+		private int capacity;
+	    
+	    private DoubleLinkedNode head;
+	    private DoubleLinkedNode tail;
+	    private int size;
+	    
+	    public MyLRUCache2(int capacity) {
+	        map = new HashMap<Integer, DoubleLinkedNode>(capacity);
+	        this.capacity = capacity;
+	        head = null;
+	        tail = null;
+	        size = 0;
+	    }
+	    
+	    public int get(int key) {
+	        if (!map.containsKey(key)) return -1;
+	        moveKeyToLast(key);
+	        return map.get(key).value;
+	    }
+	    
+	    public void set(int key, int value) {
+	        if (map.containsKey(key)) {
+	            map.get(key).value = value;
+	            moveKeyToLast(key);
+	        } else {
+	            if (size == capacity) removeFirst(); // remove oldest if full
+	            
+	            addKeyValue(key, value); // add new
+	            size++;
+	        }
+	    }
+	    
+	    private void addKeyValue(int key, int value) {
+	        DoubleLinkedNode n = new DoubleLinkedNode(key, value);
+	        map.put(key, n);
+	        
+	        if (tail == null) {
+	            head = n;
+	            tail = n;
+	        } else {
+	            tail.next = n;
+	            n.prev = tail;
+	            n.next = null;
+	            tail = n;
+	        }
+	    }
+	    
+	    private void removeFirst() {
+	    	int keyToDelete = head.key;
+	    	map.remove(keyToDelete);
+	    	
+	    	if (capacity == 1) {
+	    		head = null;
+	    		tail = null;
+	    	} else {
+	    		head = head.next;
+	            head.prev = null;
+	    	}
+
+            size--;
+	    }
+	    
+	    private void moveKeyToLast(int key) {
+	        DoubleLinkedNode n = map.get(key);
+	        
+	        if (n == tail) {
+	            return;
+	        }
+	        
+	        if (n == head) {
+	            head = n.next;
+	            head.prev = null;
+	        } else {
+	            n.prev.next = n.next;
+	            n.next.prev = n.prev;
+	        }
+	        
+	        tail.next = n;
+	        n.prev = tail;
+	        tail = n;
+	        tail.next = null;
+	    }
+	    
+	    private class DoubleLinkedNode {
+	        int key;
+	        int value;
+	        
+	        DoubleLinkedNode prev;
+	        DoubleLinkedNode next;
+	        
+	        public DoubleLinkedNode(int key, int value) {
+	            this.key = key;
+	            this.value = value;
+	        }
+	    }
+	}
+	
+	/**
+	 * Add Two Numbers
+	 * 
+	 * You are given two linked lists representing two non-negative numbers. The
+	 * digits are stored in reverse order and each of their nodes contain a
+	 * single digit. Add the two numbers and return it as a linked list.
+	 * 
+	 * Input: (2 -> 4 -> 3) + (5 -> 6 -> 4) Output: 7 -> 0 -> 8
+	 */
+	public ListNode addTwoNumbers(ListNode l1, ListNode l2) {
+		ListNode l = new ListNode(0); // dummy head node
+        int sum = 0, carry = 0;
+        ListNode current = l;
+        
+        while (l1 != null && l2 != null) {
+            sum = l1.val + l2.val + carry;
+            carry = sum / 10;
+            current.next = new ListNode(sum % 10);
+            current = current.next;
+            l1 = l1.next;
+            l2 = l2.next;
+        }
+        
+        // done with both l1 and l2
+        if (l1 == null && l2 == null) {
+            if (carry != 0) current.next = new ListNode(carry);
+            return l.next;
+        } else  if (l1 != null) { // l1 still need to be added
+            current.next = l1;
+        } else if (l2 != null) { // l2 still need to be added
+            current.next = l2;
+        }
+        current = current.next;
+        
+        while (carry != 0 && current.next != null) {
+            sum = current.val + carry;
+            carry = sum / 10;
+            current.val = sum % 10;
+            current = current.next;
+        }
+        sum = current.val + carry;
+        carry = sum / 10;
+        current.val = sum % 10;
+        if (carry != 0) current.next = new ListNode(carry);
+        return l.next;
+    }
+    
 	public void test() {
 		// int[] A = { 1, 2, 3, 3, 4, 4, 5 };
 		// int[][] matrix = {{0,0,0,5},{4,3,1,4},{0,1,1,4},{1,2,1,3},{0,0,1,1}};
 		//char[][] board = {{'.','8','7','6','5','4','3','2','1'},{'2','.','.','.','.','.','.','.','.'},{'3','.','.','.','.','.','.','.','.'},{'4','.','.','.','.','.','.','.','.'},{'5','.','.','.','.','.','.','.','.'},{'6','.','.','.','.','.','.','.','.'},{'7','.','.','.','.','.','.','.','.'},{'8','.','.','.','.','.','.','.','.'},{'9','.','.','.','.','.','.','.','.'}};
-		int x = 2147395599;
-		System.out.println(sqrt(x));
+		ListNode l1 = new ListNode(3);
+		l1.next = new ListNode(7);
+		ListNode l2 = new ListNode(9);
+		l2.next = new ListNode(2);
+		addTwoNumbers(l1, l2);
 	}
 
 	public static void main(String[] args) {
