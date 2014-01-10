@@ -4270,16 +4270,160 @@ public class Problems {
         if (carry != 0) current.next = new ListNode(carry);
         return l.next;
     }
+	
+	/**
+	 * N-Queens
+	 * 
+	 * Given an integer n, return all distinct solutions to the n-queens puzzle.
+	 */
+	public ArrayList<String[]> solveNQueens(int n) {
+        // IMPORTANT: Please reset any member data you declared, as
+        // the same Solution instance will be reused for each test case.
+        ArrayList<String[]> res = new ArrayList<String[]>();
+        int[] loc = new int[n];
+        dfs(res,loc,0,n);
+        return res;
+    }  
+    
+    public void dfs(ArrayList<String[]> res, int[] loc, int cur, int n){  
+        if(cur == n)   
+            printboard(res, loc, n);  
+        else{  
+            for(int i = 0; i < n; i++){  
+                loc[cur] = i;  
+                if(isValid(loc, cur))  
+                    dfs(res, loc, cur + 1,n);  
+            }  
+        }  
+    }  
+      
+    public boolean isValid(int[] loc, int cur){  
+        for(int i = 0; i < cur; i++){  
+            if(loc[i] == loc[cur] || Math.abs(loc[i] - loc[cur]) == (cur - i))  
+                return false;  
+        }  
+        return true;  
+    }  
+          
+    public void printboard(ArrayList<String[]> res, int[] loc, int n){  
+        String[] ans = new String[n];  
+        for(int i = 0; i < n; i++){  
+            String row = new String();  
+            for(int j = 0; j < n; j++){
+                if(j == loc[i]) 
+                    row += "Q";  
+                else row += ".";  
+            }  
+            ans[i] = row;  
+        }  
+        res.add(ans);
+    }
+
+    /** This is my solution */
+    public ArrayList<String[]> solveNQueens2(int n) {
+        ArrayList<String[]> finalSolutions = new ArrayList<String[]>();
+        Queue<PendingSolution> queue = new LinkedList<PendingSolution>();
+        
+        // a list of unused Integers
+        LinkedList<Integer> allNumbers = new LinkedList<Integer>();
+        for (int i = 0; i < n; i++) {
+            allNumbers.add(i);
+        }
+        
+        // add first rows for n possible solutions
+        for (int i = 0; i < n; i++) {
+            // partial solution
+            ArrayList<Integer> rows = new ArrayList<Integer>();
+            rows.add(i);
+            
+            // unused number
+            LinkedList<Integer> numbers = new LinkedList<Integer>(allNumbers);
+            numbers.remove(i);
+            
+            // add the first level of pending solutions
+            PendingSolution ps = new PendingSolution(rows, numbers);
+            queue.add(ps);
+        }
+        
+        // find all the possible answer
+        while (!queue.isEmpty()) {
+            PendingSolution ps = queue.poll();
+            if (ps.isComplete()) { // solution found
+                finalSolutions.add(ps.toStrings());
+            }
+            
+            ArrayList<Integer> rows = ps.rows;
+            LinkedList<Integer> numbers = ps.numbers;
+
+            for (Integer i : numbers) {
+                if (!ps.hasDiagonalConflict(i)) {
+                    ArrayList<Integer> newRows = new ArrayList<Integer>(rows);
+                    newRows.add(i);
+                    
+                    LinkedList<Integer> newNumbers = new LinkedList<Integer>(numbers);
+                    newNumbers.remove(i);
+                    
+                    PendingSolution newPs = new PendingSolution(newRows, newNumbers);
+                    queue.add(newPs);// add pending solution
+                }
+            }
+        }
+        System.out.println(finalSolutions);
+        return finalSolutions;
+    }
+    
+    public class PendingSolution {
+        ArrayList<Integer> rows;
+        LinkedList<Integer> numbers;
+        
+        public PendingSolution(ArrayList<Integer> rows, LinkedList<Integer> numbers) {
+            this.rows = rows;
+            this.numbers = numbers;
+        }
+        
+        public boolean isComplete() {
+            return numbers.size() == 0;
+        }
+        
+        public boolean hasDiagonalConflict(int newNumber) {
+            int r = rows.size(); // row number for newNumber
+            
+            for (int i = 0; i < r; i++) {
+                if (Math.abs(r - i) == Math.abs(newNumber - rows.get(i))) {
+                    return true;
+                }
+            }
+            return false;
+        }
+        
+        public String[] toStrings() {
+            int size = rows.size();
+            String[] strings = new String[size];
+            
+            for (int i = 0; i < strings.length; i++) {
+                int number = rows.get(i);
+                StringBuffer sb = new StringBuffer();
+                
+                for (int j = 0; j < number; j++) {
+                    sb.append('.');
+                }
+                sb.append('Q');
+                for (int j = number + 1; j < size; j++) {
+                    sb.append('.');
+                }
+                
+                strings[i] = sb.toString();
+            }
+            
+            return strings;
+        }
+    }
     
 	public void test() {
 		// int[] A = { 1, 2, 3, 3, 4, 4, 5 };
 		// int[][] matrix = {{0,0,0,5},{4,3,1,4},{0,1,1,4},{1,2,1,3},{0,0,1,1}};
 		//char[][] board = {{'.','8','7','6','5','4','3','2','1'},{'2','.','.','.','.','.','.','.','.'},{'3','.','.','.','.','.','.','.','.'},{'4','.','.','.','.','.','.','.','.'},{'5','.','.','.','.','.','.','.','.'},{'6','.','.','.','.','.','.','.','.'},{'7','.','.','.','.','.','.','.','.'},{'8','.','.','.','.','.','.','.','.'},{'9','.','.','.','.','.','.','.','.'}};
-		ListNode l1 = new ListNode(3);
-		l1.next = new ListNode(7);
-		ListNode l2 = new ListNode(9);
-		l2.next = new ListNode(2);
-		addTwoNumbers(l1, l2);
+		solveNQueens(2);
 	}
 
 	public static void main(String[] args) {
