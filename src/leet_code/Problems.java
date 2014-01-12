@@ -4491,9 +4491,50 @@ public class Problems {
         return end1 - start1 + 1;
     }
     
+    /** This is other's solution, pretty smart, but time complexity is same */
+	public int lengthOfLongestSubstring2(String s) {
+		if (s == null || s.equals(""))
+			return 0;
+		
+		int max = 0;
+		int start = 0;
+		int end = 0;
+		boolean[] mask = new boolean[256];
+		
+		while (end < s.length()) {
+			if (mask[(int) s.charAt(end)]) {
+				mask[(int) s.charAt(start)] = false;
+				start++;
+			} else {
+				mask[(int) s.charAt(end)] = true;
+				max = Math.max(max, end - start + 1);
+				end++;
+			}
+		}
+
+		return max;
+	}
+
     /**
-     * 
-     */
+	 * Word Ladder
+	 * 
+	 * Given two words (start and end), and a dictionary, find the length of
+	 * shortest transformation sequence from start to end, such that:
+	 * Only one letter can be changed at a time
+	 * Each intermediate word must exist in the dictionary
+	 * 
+	 * For example, Given:
+	 * start = "hit"
+	 * end = "cog"
+	 * dict = ["hot","dot","dog","lot","log"]
+	 * As one shortest transformation is "hit" -> "hot" -> "dot" -> "dog" ->
+	 * "cog", return its length 5.
+	 * 
+	 * Note:
+	 * Return 0 if there is no such transformation sequence.
+	 * All words have the same length.
+	 * All words contain only lowercase alphabetic characters.
+	 */
     public int ladderLength(String start, String end, HashSet<String> dict) {
     	if (start == null || end == null) {
     		return 0;
@@ -4537,7 +4578,6 @@ public class Problems {
                     if (newS.equals(end))
                         return len;
                     if (dict.contains(newS) && !visited.contains(newS)) {
-                    	System.out.println(newS);
                         queue.add(newS);
                         visited.add(newS);
                     }
@@ -4548,15 +4588,199 @@ public class Problems {
         return 0;
     }
     
+    /**
+	 * Word Ladder II
+	 * 
+	 * Given two words (start and end), and a dictionary, find all shortest
+	 * transformation sequence(s) from start to end, such that:
+	 * Only one letter can be changed at a time
+	 * Each intermediate word must exist in the dictionary
+	 * 
+	 * For example, Given:
+	 * start = "hit"
+	 * end = "cog"
+	 * dict = ["hot","dot","dog","lot","log"]
+	 * Return
+  	 * [
+	 * 	["hit","hot","dot","dog","cog"],
+	 * 	["hit","hot","lot","log","cog"]
+	 * ]
+	 * 
+	 * Note:
+	 * All words have the same length.
+	 * All words contain only lowercase alphabetic characters.
+	 */
+	public ArrayList<ArrayList<String>> findLadders(String start, String end,
+			HashSet<String> dict) {
+		ArrayList<ArrayList<String>> paths = new ArrayList<ArrayList<String>>();
+		if (start == null || end == null || start.length() == 0)
+			return paths;
+		// maintain a hashmap for visited words
+		Map<String, ArrayList<SugeNode>> visited = new HashMap<String, ArrayList<SugeNode>>();
+		// BFS to find the minimum sequence length
+		getMinLength(start, end, dict, visited);
+		// DFS to back trace paths from end to start
+		buildPaths(end, start, visited, new LinkedList<String>(), paths);
+		return paths;
+	}
+
+	/*
+	 * Use BFS to find the minimum transformation sequences length from start to
+	 * end. Also store parent nodes from previous level for each visited valid
+	 * word.
+	 */
+	private void getMinLength(String start, String end, HashSet<String> dict,
+			Map<String, ArrayList<SugeNode>> visited) {
+		// maintain a queue for words, depth and previous word during BFS
+		Queue<SugeNode> queue = new LinkedList<SugeNode>();
+		queue.add(new SugeNode(start, 1));
+		// BFS
+		dict.add(end);
+		while (!queue.isEmpty()) {
+			SugeNode node = queue.poll();
+			for (int i = 0; i < node.word.length(); ++i) {
+				StringBuilder sb = new StringBuilder(node.word);
+				char original = sb.charAt(i);
+				for (char c = 'a'; c <= 'z'; ++c) {
+					if (c == original)
+						continue;
+					sb.setCharAt(i, c);
+					String s = sb.toString();
+					if (dict.contains(s) && !s.equals(start)) {
+						ArrayList<SugeNode> pres = visited.get(s);
+						if (pres == null) {
+							// enqueue unvisited word
+							queue.add(new SugeNode(s, node.depth + 1));
+							pres = new ArrayList<SugeNode>();
+							visited.put(s, pres);
+							pres.add(node);
+						} else if (pres.get(0).depth == node.depth) {
+							// parent nodes should be in the same level - to
+							// avoid circle in graph
+							pres.add(node);
+						}
+					}
+				}
+			}
+		}
+
+	}
+
+	/* Use DFS to back trace all paths from end to start. */
+	private void buildPaths(String s, String start,
+			Map<String, ArrayList<SugeNode>> visited, LinkedList<String> path,
+			ArrayList<ArrayList<String>> paths) {
+		if (visited == null)
+			return;
+		path.add(0, s);
+		if (s.equals(start)) {
+			ArrayList<String> p = new ArrayList<String>(path);
+			paths.add(p);
+		} else {
+			ArrayList<SugeNode> pres = visited.get(s);
+			if (pres != null) {
+				for (SugeNode pre : pres) {
+					buildPaths(pre.word, start, visited, path, paths);
+				}
+			}
+		}
+		path.remove(0);
+	}
+    	   
+	private class SugeNode {  
+		String word;
+		int depth;
+
+		public SugeNode(String w, int d) {
+			word = w;
+			depth = d;
+		}
+	}
+    	 
+    /** This is my solution, time limit exceeded */
+    public ArrayList<ArrayList<String>> findLadders2(String start, String end, HashSet<String> dict) {
+        ArrayList<ArrayList<String>> ladders = new ArrayList<ArrayList<String>>();
+        if (start == null || end == null) 
+    		return ladders;
+
+        // add start to queue, levels are separated by null
+        Queue<ArrayList<String>> queue = new LinkedList<ArrayList<String>>();
+        ArrayList<String> begin = new ArrayList<String>();
+        begin.add(start);
+        queue.add(begin);
+        queue.add(null);
+        
+        // set that mark all visited words
+        Set<String> visited = new HashSet<String>();
+        if (dict.contains(start))
+            visited.add(start);
+        // new visited for each level
+        Set<String> newVisited = new HashSet<String>();
+        
+        while (!queue.isEmpty()) {
+            ArrayList<String> ladder = queue.poll();
+            
+            // check level end and search end
+            if (ladder == null) {
+                if (ladders.size() != 0) // result found
+                    return ladders;
+                
+                if (queue.size() != 0) {
+                	visited.addAll(newVisited);
+                	visited.clear();
+                	queue.add(null);
+                    continue;
+                } else { // queue is empty
+                	break;
+                }
+            }
+            
+            int beforeSize = ladder.size();
+            String s = ladder.get(beforeSize - 1);
+
+            // change every letter one by one
+            for (int i = 0; i < s.length() && ladder.size() == beforeSize; i++) {
+            	// use StringBuffer to save computation
+                StringBuffer sb = new StringBuffer(s);
+                
+                // replace the character at index i
+                for (char j = 'a'; j <= 'z'; j++) {
+                    sb.setCharAt(i, j);
+                    String newS = sb.toString();
+                    if (newS.equals(end)) {
+                        visited.add(end);
+                        ladder.add(end);
+                        ladders.add(ladder);
+                        break;
+                    }
+                        
+                    if (dict.contains(newS) && !visited.contains(newS)) {
+                        newVisited.add(newS);
+                        ArrayList<String> newLadder = new ArrayList<String>(ladder);
+                        newLadder.add(newS);
+                        queue.add(newLadder);
+                    }
+                }
+            }
+        }
+        
+        return ladders;
+    }
+    
 	public void test() {
 		// int[] A = { 1, 2, 3, 3, 4, 4, 5 };
 		// int[][] matrix = {{0,0,0,5},{4,3,1,4},{0,1,1,4},{1,2,1,3},{0,0,1,1}};
 		//char[][] board = {{'.','8','7','6','5','4','3','2','1'},{'2','.','.','.','.','.','.','.','.'},{'3','.','.','.','.','.','.','.','.'},{'4','.','.','.','.','.','.','.','.'},{'5','.','.','.','.','.','.','.','.'},{'6','.','.','.','.','.','.','.','.'},{'7','.','.','.','.','.','.','.','.'},{'8','.','.','.','.','.','.','.','.'},{'9','.','.','.','.','.','.','.','.'}};
 		HashSet<String> set = new HashSet<String>();
-		set.add("hot");
-		set.add("dog");
-		set.add("dot");
-		System.out.println(ladderLength("hot", "dog", set));
+		set.add("ted");
+		set.add("tex");
+		set.add("red");
+		set.add("tax");
+		set.add("tad");
+		set.add("den");
+		set.add("rex");
+		set.add("pee");
+		System.out.println(findLadders("red", "tax", set));
 	}
 
 	public static void main(String[] args) {
