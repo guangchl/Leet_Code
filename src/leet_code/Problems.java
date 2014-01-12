@@ -4419,11 +4419,144 @@ public class Problems {
         }
     }
     
+    /**
+	 * N-Queens II
+	 * 
+	 * Follow up for N-Queens problem.
+	 * 
+	 * Now, instead outputting board configurations, return the total number of
+	 * distinct solutions.
+	 */
+    public int totalNQueens(int n) {
+        int[] loc = new int[n];
+        return dfs(loc, 0, n);
+    }  
+    
+    public int dfs(int[] loc, int cur, int n){
+        int result = 0;
+        
+        if(cur == n)
+            return 1;
+        else{
+            for(int i = 0; i < n; i++){
+                loc[cur] = i;
+                if(isValid(loc, cur))
+                    result += dfs(loc, cur + 1, n);
+            }
+        }
+        
+        return result;
+    }
+    
+    /**
+	 * Longest Substring Without Repeating Characters
+	 * 
+	 * Given a string, find the length of the longest substring without
+	 * repeating characters. For example, the longest substring without
+	 * repeating letters for "abcabcbb" is "abc", which the length is 3. For
+	 * "bbbbb" the longest substring is "b", with the length of 1.
+	 */
+    public int lengthOfLongestSubstring(String s) {
+        if (s.length() == 0)
+            return 0;
+        
+        // current longest substring
+        int start1 = 0, end1 = 0;
+        
+        // current longest end at current last one
+        Set<Character> ending = new HashSet<Character>();
+        int start2 = 0, end2 = 0;
+        ending.add(s.charAt(0));
+
+        for (int i = 1; i < s.length(); i++) {
+            char c = s.charAt(i);
+            end2 = i;
+            if (ending.add(c)) {
+                if (end2 - start2 >= end1 - start1) {
+                    start1 = start2;
+                    end1 = end2;
+                }
+            } else {
+                for (int j = start2; j < end2; j++) {
+                    if (s.charAt(j) == c) {
+                        start2 = j + 1;
+                        break;
+                    } else {
+                        ending.remove(s.charAt(j));
+                    }
+                }
+            }
+        }
+        
+        return end1 - start1 + 1;
+    }
+    
+    /**
+     * 
+     */
+    public int ladderLength(String start, String end, HashSet<String> dict) {
+    	if (start == null || end == null) {
+    		return 0;
+    	}
+    	
+        int len = 2;
+        
+        // add start to queue, levels are separated by null
+        Queue<String> queue = new LinkedList<String>();
+        queue.add(start);
+        queue.add(null);
+        
+        // set that mark all visited words
+        Set<String> visited = new HashSet<String>();
+        if (dict.contains(start))
+            visited.add(start);
+        
+        while (!queue.isEmpty()) {
+            String s = queue.poll();
+            
+            // check level end and search end
+            if (s == null) {
+                if (queue.size() != 0) {
+                	queue.add(null);
+                    len++;
+                    continue;
+                } else {
+                	break;
+                }
+            }
+
+            // change every letter one by one
+            for (int i = 0; i < s.length(); i++) {
+            	// use StringBuffer to save computation
+                StringBuffer sb = new StringBuffer(s);
+                
+                // replace the character at index i
+                for (char j = 'a'; j <= 'z'; j++) {
+                    sb.setCharAt(i, j);
+                    String newS = sb.toString();
+                    if (newS.equals(end))
+                        return len;
+                    if (dict.contains(newS) && !visited.contains(newS)) {
+                    	System.out.println(newS);
+                        queue.add(newS);
+                        visited.add(newS);
+                    }
+                }
+            }
+        }
+        
+        return 0;
+    }
+    
 	public void test() {
 		// int[] A = { 1, 2, 3, 3, 4, 4, 5 };
 		// int[][] matrix = {{0,0,0,5},{4,3,1,4},{0,1,1,4},{1,2,1,3},{0,0,1,1}};
 		//char[][] board = {{'.','8','7','6','5','4','3','2','1'},{'2','.','.','.','.','.','.','.','.'},{'3','.','.','.','.','.','.','.','.'},{'4','.','.','.','.','.','.','.','.'},{'5','.','.','.','.','.','.','.','.'},{'6','.','.','.','.','.','.','.','.'},{'7','.','.','.','.','.','.','.','.'},{'8','.','.','.','.','.','.','.','.'},{'9','.','.','.','.','.','.','.','.'}};
-		solveNQueens(2);
+		HashSet<String> set = new HashSet<String>();
+		set.add("hot");
+		set.add("dog");
+		set.add("dot");
+		System.out.println(ladderLength("hot", "dog", set));
 	}
 
 	public static void main(String[] args) {
