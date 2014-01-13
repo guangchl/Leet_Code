@@ -4767,20 +4767,62 @@ public class Problems {
         return ladders;
     }
     
+    /**
+	 * Divide Two Integers
+	 * 
+	 * Divide two integers without using multiplication, division and mod
+	 * operator.
+	 */
+    public int divide(int dividend, int divisor) {
+    	if (dividend == divisor)
+            return 1;
+        else if (divisor == Integer.MIN_VALUE)
+    		return 0;
+    	else if (dividend == Integer.MIN_VALUE) {
+    		if (divisor < 0) 
+    			return 1 + dividePositive(divisor - dividend, -divisor);
+    		else
+    			return -1 - dividePositive(-(dividend + divisor), divisor);
+    	}
+
+        // mark the sign
+        boolean sign = false;
+        if (dividend < 0 ^ divisor < 0) sign = true;
+        
+        dividend = Math.abs(dividend);
+        divisor = Math.abs(divisor);
+        
+        int quotient = dividePositive(dividend, divisor);
+        
+        if (sign)
+            return -quotient;
+        else
+            return quotient;
+    }
+    
+    public int dividePositive(int dividend, int divisor) {
+        int quotient = 0;
+
+        while (dividend >= divisor) {
+            int i = 1;
+            int n = divisor;
+            for (; n <= dividend; i <<= 1, n <<= 1) {
+                dividend -= n;
+                quotient += i;
+                if (n > Integer.MAX_VALUE / 2)
+                    break;
+            }
+        }
+        
+        return quotient;
+    }
+    
 	public void test() {
 		// int[] A = { 1, 2, 3, 3, 4, 4, 5 };
 		// int[][] matrix = {{0,0,0,5},{4,3,1,4},{0,1,1,4},{1,2,1,3},{0,0,1,1}};
 		//char[][] board = {{'.','8','7','6','5','4','3','2','1'},{'2','.','.','.','.','.','.','.','.'},{'3','.','.','.','.','.','.','.','.'},{'4','.','.','.','.','.','.','.','.'},{'5','.','.','.','.','.','.','.','.'},{'6','.','.','.','.','.','.','.','.'},{'7','.','.','.','.','.','.','.','.'},{'8','.','.','.','.','.','.','.','.'},{'9','.','.','.','.','.','.','.','.'}};
-		HashSet<String> set = new HashSet<String>();
-		set.add("ted");
-		set.add("tex");
-		set.add("red");
-		set.add("tax");
-		set.add("tad");
-		set.add("den");
-		set.add("rex");
-		set.add("pee");
-		System.out.println(findLadders("red", "tax", set));
+		
+		System.out.println(divide(-633020081, -2147483648));
 	}
 
 	public static void main(String[] args) {
