@@ -175,7 +175,20 @@ public class Problems {
 	 * algorithm to find the maximum profit.
 	 */
 	public int maxProfit(int[] prices) {
+		if (prices.length == 0)
+			return 0;
 
+		int min = prices[0];
+		int profit = 0;
+
+		for (int i = 1; i < prices.length; i++) {
+			if (prices[i] > min)
+				profit = Math.max(profit, prices[i] - min);
+			else if (prices[i] < min)
+				min = prices[i];
+		}
+
+		return profit;
 	}
 
 	/**
@@ -189,7 +202,14 @@ public class Problems {
 	 * again).
 	 */
 	public int maxProfit2(int[] prices) {
+		int profit = 0;
 
+		for (int i = 1; i < prices.length; i++) {
+			if (prices[i - 1] < prices[i])
+				profit += prices[i] - prices[i - 1];
+		}
+
+		return profit;
 	}
 
 	/**
