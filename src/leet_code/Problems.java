@@ -223,7 +223,40 @@ public class Problems {
 	 * you must sell the stock before you buy again).
 	 */
 	public int maxProfit3(int[] prices) {
+		int len = prices.length;
+        if (len == 0)
+            return 0;
+        
+        int[] forward = new int[len];
+        int[] backward = new int[len];
+        
+        int min = prices[0];
+        for (int i = 1; i < len; i++) {
+            if (prices[i] > min)
+                forward[i] = Math.max(forward[i - 1], prices[i] - min);
+            else {
+                if (prices[i] < min)
+                    min = prices[i];
+                forward[i] = forward[i - 1];
+            }
+        }
+        
+        int max = prices[len - 1];
+        for (int i = len - 2; i >= 0; i--) {
+            if (prices[i] < max)
+                backward[i] = Math.max(backward[i + 1], max - prices[i]);
+            else {
+                if (prices[i] > max)
+                    max = prices[i];
+                backward[i] = backward[i + 1];
+            }
+        }
+        
+        int profit = 0;
+        for (int i = 0; i < len; i++)
+            profit = Math.max(profit, forward[i] + backward[i]);
 
+        return profit;
 	}
 
 	/**
@@ -4837,12 +4870,71 @@ public class Problems {
         return quotient;
     }
     
+    /**
+     * First Missing Positive
+     */
+    public int firstMissingPositive(int[] A) {
+        int len = A.length;
+        if (len == 0) {
+            return 1;
+        }
+        
+        for (int i = 0; i < A.length;) {
+            int num = A[i];
+            if (num > 0 && num <= len && num != i + 1 && num != A[num - 1]) {
+                A[i] = A[num - 1];
+                A[num - 1] = num;
+            } else {
+                i++;
+            }
+        }
+
+        for (int i = 0; i < len; i++) {
+            if (A[i] != i + 1) {
+                return i + 1;
+            }
+        }
+        
+        return len + 1;
+    }
+    
+    /**
+	 * Implement strStr()
+	 * 
+	 * Returns a pointer to the first occurrence of needle in haystack, or null
+	 * if needle is not part of haystack.
+	 */
+    public String strStr(String haystack, String needle) {
+        int m = haystack.length();
+        int n = needle.length();
+        if (n == 0) {
+            return haystack;
+        }
+
+        for (int i = 0; i < m && m - i >= n; i++) {
+            // match the substring of haystack from i with needle
+            int j = 0;
+            for (; j < n; j++) {
+                if (haystack.charAt(i + j) != needle.charAt(j)) {
+                    break;
+                }
+            }
+            
+            // find the first occurrence
+            if (j == n) {
+                return haystack.substring(i);
+            }
+        }
+        
+        return null;
+    }
+    
+    
 	public void test() {
 		// int[] A = { 1, 2, 3, 3, 4, 4, 5 };
 		// int[][] matrix = {{0,0,0,5},{4,3,1,4},{0,1,1,4},{1,2,1,3},{0,0,1,1}};
 		//char[][] board = {{'.','8','7','6','5','4','3','2','1'},{'2','.','.','.','.','.','.','.','.'},{'3','.','.','.','.','.','.','.','.'},{'4','.','.','.','.','.','.','.','.'},{'5','.','.','.','.','.','.','.','.'},{'6','.','.','.','.','.','.','.','.'},{'7','.','.','.','.','.','.','.','.'},{'8','.','.','.','.','.','.','.','.'},{'9','.','.','.','.','.','.','.','.'}};
-		
-		System.out.println(divide(-633020081, -2147483648));
+		System.out.println();
 	}
 
 	public static void main(String[] args) {
