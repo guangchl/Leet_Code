@@ -68,6 +68,22 @@ public class Problems {
 			val = x;
 		}
 	}
+	
+	/** Definition for a point. */
+	class Point {
+		int x;
+		int y;
+
+		Point() {
+			x = 0;
+			y = 0;
+		}
+
+		Point(int a, int b) {
+			x = a;
+			y = b;
+		}
+	}
 
 	// ****************************** SOLUTIONS ******************************
 	/**
@@ -2725,6 +2741,71 @@ public class Problems {
     }
     
     /**
+	 * Largest Rectangle in Histogram
+	 * 
+	 * Given n non-negative integers representing the histogram's bar height
+	 * where the width of each bar is 1, find the area of largest rectangle in
+	 * the histogram.
+	 */
+	public int largestRectangleArea(int[] height) {
+		int largest = 0;
+
+		Stack<Integer> stack = new Stack<Integer>();
+		int index = 0;
+		while (index < height.length || !stack.isEmpty()) {
+			if (index < height.length
+					&& (stack.isEmpty() || height[index] >= height[stack.peek()])) {
+				stack.push(index++);
+			} else {
+				int end = index - 1;
+				int h = height[stack.pop()];
+				while (!stack.isEmpty() && height[stack.peek()] == h)
+					stack.pop();
+				int start = stack.isEmpty() ? -1 : stack.peek();
+				largest = Math.max(largest, h * (end - start));
+			}
+		}
+
+		return largest;
+	}
+    
+	/**
+	 * Given a 2D binary matrix filled with 0's and 1's, find the largest
+	 * rectangle containing all ones and return its area.
+	 */
+	public int maximalRectangle(char[][] matrix) {
+        int m = matrix.length;
+        if (m == 0) return 0;
+        int n = matrix[0].length;
+        if (n == 0) return 0;
+        int[][] rectangles = new int[m][n];
+        
+        // pre-process first row
+        for (int i = 0; i < n; i++) {
+            if (matrix[0][i] == '1') {
+                rectangles[0][i] = 1;
+            }
+        }
+        
+        // pre-process other rows
+        for (int i = 1; i < m; i++) {
+            for (int j = 0; j < n; j++) {
+                if (matrix[i][j] == '1')
+                    rectangles[i][j] = rectangles[i - 1][j] + 1;
+            }
+        }
+        
+        int area = 0;
+        
+        // calculate largest rectangle for each row
+        for (int i = 0; i < m; i++) {
+            area = Math.max(area, largestRectangleArea(rectangles[i]));
+        }
+        
+        return area;
+    }
+	
+    /**
 	 * Length of Last Word
 	 * 
 	 * Given a string s consists of upper/lower-case alphabets and empty space
@@ -4929,14 +5010,516 @@ public class Problems {
         return null;
     }
     
+    /** KMP */
+    public String kmp(String haystack, String needle) {
+        int m = haystack.length();
+        int n = needle.length();
+        if (n == 0) {
+            return haystack;
+        } else if (m < n) {
+        	return null;
+        }
+        
+        // construct cover of needle
+        int[] cover = new int[n];
+        int iter = 0;
+        for (int i = 1; i < n; i++) {
+            while (i < n && needle.charAt(i) == needle.charAt(iter)) {
+                cover[i] = cover[i - 1] + 1;
+                i++;
+                iter++;
+            }
+            iter = 0;
+        }
+
+        int i = 0;
+        int j = 0;
+        while (i < m && j < n && m - i >= n - j) {
+       		if (haystack.charAt(i) != needle.charAt(j)) {
+       			if (j == 0) {
+       				i += 1;
+       			} else {
+           			j = cover[j - 1];
+       			}
+       		} else {
+       			i++;
+       			j++;
+       		}
+        }
+        
+        return (j == n) ? haystack.substring(i - n) : null;
+    }
+    
+    /**
+	 * Two Sum
+	 * 
+	 * Given an array of integers, find two numbers such that they add up to a
+	 * specific target number.
+	 * 
+	 * The function twoSum should return indices of the two numbers such that
+	 * they add up to the target, where index1 must be less than index2. Please
+	 * note that your returned answers (both index1 and index2) are not
+	 * zero-based.
+	 * 
+	 * You may assume that each input would have exactly one solution.
+	 * 
+	 * Input: numbers={2, 7, 11, 15}, target=9 Output: index1=1, index2=2
+	 */
+    public int[] twoSum(int[] numbers, int target) {
+    	// result array, contains -1s as default
+        int[] result = new int[2];
+        result[0] = -1;
+        result[1] = -1;
+        
+        // map that store the index of numbers
+        Map<Integer, Integer> index = new HashMap<Integer, Integer>();
+        
+        // add every element in array
+        for (int i = 0; i < numbers.length; i++) {
+            index.put(numbers[i], i + 1);
+        }
+        
+        // find the complement of every element, try to make target
+        for (int i = 0; i < numbers.length; i++) {
+            int complement = target - numbers[i];
+            if (index.containsKey(complement)) {
+                int j = index.get(complement);
+                if (i + 1 != j) {
+                    result[0] = i + 1;
+                    result[1] = j;
+                    return result;
+                }
+            }
+        }
+        
+        return result;
+    }
+    
+    /**
+	 * 3Sum
+	 * 
+	 * Given an array S of n integers, are there elements a, b, c in S such that
+	 * a + b + c = 0? Find all unique triplets in the array which gives the sum
+	 * of zero.
+	 * 
+	 * Note: Elements in a triplet (a,b,c) must be in non-descending order. (ie,
+	 * a ¡Ü b ¡Ü c) The solution set must not contain duplicate triplets. For
+	 * example, given array S = {-1 0 1 2 -1 -4},
+	 * 
+	 * A solution set is: (-1, 0, 1) (-1, -1, 2)
+	 */
+    public ArrayList<ArrayList<Integer>> threeSum(int[] num) {
+        ArrayList<ArrayList<Integer>> result = new ArrayList<ArrayList<Integer>>();
+        Arrays.sort(num);
+        
+        int len = num.length;
+        for (int i = 0; i < len; i++) {
+            int first = num[i];
+            if (i > 0 && first == num[i - 1])
+                continue;
+
+            int start = i + 1;
+            int end = len - 1;
+            
+            while (start < end) {
+                int sum = first + num[start] + num[end];
+                if (sum == 0) {
+                	// add result
+                    ArrayList<Integer> three = new ArrayList<Integer>();
+                    three.add(first);
+                    three.add(num[start]);
+                    three.add(num[end]);
+                    result.add(three);
+                    
+                    // shrink range and skip duplicate
+                    start++;
+                    end--;
+                    while (start < end && num[start] == num[start - 1])
+                        start++;
+                    while (start < end && num[end] == num[end + 1])
+                        end--;
+                } else if (sum > 0) {
+                	end--;
+                    while (start < end && num[end] == num[end + 1])
+                        end--;
+                } else {
+                	start++;
+                    while (start < end && num[start] == num[start - 1])
+                        start++;
+                }
+            }
+        }
+        
+        return result;
+    }
+    
+    /**
+	 * 4Sum
+	 * 
+	 * Given an array S of n integers, are there elements a, b, c, and d in S
+	 * such that a + b + c + d = target? Find all unique quadruplets in the
+	 * array which gives the sum of target.
+	 * 
+	 * Note: Elements in a quadruplet (a,b,c,d) must be in non-descending order.
+	 * (ie, a ¡Ü b ¡Ü c ¡Ü d) The solution set must not contain duplicate
+	 * quadruplets.
+	 * 
+	 * For example, given array S = {1 0 -1 0 -2 2}, and target = 0.
+	 * A solution set is: (-1, 0, 0, 1) (-2, -1, 1, 2) (-2, 0, 0, 2)
+	 */
+public ArrayList<ArrayList<Integer>> fourSum(int[] num, int target) {
+        int len = num.length;
+        Map<Integer, ArrayList<ArrayList<Integer>>> map = new HashMap<Integer, ArrayList<ArrayList<Integer>>>();
+        Set<ArrayList<Integer>> set = new HashSet<ArrayList<Integer>>();
+
+        for (int i = 0; i < len; i++) {
+            for (int j = i + 1; j < len; j++) {
+                int sum = num[i] + num[j];
+                ArrayList<Integer> two = new ArrayList<Integer>();
+                two.add(i);
+                two.add(j);
+                
+                if (map.containsKey(sum)) {
+                    map.get(sum).add(two);
+                } else {
+                	ArrayList<ArrayList<Integer>> list = new ArrayList<ArrayList<Integer>>();
+                	list.add(two);
+                    map.put(sum, list);
+                }
+            }
+        }
+        
+        for (int i = 0; i < len; i++) {
+            for (int j = i + 1; j < len; j++) {
+                int sum = num[i] + num[j];
+                int target2 = target - sum;
+                
+                if (map.containsKey(target2)) {
+                    ArrayList<ArrayList<Integer>> two = map.get(target2);
+                    for (ArrayList<Integer> list : two) {
+                        int x = list.get(0);
+                        int y = list.get(1);
+                        if (x == i || x == j || y == i || y == j) break;
+                        int[] temp = new int[4];
+                        temp[0] = num[i];
+                        temp[1] = num[j];
+                        temp[2] = num[x];
+                        temp[3] = num[y];
+                        Arrays.sort(temp);
+                        
+                        ArrayList<Integer> four = new ArrayList<Integer>();
+                        for (int z : temp)
+                            four.add(z);
+                        
+                        set.add(four);
+                    }
+                }
+            }
+        }
+        
+        ArrayList<ArrayList<Integer>> result = new ArrayList<ArrayList<Integer>>(set);
+        return result;
+    }
+
+    /**
+	 * Wildcard Matching
+	 * 
+	 * Implement wildcard pattern matching with support for '?' and '*'.
+	 * 
+	 * '?' Matches any single character. '*' Matches any sequence of characters
+	 * (including the empty sequence).
+	 * 
+	 * The matching should cover the entire input string (not partial).
+	 * 
+	 * The function prototype should be: bool isMatch(const char *s, const char
+	 * *p)
+	 *
+     * Some examples:
+     * isMatch("aa","a") ¡ú false
+     * isMatch("aa","aa") ¡ú true
+     * isMatch("aaa","aa") ¡ú false
+     * isMatch("aa", "*") ¡ú true
+     * isMatch("aa", "a*") ¡ú true
+     * isMatch("ab", "?*") ¡ú true
+     * isMatch("aab", "c*a*b") ¡ú false
+     */
+	public boolean isMatch(String s, String p) {
+		int is = 0, ip = 0; // search ptrs
+		int js = -1; // latest search ptr
+		int jp = -1; // latest star ptr
+
+		while (true) {
+			if (is == s.length()) {// end of s, check the rest of p
+				for (int i = ip; i < p.length(); ++i) {
+					if (p.charAt(i) != '*')
+						return false;
+				}
+				return true;
+			} else {
+				if (ip < p.length()) {
+					if (s.charAt(is) == p.charAt(ip) || p.charAt(ip) == '?') {// single
+																				// match
+						is++;
+						ip++;
+						continue;
+					} else if (p.charAt(ip) == '*') {// star, search next
+														// character in p
+						js = is;
+						jp = ip;
+						ip = jp + 1;
+						continue;
+					}
+				}
+				// mismatch, check roll back
+				if (js >= 0) {// roll back in the star position
+					ip = jp + 1;
+					js++;
+					is = js;
+				} else {// hard mismatch
+					return false;
+				}
+			}
+		}
+	}
+	
+	/** Solution from internet */
+	public boolean isMatch2(String s, String p) {
+		if (s == null || p == null)
+			return false;
+
+		// calculate count for non-wildcard char
+		int count = 0;
+		for (Character c : p.toCharArray()) {
+			if (c != '*')
+				++count;
+		}
+		// the count should not be larger than that of s
+		if (count > s.length())
+			return false;
+
+		boolean[] matches = new boolean[s.length() + 1];
+		matches[0] = true;
+		int pid = 0, firstMatch = 0;
+		while (pid < p.length()) {
+			// skip duplicate '*'
+			if (pid > 0 && p.charAt(pid) == '*' && p.charAt(pid - 1) == '*') {
+				++pid;
+				continue;
+			}
+
+			// if '*', fill up the rest of row
+			if (p.charAt(pid) == '*') {
+				// fill up the rest of row with true, up to the first match in
+				// previous row
+				for (int i = firstMatch + 1; i <= s.length(); ++i)
+					matches[i] = true;
+			} else {
+				// fill up backwards:
+				// - set to true if match current char and previous diagnal also
+				// match
+				// - otherwise, set to false
+				int match = -1;
+				for (int i = s.length(); i > firstMatch; --i) {
+					matches[i] = (p.charAt(pid) == s.charAt(i - 1) || p
+							.charAt(pid) == '?') && matches[i - 1];
+					if (matches[i])
+						match = i;
+				}
+				if (match < 0)
+					return false;
+				firstMatch = match;
+			}
+
+			++pid;
+		}
+
+		return matches[s.length()];
+	}
+    
+    /** This is my solution */
+    public boolean isMatch3(String s, String p) {
+    	int slen = s.length();
+        int plen = p.length();
+        
+        if (slen == 0 && plen == 0) {
+            return true;
+        } else if (slen == 0) {
+            for (int i = 0; i < plen; i++) {
+                if (p.charAt(i) != '*')
+                    return false;
+            }
+            return true;
+        } else if (plen == 0) {
+            return false;
+        }
+        
+        // match[i][j] indicates s from 0 to i matches p from 0 to j
+        boolean[][] match = new boolean[slen][plen];
+        
+        // when p from 0 to end
+        if (p.charAt(0) == '*' || p.charAt(0) == '?' || p.charAt(0) == s.charAt(0)) {
+            match[0][0] = true;
+            for (int i = 1; i < plen; i++) {
+                if (p.charAt(i) == '*') {
+                    match[0][i] = true;
+                } else {
+                    break;
+                }
+            }
+        }
+        
+        // when s from 1 to end
+        if (p.charAt(0) == '*') {
+        	for (int i = 1; i < slen; i++)
+                match[i][0] = true;
+        }
+
+        for (int i = 1; i < slen; i++) {
+            for (int j = 1; j < plen; j++) {
+            	System.out.println();
+                switch (p.charAt(j)) {
+                	case '?':
+                		match[i][j] = match[i - 1][j - 1];
+                		break;
+                	case '*':
+                		match[i][j] = match[i - 1][j] || match[i][j - 1];
+                		break;
+                	default:
+                		match[i][j] = match[i - 1][j - 1] && s.charAt(i) == p.charAt(j);
+                }
+            }
+        }
+        
+        return match[slen - 1][plen - 1];
+    }
+    
+    /**
+     * Insertion Sort List
+     * 
+     * Sort a linked list using insertion sort.
+     */
+    public ListNode insertionSortList(ListNode head) {
+        if (head == null) return null;
+        
+        // dummy head
+        ListNode dummy = new ListNode(Integer.MIN_VALUE);
+        dummy.next = head;
+        head = dummy;
+
+        // start from the one next to original head
+        ListNode prev = dummy.next;
+        ListNode current = prev.next;
+        while (current != null) {
+            // insert if current is not in order
+            if (current.val < prev.val) {
+                // move head to last node which smaller than current
+                while (head.next.val < current.val) {
+                    head = head.next;
+                }
+                
+                // delete current from original position
+                prev.next = current.next;
+                
+                // add current to head.next
+                current.next = head.next;
+                head.next = current;
+                head = dummy;
+                
+                // update prev and current
+                current = prev.next;
+            } else {
+                // update prev and current
+                prev = current;
+                current = prev.next;
+            }
+        }
+        
+        return dummy.next;
+    }
+    
+    /**
+     * 
+     * @param points
+     * @return
+     */
+    public int maxPoints(Point[] points) {
+        int len = points.length;
+        if (len == 0) return 0;
+        
+        int max = 0;
+        Map<Integer, HashSet<Integer>> visitedPoints = new HashMap<Integer, HashSet<Integer>>();
+        
+        for (int i = 0; i < len; i++) {
+            Point p = points[i];
+            
+            // check visited points
+            if (visitedPoints.containsKey(p.x)) {
+                if (visitedPoints.get(p.x).contains(p.y)) {
+                    continue;
+                } else {
+                    visitedPoints.get(p.x).add(p.y);
+                }
+            } else {
+                HashSet<Integer> set = new HashSet<Integer>();
+                set.add(p.y);
+                visitedPoints.put(p.x, set);
+            }
+            
+            // map keep record for number of pionts on lines cross p
+            Map<Double, Integer> map = new HashMap<Double, Integer>();
+            int addend = 0;
+            
+            // pass the remaining points to construct line
+            for (int j = i + 1; j < len; j++) {
+                Point q = points[j];
+                if (p.x == q.x && p.y == q.y) { // p == q
+                    addend++;
+                } else {
+                    Double k;
+                    if (p.x == q.x)
+                        k = Double.MAX_VALUE;
+                    else if (p.y == q.y)
+                        k = 0.0;
+                    else
+                        k = (double)(q.y - p.y)/(q.x - p.x);
+                    
+                    if (map.containsKey(k)) {
+                        map.put(k, map.get(k) + 1);
+                    } else {
+                        map.put(k, 2);
+                    }
+                }
+            }
+            
+            // find max for this round cross p
+            if (map.size() == 0) {
+                max = Math.max(max, 1 + addend);
+            } else {
+                for (Integer newMax : map.values()) {
+                    max = Math.max(max, newMax + addend);
+                }
+            }
+        }
+        
+        return max;
+    }
     
 	public void test() {
-		// int[] A = { 1, 2, 3, 3, 4, 4, 5 };
+		//int[] num = {0,0,0,0};
+		//int target = 0;
+		//System.out.println(fourSum(num, target));
 		// int[][] matrix = {{0,0,0,5},{4,3,1,4},{0,1,1,4},{1,2,1,3},{0,0,1,1}};
 		//char[][] board = {{'.','8','7','6','5','4','3','2','1'},{'2','.','.','.','.','.','.','.','.'},{'3','.','.','.','.','.','.','.','.'},{'4','.','.','.','.','.','.','.','.'},{'5','.','.','.','.','.','.','.','.'},{'6','.','.','.','.','.','.','.','.'},{'7','.','.','.','.','.','.','.','.'},{'8','.','.','.','.','.','.','.','.'},{'9','.','.','.','.','.','.','.','.'}};
-		System.out.println();
+		//System.out.println("mississippi\nissip");
+		//System.out.println(kmp("mississippi", "issip"));
+		Point[] points = new Point[3];
+		points[0] = new Point(2,3);
+		points[1] = new Point(3,3);
+		points[2] = new Point(-5,3);
+		
+		System.out.println(maxPoints(points));
 	}
-
+	
 	public static void main(String[] args) {
 		Problems m = new Problems();
 		m.test();
