@@ -5438,10 +5438,11 @@ public ArrayList<ArrayList<Integer>> fourSum(int[] num, int target) {
     }
     
     /**
-     * 
-     * @param points
-     * @return
-     */
+	 * Max Points on a Line
+	 * 
+	 * Given n points on a 2D plane, find the maximum number of points that lie
+	 * on the same straight line.
+	 */
     public int maxPoints(Point[] points) {
         int len = points.length;
         if (len == 0) return 0;
@@ -5502,6 +5503,61 @@ public ArrayList<ArrayList<Integer>> fourSum(int[] num, int target) {
         }
         
         return max;
+    }
+    
+    /**
+     * Reorder List
+     * 
+     * Given a singly linked list L: L0¡úL1¡ú¡­¡úLn-1¡úLn,
+     * reorder it to: L0¡úLn¡úL1¡úLn-1¡úL2¡úLn-2¡ú¡­
+     * 
+     * You must do this in-place without altering the nodes' values.
+     * 
+     * For example,
+     * Given {1,2,3,4}, reorder it to {1,4,2,3}.
+     */
+    public void reorderList(ListNode head) {
+        if (head == null || head.next == null || head.next.next == null)
+            return;
+        
+        // find the second half
+        ListNode slow = head;
+        ListNode fast = head.next;
+        while (fast != null && fast.next != null) {
+            slow = slow.next;
+            fast = fast.next.next;
+        }
+        
+        // break the list, reverse the second half list
+        ListNode list = slow.next;
+        slow.next = null;
+        list = reverseSingleLinkedList(list);
+        
+        // merge the two list
+        ListNode current = head;
+        while (list != null) {
+            ListNode temp = list;
+            list = list.next;
+            temp.next = current.next;
+            current.next = temp;
+            current = temp.next;
+        }
+    }
+    
+    public ListNode reverseSingleLinkedList(ListNode head) {
+        if (head == null) return null;
+        
+        ListNode current = head.next;
+        head.next = null;
+        
+        while (current != null) {
+            ListNode next = current.next;
+            current.next = head;
+            head = current;
+            current = next;
+        }
+        
+        return head;
     }
     
 	public void test() {
