@@ -5560,6 +5560,148 @@ public ArrayList<ArrayList<Integer>> fourSum(int[] num, int target) {
         return head;
     }
     
+    /**
+	 * Word Search
+	 * 
+	 * Given a 2D board and a word, find if the word exists in the grid.
+	 * 
+	 * The word can be constructed from letters of sequentially adjacent cell,
+	 * where "adjacent" cells are those horizontally or vertically neighboring.
+	 * The same letter cell may not be used more than once.
+	 */
+public boolean[][] visited;
+    
+    public boolean exist(char[][] board, String word) {
+        int m = board.length;
+        if (m == 0) return false;
+        int n = board[0].length;
+        if (n == 0) return false;
+        
+        visited = new boolean[m][n];
+        char head = word.charAt(0);
+        
+        for (int i = 0; i < m; i++) {
+            for (int j = 0; j < n; j++) {
+                if (board[i][j] == head) {
+                    visited[i][j] = true;
+                    
+                    if (existRecursive(board, i, j, word, 1))
+                        return true;
+                    
+                    visited[i][j] = false;
+                }
+            }
+        }
+        
+        return false;
+    }
+    
+    public boolean existRecursive(char[][] board, int i, int j, String word, int start) {
+        if (start == word.length()) return true;
+
+        int m = board.length;
+        int n = board[0].length;
+        // upward
+        i--;
+        if (i >= 0 && i < m && j >= 0 && j < n && !visited[i][j] && board[i][j] == word.charAt(start)) {
+            visited[i][j] = true;
+            if (existRecursive(board, i, j, word, start + 1))
+                return true;
+            visited[i][j] = false;
+        }
+        
+        // downward
+        i += 2;
+        if (i >= 0 && i < m && j >= 0 && j < n && !visited[i][j] && board[i][j] == word.charAt(start)) {
+            visited[i][j] = true;
+            if (existRecursive(board, i, j, word, start + 1))
+                return true;
+            visited[i][j] = false;
+        }
+        
+        // left
+        i--;
+        j--;
+        if (i >= 0 && i < m && j >= 0 && j < n && !visited[i][j] && board[i][j] == word.charAt(start)) {
+            visited[i][j] = true;
+            if (existRecursive(board, i, j, word, start + 1))
+                return true;
+            visited[i][j] = false;
+        }
+        
+        // right
+        j += 2;
+        if (i >= 0 && i < m && j >= 0 && j < n && !visited[i][j] && board[i][j] == word.charAt(start)) {
+            visited[i][j] = true;
+            if (existRecursive(board, i, j, word, start + 1))
+                return true;
+            visited[i][j] = false;
+        }
+        
+        return false;
+    }
+    
+    /**
+	 * String to Integer (atoi)
+	 * 
+	 * Implement atoi to convert a string to an integer.
+	 * 
+	 * Hint: Carefully consider all possible input cases. If you want a
+	 * challenge, please do not see below and ask yourself what are the possible
+	 * input cases.
+	 * 
+	 * Notes: It is intended for this problem to be specified vaguely (ie, no
+	 * given input specs). You are responsible to gather all the input
+	 * requirements up front.
+	 */
+    public int atoi(String str) {
+        int len = str.length();
+        int iter = 0;
+        boolean negative = false;
+        int result = 0;
+        
+        // delete white space
+        while (iter < len && str.charAt(iter) == ' ') {
+            iter++;
+        }
+        if (iter == len) return 0;
+        
+        // check sign
+        if (str.charAt(iter) == '-') {
+            negative = true;
+            iter++;
+        } else if (str.charAt(iter) == '+') {
+            iter++;
+        }
+        
+        // find integer
+        while (iter < len) {
+            int digit = str.charAt(iter) - '0';
+            if (digit < 0 || digit > 9) {
+                break;
+            } else {
+                if (negative) {
+                    int bound = (Integer.MIN_VALUE + digit) / 10;
+                    if (result < bound) {
+                        return Integer.MIN_VALUE;
+                    } else {
+                        result = result * 10 - digit;
+                    }
+                } else {
+                    int bound = (Integer.MAX_VALUE - digit) / 10;
+                    if (result > bound) {
+                        return Integer.MAX_VALUE;
+                    } else {
+                        result = result * 10 + digit;
+                    }
+                }
+            }
+            iter++;
+        }
+        
+        return result;
+    }
+    
 	public void test() {
 		//int[] num = {0,0,0,0};
 		//int target = 0;
