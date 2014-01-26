@@ -1517,6 +1517,27 @@ public class Problems {
         return permutations;
     }
 	
+	public ArrayList<ArrayList<Integer>> permuteTemp(int[] num) {
+		Arrays.sort(num);
+		ArrayList<ArrayList<Integer>> results = new ArrayList<ArrayList<Integer>>();
+		ArrayList<Integer> path = new ArrayList<Integer>();
+		permuteHelper(results, path, num/* ? */);
+		return results;
+	}
+	
+	private void permuteHelper(ArrayList<ArrayList<Integer>> results, ArrayList<Integer> path, int[] num) {
+		/* ? */
+		for (int i = /* ? */ 0; i < num.length; i++) {
+			/* ? skip some cases ? */
+			if (path.contains(num[i])) {
+				continue;
+			}
+			path.add(num[i]);
+			permuteHelper(results, path, num);
+			path.remove(path.size() - 1);
+		}
+	}
+ 	
 	/**
 	 * Permutations II
 	 * 
@@ -3242,6 +3263,143 @@ public class Problems {
     }
     
     /**
+     * Reverse Nodes in k-Group
+     */
+    public ListNode reverseKGroup(ListNode head, int k) {
+        ListNode dummy = new ListNode(0);
+        dummy.next = head;
+        ListNode prev = dummy;
+        
+        ListNode current = prev.next;
+        while (current != null) {
+            int count = k - 1;
+            while (count > 0 && current != null) {
+                current = current.next;
+                count--;
+            }
+            
+            if (count == 0 && current != null) {
+                // break;
+                ListNode next = current.next;
+                current.next = null;
+                ListNode tail = reverseToTail(prev.next);
+                // reconnect
+                prev.next = current;
+                tail.next = next;
+                // update
+                prev = tail;
+                current = next;
+            } else {
+                return dummy.next;
+            }
+        }
+        
+        return dummy.next;
+    }
+    
+    public ListNode reverseToTail(ListNode head) {
+        ListNode tail = head;
+        ListNode current = head.next;
+        head.next = null;
+
+        while (current != null) {
+            ListNode next = current.next;
+            current.next = head;
+            head = current;
+            current = next;
+        }
+        return tail;
+    }
+    
+    /**
+     * Construct Binary Tree from Preorder and Inorder Traversal
+     * 
+	 * Given preorder and inorder traversal of a tree, construct the binary
+	 * tree.
+	 * 
+	 * Note: You may assume that duplicates do not exist in the tree.
+	 */
+    public TreeNode buildTree(int[] preorder, int[] inorder) {
+        int len = preorder.length;
+        if (len == 0 || len != inorder.length) {
+            return null;
+        }
+        
+        // root is the first in preorder
+        int rootVal = preorder[0];
+        TreeNode root = new TreeNode(rootVal);
+        
+        // only one element
+        if (len == 1) {
+            return root;
+        }
+        
+        // find the root index in inorder
+        int i;
+        for (i = 0; i < len; i++) {
+            if (inorder[i] == rootVal) {
+                break;
+            }
+        }
+        
+        // left subtree
+        if (i > 0) {
+            root.left = buildTree(Arrays.copyOfRange(preorder, 1, i + 1), Arrays.copyOfRange(inorder, 0, i));
+        }
+        
+        // right subtree
+        if (i < len - 1) {
+            root.right = buildTree(Arrays.copyOfRange(preorder, i + 1, len), Arrays.copyOfRange(inorder, i + 1, len));
+        }
+        
+        return root;
+    }
+    
+    /**
+	 * Construct Binary Tree from Inorder and Postorder Traversal
+	 * 
+	 * Given inorder and postorder traversal of a tree, construct the binary
+	 * tree.
+	 * 
+	 * Note: You may assume that duplicates do not exist in the tree.
+	 */
+    public TreeNode buildTree2(int[] inorder, int[] postorder) {
+        int len = postorder.length;
+        if (len == 0 || len != inorder.length) {
+            return null;
+        }
+        
+        // root is the last in postorder
+        int rootVal = postorder[len - 1];
+        TreeNode root = new TreeNode(rootVal);
+        
+        // only one element
+        if (len == 1) {
+            return root;
+        }
+        
+        // find the root index in inorder
+        int i;
+        for (i = 0; i < len; i++) {
+            if (inorder[i] == rootVal) {
+                break;
+            }
+        }
+        
+        // left subtree
+        if (i > 0) {
+            root.left = buildTree2(Arrays.copyOfRange(inorder, 0, i), Arrays.copyOfRange(postorder, 0, i));
+        }
+        
+        // right subtree
+        if (i < len - 1) {
+            root.right = buildTree2(Arrays.copyOfRange(inorder, i + 1, len), Arrays.copyOfRange(postorder, i, len - 1));
+        }
+        
+        return root;
+    }
+    
+    /**
 	 * Count and Say
 	 * 
 	 * The count-and-say sequence is the sequence of integers beginning as
@@ -3658,7 +3816,7 @@ public class Problems {
         }
         
         return l;
-    }    
+    }
     
     /**
 	 * Validate Binary Search Tree
@@ -5167,8 +5325,8 @@ public class Problems {
 	 * For example, given array S = {1 0 -1 0 -2 2}, and target = 0.
 	 * A solution set is: (-1, 0, 0, 1) (-2, -1, 1, 2) (-2, 0, 0, 2)
 	 */
-public ArrayList<ArrayList<Integer>> fourSum(int[] num, int target) {
-        int len = num.length;
+	public ArrayList<ArrayList<Integer>> fourSum(int[] num, int target) {
+		int len = num.length;
         Map<Integer, ArrayList<ArrayList<Integer>>> map = new HashMap<Integer, ArrayList<ArrayList<Integer>>>();
         Set<ArrayList<Integer>> set = new HashSet<ArrayList<Integer>>();
 
@@ -5702,6 +5860,224 @@ public boolean[][] visited;
         return result;
     }
     
+    /**
+	 * Anagrams
+	 * 
+	 * Given an array of strings, return all groups of strings that are
+	 * anagrams.
+	 * 
+	 * Note: All inputs will be in lower-case.
+	 */
+    public ArrayList<String> anagrams(String[] strs) {
+        ArrayList<String> strings = new ArrayList<String>();
+        Map<String, ArrayList<String>> map = new HashMap<String, ArrayList<String>>();
+        
+        for (String s : strs) {
+            char[] cs = s.toCharArray();
+            Arrays.sort(cs);
+            String ss = new String(cs);
+            if (map.containsKey(ss)) {
+                map.get(ss).add(s);
+            } else {
+                ArrayList<String> list = new ArrayList<String>();
+                list.add(s);
+                map.put(ss, list);
+            }
+        }
+        
+        for (ArrayList<String> value : map.values()) {
+            if (value.size() > 1) {
+                strings.addAll(value);
+            }
+        }
+        
+        return strings;
+    }
+    
+    /**
+	 * Valid Number
+	 * 
+	 * Validate if a given string is numeric.
+	 * 
+	 * Some examples: 
+	 * "0" => true 
+	 * " 0.1 " => true 
+	 * "abc" => false 
+	 * "1 a" => false
+	 * "2e10" => true
+	 * 
+	 * Note: It is intended for the problem statement to be
+	 * ambiguous. You should gather all requirements up front before
+	 * implementing one.
+	 */
+	public boolean isNumberRegex(String s) {
+		return s.matches("^\\s*[+-]?(\\d+|\\d*\\.\\d+|\\d+\\.\\d*)([eE][+-]?\\d+)?\\s*$");
+	}
+
+	public boolean isNumber(String s) {
+		s = s.trim();
+		if (s.length() > 0 && s.charAt(s.length() - 1) == 'e')
+			return false; // avoid "3e" which is false
+		String[] t = s.split("e");
+		if (t.length == 0 || t.length > 2)
+			return false;
+		boolean res = valid(t[0], false);
+		if (t.length > 1)
+			res = res && valid(t[1], true);
+		return res;
+	}
+
+	private boolean valid(String s, boolean hasDot) {
+		if (s.length() > 0 && (s.charAt(0) == '+' || s.charAt(0) == '-')) // avoid
+																			// "1+",
+																			// "+",
+																			// "+."
+		s = s.substring(1);
+		char[] arr = s.toCharArray();
+		if (arr.length == 0 || s.equals("."))
+			return false;
+		for (int i = 0; i < arr.length; i++) {
+			if (arr[i] == '.') {
+				if (hasDot)
+					return false;
+				hasDot = true;
+			} else if (!('0' <= arr[i] && arr[i] <= '9')) {
+				return false;
+			}
+		}
+		return true;
+	}
+
+	/**
+	 * Longest Palindromic Substring
+	 * 
+	 * Given a string S, find the longest palindromic substring in S. You may
+	 * assume that the maximum length of S is 1000, and there exists one unique
+	 * longest palindromic substring.
+	 */
+	public String longestPalindrome(String s) {
+		int len = s.length();
+        if (len < 2) {
+            return s;
+        }
+        
+        int left = 0;
+        int right = 0;
+        int maxLen = 1;
+        for (int i = 1; i < len - 1; i++) {
+        	// no longer substring can be found
+        	if (2 * i + 1 <= maxLen || (len - i) * 2 <= maxLen) break;
+        	
+            int l, r;
+            // even number of characters
+            for (l = i - 1, r = i; l >= 0 && r < len; l--, r++) {
+                if (s.charAt(l) != s.charAt(r)) {
+                    break;
+                }
+            }
+            l++;
+            r--;
+            if (r - l + 1 > maxLen) {
+                left = l;
+                right = r;
+                maxLen = right - left + 1;
+            }
+            
+            // odd number of characters
+            for (l = i - 1, r = i + 1; l >= 0 && r < len; l--, r++) {
+                if (s.charAt(l) != s.charAt(r)) {
+                    break;
+                }
+            }
+            l++;
+            r--;
+            if (r - l + 1 > maxLen) {
+                left = l;
+                right = r;
+                maxLen = right - left + 1;
+            }
+        }
+        
+        if (maxLen == 1 && s.charAt(len - 1) == s.charAt(len - 2)) {
+            return s.substring(len - 2);
+        }
+        
+        return s.substring(left, right + 1);
+    }
+	
+	/**
+	 * Edit Distance
+	 * 
+	 * Given two words word1 and word2, find the minimum number of steps
+	 * required to convert word1 to word2. (each operation is counted as 1
+	 * step.)
+	 * 
+	 * You have the following 3 operations permitted on a word:
+	 * a) Insert a character b) Delete a character c) Replace a character
+	 */
+	public int minDistance(String word1, String word2) {
+        int len1 = word1.length();
+        int len2 = word2.length();
+        int[][] dist = new int[len1 + 1][len2 + 1];
+        
+        // first row
+        for (int i = 1; i <= len2; i++) {
+            dist[0][i] = i;
+        }
+        
+        // first column
+        for (int i = 1; i <= len1; i++) {
+            dist[i][0] = i;
+        }
+        
+        // fill the remaining elements
+        for (int i = 1; i <= len1; i++) {
+            for (int j = 1; j <= len2; j++) {
+                dist[i][j] = Math.min(dist[i - 1][j], dist[i][j - 1]) + 1;
+                if (word1.charAt(i - 1) == word2.charAt(j - 1)) {
+                    dist[i][j] = Math.min(dist[i][j], dist[i - 1][j - 1]);
+                } else {
+                    dist[i][j] = Math.min(dist[i][j], dist[i - 1][j - 1] + 1);
+                }
+            }
+        }
+        
+        return dist[len1][len2];
+    }
+	
+	/**
+	 * Valid Palindrome
+	 * 
+	 * Given a string, determine if it is a palindrome, considering only
+	 * alphanumeric characters and ignoring cases.
+	 */
+	public boolean isPalindrome(String s) {
+        s = s.toLowerCase();
+        
+        int l = 0;
+        int r = s.length() - 1;
+        while (l < r) {
+            char cl = s.charAt(l);
+            if ((cl < 'a' || cl > 'z') && (cl < '0' || cl > '9')) {
+                l++;
+                continue;
+            }
+            char cr = s.charAt(r);
+            if ((cr < 'a' || cr >'z') && (cr < '0' || cr > '9')) {
+                r--;
+                continue;
+            }
+            
+            if (cl != cr) {
+                return false;
+            }
+            l++;
+            r--;
+        }
+        
+        return true;
+    }
+	
 	public void test() {
 		//int[] num = {0,0,0,0};
 		//int target = 0;
@@ -5710,12 +6086,9 @@ public boolean[][] visited;
 		//char[][] board = {{'.','8','7','6','5','4','3','2','1'},{'2','.','.','.','.','.','.','.','.'},{'3','.','.','.','.','.','.','.','.'},{'4','.','.','.','.','.','.','.','.'},{'5','.','.','.','.','.','.','.','.'},{'6','.','.','.','.','.','.','.','.'},{'7','.','.','.','.','.','.','.','.'},{'8','.','.','.','.','.','.','.','.'},{'9','.','.','.','.','.','.','.','.'}};
 		//System.out.println("mississippi\nissip");
 		//System.out.println(kmp("mississippi", "issip"));
-		Point[] points = new Point[3];
-		points[0] = new Point(2,3);
-		points[1] = new Point(3,3);
-		points[2] = new Point(-5,3);
-		
-		System.out.println(maxPoints(points));
+		ListNode head = new ListNode(1);
+		head.next = new ListNode(2);
+		System.out.println(reverseKGroup(head, 2));
 	}
 	
 	public static void main(String[] args) {
