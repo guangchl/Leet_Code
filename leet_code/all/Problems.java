@@ -1,13 +1,16 @@
-package leet_code;
+package all;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.LinkedList;
 import java.util.Map;
+import java.util.PriorityQueue;
 import java.util.Queue;
 import java.util.Set;
 import java.util.Stack;
@@ -84,7 +87,35 @@ public class Problems {
 			y = b;
 		}
 	}
+	
+	/** Definition for singly-linked list with a random pointer. */
+	class RandomListNode {
+		int label;
+		RandomListNode next, random;
+		RandomListNode(int x) { this.label = x; }
+	};
+	
+	/** Definition for an interval. */
+	public class Interval {
+		int start;
+		int end;
+		Interval() { start = 0; end = 0; }
+		Interval(int s, int e) { start = s; end = e; }
+	}
+	
 
+	/** Definition for undirected graph. */
+	class UndirectedGraphNode {
+		int label;
+		ArrayList<UndirectedGraphNode> neighbors;
+
+		UndirectedGraphNode(int x) {
+			label = x;
+			neighbors = new ArrayList<UndirectedGraphNode>();
+		}
+	}
+	  
+	
 	// ****************************** SOLUTIONS ******************************
 	/**
 	 * Single Number
@@ -191,17 +222,19 @@ public class Problems {
 	 * algorithm to find the maximum profit.
 	 */
 	public int maxProfit(int[] prices) {
-		if (prices.length == 0)
+		if (prices == null || prices.length == 0) {
 			return 0;
+		}
 
 		int min = prices[0];
 		int profit = 0;
 
 		for (int i = 1; i < prices.length; i++) {
-			if (prices[i] > min)
+			if (prices[i] > min) {
 				profit = Math.max(profit, prices[i] - min);
-			else if (prices[i] < min)
+			} else if (prices[i] < min) {
 				min = prices[i];
+			}
 		}
 
 		return profit;
@@ -221,8 +254,9 @@ public class Problems {
 		int profit = 0;
 
 		for (int i = 1; i < prices.length; i++) {
-			if (prices[i - 1] < prices[i])
+			if (prices[i - 1] < prices[i]) {
 				profit += prices[i] - prices[i - 1];
+			}
 		}
 
 		return profit;
@@ -248,11 +282,12 @@ public class Problems {
         
         int min = prices[0];
         for (int i = 1; i < len; i++) {
-            if (prices[i] > min)
+            if (prices[i] > min) {
                 forward[i] = Math.max(forward[i - 1], prices[i] - min);
-            else {
-                if (prices[i] < min)
+            } else {
+                if (prices[i] < min) {
                     min = prices[i];
+                }
                 forward[i] = forward[i - 1];
             }
         }
@@ -441,16 +476,19 @@ public class Problems {
 	 * 1->2->3.
 	 */
 	public ListNode deleteDuplicates(ListNode head) {
-		if (head != null) {
-			ListNode iter = head;
-			while (iter.next != null) {
-				if (iter.next.val == iter.val) {
-					iter.next = iter.next.next;
-				} else {
-					iter = iter.next;
-				}
+		if (head == null) {
+			return head;
+		}
+		
+		ListNode current = head;
+		while (current.next != null) {
+			if (current.next.val == current.val) {
+				current.next = current.next.next;
+			} else {
+				current = current.next;
 			}
 		}
+		
 		return head;
 	}
 
@@ -464,31 +502,29 @@ public class Problems {
 	 * 1->1->1->2->3, return 2->3.
 	 */
 	public ListNode deleteDuplicates2(ListNode head) {
-		// set the dummy head
-		ListNode root = new ListNode(0);
-		root.next = head;
-
-		ListNode prev = root;
-		ListNode iter = head;
-
-		while (iter != null) {
-			// find the last one for each number along the list
-			while (iter.next != null && iter.val == iter.next.val) {
-				iter = iter.next;
-			}
-
-			// check duplication
-			if (prev.next == iter) {
-				prev = iter;
-			} else {
-				prev.next = iter.next;
-			}
-
-			// begin next round iteration
-			iter = iter.next;
+		if (head == null || head.next == null) {
+			return head;
 		}
-
-		return root.next;
+		
+		// dummy node
+		ListNode dummy = new ListNode(0);
+		dummy.next = head;
+		head = dummy;
+		
+		// check each different number
+		while (head.next != null && head.next.next != null) {
+		    if (head.next.val == head.next.next.val) { // duplicate found
+		    	int val = head.next.val;
+		        head.next = head.next.next.next;
+		        while (head.next != null && head.next.val == val) {
+    		        head.next = head.next.next;
+    		    }
+		    } else {
+		        head = head.next;
+		    }
+		}
+		
+		return dummy.next;
 	}
 
 	/**
@@ -1334,6 +1370,37 @@ public class Problems {
         return root;
     }
     
+    public static ListNode pointer = null;
+
+	public TreeNode sortedListToBST2(ListNode head) {
+		pointer = head;
+		int n = 0;
+		while (pointer != null) {
+			pointer = pointer.next;
+			n++;
+		}
+		pointer = head;
+		return create(0, n - 1);
+	}
+
+	private TreeNode create(int start, int end) {
+		if (pointer == null)
+			return null;
+
+		if (start > end)
+			return null;
+		int mid = (end - start) / 2 + start;
+		TreeNode left = create(start, mid - 1);
+		TreeNode root = new TreeNode(pointer.val);
+		root.left = left;
+
+		pointer = pointer.next;
+
+		root.right = create(mid + 1, end);
+		return root;
+	}
+
+	
 	/**
 	 * Pascal's Triangle
 	 * 
@@ -2547,7 +2614,7 @@ public class Problems {
 	 * Determine whether an integer is a palindrome. Do this in constant space.
 	 */
 	public boolean isPalindrome(int x) {
-		// negative number can't be palindrome
+        // negative number can't be palindrome
 		if (x < 0) {
 			return false;
 		}
@@ -2562,27 +2629,15 @@ public class Problems {
 			return false;
 		}
 
+        int temp = x;
 		int y = 0;
-		while (x != 0) {
-			// x == y means the original x is symmetrical
-			if (x == y) {
-				return true;
-			}
-
-			// update y
-			y = y * 10 + x % 10;
-
-			// deal with odd digits number
-			if (x == y) {
-				return true;
-			}
-
-			// update x
-			x /= 10;
+		while (temp != 0) {
+			y = 10 * y + temp % 10;
+			temp /= 10;
 		}
 
-		return false;
-	}
+		return x == y;
+    }
 	
 	/**
 	 * Minimum Depth of Binary Tree
@@ -2673,51 +2728,6 @@ public class Problems {
     }
     
     /**
-	 * 3Sum Closest
-	 * 
-	 * Given an array S of n integers, find three integers in S such that the
-	 * sum is closest to a given number, target. Return the sum of the three
-	 * integers. You may assume that each input would have exactly one solution.
-	 * 
-	 * For example, given array S = {-1 2 1 -4}, and target = 1.
-	 * 
-	 * The sum that is closest to the target is 2. (-1 + 2 + 1 = 2).
-	 */
-    public int threeSumClosest(int[] num, int target) {
-        Arrays.sort(num);
-        
-        int sum = num[0] + num[1] + num[2];
-        
-        // traverse the array for every possible position of first number
-        for (int i = 0; i < num.length - 2; i++) {
-            // second number start from the one next to first one
-            // third number start from the last number in the array
-            for (int j = i + 1, k = num.length - 1; j < k;) {
-                int temp = num[i] + num[j] + num[k];
-                
-                // compare temp with target
-                if (temp == target) {
-                    return temp;
-                } else {
-                    // update sum
-                    if (Math.abs(temp - target) < Math.abs(sum - target)) {
-                        sum = temp;
-                    }
-                    
-                    //update j and k
-                    if (temp > target) {
-                        k--;
-                    } else {
-                        j++;
-                    }
-                }
-            }
-        }
-        
-        return sum;
-    }
-    
-    /**
 	 * Trapping Rain Water
 	 * 
 	 * Given n non-negative integers representing an elevation map where the
@@ -2780,8 +2790,9 @@ public class Problems {
 			} else {
 				int end = index - 1;
 				int h = height[stack.pop()];
-				while (!stack.isEmpty() && height[stack.peek()] == h)
+				while (!stack.isEmpty() && height[stack.peek()] == h) {
 					stack.pop();
+				}
 				int start = stack.isEmpty() ? -1 : stack.peek();
 				largest = Math.max(largest, h * (end - start));
 			}
@@ -2870,81 +2881,46 @@ public class Problems {
 	 * set must not contain duplicate subsets.
 	 */
     public ArrayList<ArrayList<Integer>> subsets(int[] S) {
-        ArrayList<ArrayList<Integer>> sets = new ArrayList<ArrayList<Integer>>();
-        
-        // empty S
-        if (S.length == 0) {
-            return sets;
-        } else {
-            Arrays.sort(S);
-        }
-        
-        // add initial empty set
-        sets.add(new ArrayList<Integer>());
-        
-        // add one element to subsets at one time
-        for (int i = 0; i < S.length; i++) {
-            // add the new element to old subsets to construct new ones
-            ArrayList<ArrayList<Integer>> newSubsets = new ArrayList<ArrayList<Integer>>();
-            for (ArrayList<Integer> subset : sets) {
-                ArrayList<Integer> newSubset = new ArrayList<Integer>(subset);
-                newSubset.add(S[i]);
-                newSubsets.add(newSubset);
-            }
-            sets.addAll(newSubsets);
-        }
-        
-        return sets;
+		ArrayList<ArrayList<Integer>> res = new ArrayList<ArrayList<Integer>>();
+		ArrayList<Integer> tmp = new ArrayList<Integer>();
+		Arrays.sort(S);
+		res.add(tmp);
+		dfs(res, tmp, S, 0);
+		return res;
+	}
+
+	public void dfs(ArrayList<ArrayList<Integer>> res, ArrayList<Integer> tmp,
+			int[] S, int pos) {
+		for (int i = pos; i <= S.length - 1; i++) {
+			tmp.add(S[i]);
+			res.add(new ArrayList<Integer>(tmp));
+			dfs(res, tmp, S, i + 1);
+			tmp.remove(tmp.size() - 1);
+		}
     }
     
     /**
      * Subsets II
-     * 
-     * 
      */
     public ArrayList<ArrayList<Integer>> subsetsWithDup(int[] num) {
-        ArrayList<ArrayList<Integer>> sets = new ArrayList<ArrayList<Integer>>();
-        
-        // empty Array num
-        if (num.length == 0) {
-            return sets;
-        } else {
-            Arrays.sort(num);
-        }
-        
-        // add initial empty set
-        sets.add(new ArrayList<Integer>());
-        
-        // add one element to subsets at one time
-        for (int i = 0; i < num.length; i++) {
-            int dup = 1;
-            while (i + 1 < num.length && num[i] == num[i + 1]) {
-                i++;
-                dup++;
-            }
-            
-            // add the new element to old subsets to construct new ones
-            ArrayList<ArrayList<Integer>> oldSubsets = sets;
-            while (dup > 0) {
-                ArrayList<ArrayList<Integer>> newSubsets = new ArrayList<ArrayList<Integer>>();
-                
-                for (ArrayList<Integer> subset : oldSubsets) {
-                    // add new subset only if the old one contains the new number
-                    ArrayList<Integer> newSubset = new ArrayList<Integer>(subset);
-                    newSubset.add(num[i]);
-                    newSubsets.add(newSubset);
-                }
-                
-                // add new generated subsets to result
-                sets.addAll(newSubsets);
-                // update oldSubsets
-                oldSubsets = newSubsets;
-                
-                dup--;
-            }
-        }
-        
-        return sets;
+		ArrayList<ArrayList<Integer>> res = new ArrayList<ArrayList<Integer>>();
+		ArrayList<Integer> tmp = new ArrayList<Integer>();
+		Arrays.sort(num);
+		res.add(tmp);
+		dfsWithDup(res, tmp, num, 0);
+		return res;
+	}
+
+	public void dfsWithDup(ArrayList<ArrayList<Integer>> res, ArrayList<Integer> tmp,
+			int[] num, int pos) {
+		for (int i = pos; i <= num.length - 1; i++) {
+			tmp.add(num[i]);
+			res.add(new ArrayList<Integer>(tmp));
+			dfsWithDup(res, tmp, num, i + 1);
+			tmp.remove(tmp.size() - 1);
+			// the only one line difference
+			while (i < num.length - 1 && num[i] == num[i + 1]) i++;
+		}
     }
     
 	/**
@@ -3027,7 +3003,25 @@ public class Problems {
 	 * reach the last index is 2. (Jump 1 step from index 0 to 1, then 3 steps
 	 * to the last index.)
 	 */
-    public int jump(int[] A) {
+	public int jump(int[] A) {
+		int len = A.length;
+		int ret = 0;
+		int last = 0;
+		int curr = 0;
+		
+		for (int i = 0; i < len; ++i) {
+			if (i > last) {
+				last = curr;
+				++ret;
+			}
+			
+			curr = Math.max(curr, i + A[i]);
+		}
+
+		return ret;
+	}
+	
+    public int jump2(int[] A) {
         // store the shortest number of step to every position
         int[] step = new int[A.length];
         
@@ -3211,6 +3205,53 @@ public class Problems {
             A[i] = false;
         }
     }
+    
+    /** solution from Mingche */
+	public boolean isValidSudoku2(char[][] board) {
+		for (int i = 0; i < board.length; i++) {
+			for (int j = 0; j < board[0].length; j++) {
+				if (board[i][j] == '.')
+					continue;
+				if (isValid(board, i, j) == false)
+					return false;
+			}
+		}
+		return true;
+	}
+
+	public boolean isValid(char board[][], int x, int y) {
+		int i, j;
+		for (i = 0; i < 9; i++)
+			if (i != x && board[i][y] == board[x][y])
+				return false;
+		for (j = 0; j < 9; j++)
+			if (j != y && board[x][j] == board[x][y])
+				return false;
+		for (i = 3 * (x / 3); i < 3 * (x / 3 + 1); i++)
+			for (j = 3 * (y / 3); j < 3 * (y / 3 + 1); j++)
+				if (i != x && j != y && board[i][j] == board[x][y])
+					return false;
+		return true;
+	}
+    
+    /**
+     * Sudoku Solver
+     */
+	public boolean solveSudoku(char board[][]) {
+		for (int i = 0; i < 9; ++i)
+			for (int j = 0; j < 9; ++j) {
+				if ('.' == board[i][j]) {
+					for (int k = 1; k <= 9; ++k) {
+						board[i][j] = (char) ('0' + k);
+						if (isValid(board, i, j) && solveSudoku(board))
+							return true;
+						board[i][j] = '.';
+					}
+					return false;
+				}
+			}
+		return true;
+	}
     
     /**
 	 * Reverse Linked List II
@@ -3784,38 +3825,18 @@ public class Problems {
 	 * Compute and return the square root of x.
 	 */
     public int sqrt(int x) {
-        if (x == 0) return 0;
-        
-        // calculate the number of digits in x
-        int copy = x;
-        int digits = 0;
-        while (copy > 0) {
-            copy /= 10;
-            digits++;
-        }
-        
-        // calculate the number of digits in result
-        digits = (digits + 1) / 2;
-        
-        // calculate the range of result
-        int l = 1;
-        while (--digits > 0) {
-            l *= 10;
-        }
-        int r = l * 10 - 1;
-        
-        // binary search for the result
-        while (r - l > 1) {
-            int mid = (l + r) / 2;
-            int n = mid * mid;
-            if (n > x || n < 0) {
-                r = mid;
-            } else {
-                l = mid;
-            }
-        }
-        
-        return l;
+		double error = 0.0000001f;
+		double high = x;
+		double low = 0;
+		while (high - low > error) {
+			double mid = (high + low) / 2;
+			if (mid * mid > x) {
+				high = mid;
+			} else {
+				low = mid;
+			}
+		}
+		return (int) Math.floor(high);
     }
     
     /**
@@ -4084,7 +4105,7 @@ public class Problems {
         for(int i = 0; i <= len; i++)
             dp[i] = len - 1 - i;
             
-        for(int i = len - 2; i >=0; i--) {
+        for(int i = len - 2; i >= 0; i--) {
             for(int j = i; j < len; j++) {
                 if(s.charAt(i) == s.charAt(j) && (j <= i+2 || isPal[i+1][j-1])) {
                     isPal[i][j] = true;
@@ -4720,20 +4741,20 @@ public class Problems {
 	 * distinct solutions.
 	 */
     public int totalNQueens(int n) {
-        int[] loc = new int[n];
-        return dfs(loc, 0, n);
+        int[] locs = new int[n];
+        return dfs(locs, 0, n);
     }  
     
-    public int dfs(int[] loc, int cur, int n){
+    public int dfs(int[] locs, int cur, int n){
         int result = 0;
         
         if(cur == n)
             return 1;
         else{
             for(int i = 0; i < n; i++){
-                loc[cur] = i;
-                if(isValid(loc, cur))
-                    result += dfs(loc, cur + 1, n);
+                locs[cur] = i;
+                if(isValid(locs, cur))
+                    result += dfs(locs, cur + 1, n);
             }
         }
         
@@ -5312,6 +5333,51 @@ public class Problems {
     }
     
     /**
+	 * 3Sum Closest
+	 * 
+	 * Given an array S of n integers, find three integers in S such that the
+	 * sum is closest to a given number, target. Return the sum of the three
+	 * integers. You may assume that each input would have exactly one solution.
+	 * 
+	 * For example, given array S = {-1 2 1 -4}, and target = 1.
+	 * 
+	 * The sum that is closest to the target is 2. (-1 + 2 + 1 = 2).
+	 */
+    public int threeSumClosest(int[] num, int target) {
+        Arrays.sort(num);
+        
+        int sum = num[0] + num[1] + num[2];
+        
+        // traverse the array for every possible position of first number
+        for (int i = 0; i < num.length - 2; i++) {
+            // second number start from the one next to first one
+            // third number start from the last number in the array
+            for (int j = i + 1, k = num.length - 1; j < k;) {
+                int temp = num[i] + num[j] + num[k];
+                
+                // compare temp with target
+                if (temp == target) {
+                    return temp;
+                } else {
+                    // update sum
+                    if (Math.abs(temp - target) < Math.abs(sum - target)) {
+                        sum = temp;
+                    }
+                    
+                    //update j and k
+                    if (temp > target) {
+                        k--;
+                    } else {
+                        j++;
+                    }
+                }
+            }
+        }
+        
+        return sum;
+    }
+    
+    /**
 	 * 4Sum
 	 * 
 	 * Given an array S of n integers, are there elements a, b, c, and d in S
@@ -5727,26 +5793,17 @@ public class Problems {
 	 * where "adjacent" cells are those horizontally or vertically neighboring.
 	 * The same letter cell may not be used more than once.
 	 */
-public boolean[][] visited;
-    
     public boolean exist(char[][] board, String word) {
-        int m = board.length;
-        if (m == 0) return false;
-        int n = board[0].length;
-        if (n == 0) return false;
+        if(word.length() == 0)   return true;
+        int h = board.length;
+        if(h == 0)    return false;
+        int w = board[0].length;
+        boolean[][] flag = new boolean[h][w];
         
-        visited = new boolean[m][n];
-        char head = word.charAt(0);
-        
-        for (int i = 0; i < m; i++) {
-            for (int j = 0; j < n; j++) {
-                if (board[i][j] == head) {
-                    visited[i][j] = true;
-                    
-                    if (existRecursive(board, i, j, word, 1))
-                        return true;
-                    
-                    visited[i][j] = false;
+        for(int i = 0; i < h; i++){
+            for(int j = 0; j < w; j++){
+                if(word.charAt(0) == board[i][j]){
+                    if(search(board, word, 0, w, h, j, i, flag)) return true;
                 }
             }
         }
@@ -5754,47 +5811,31 @@ public boolean[][] visited;
         return false;
     }
     
-    public boolean existRecursive(char[][] board, int i, int j, String word, int start) {
-        if (start == word.length()) return true;
-
-        int m = board.length;
-        int n = board[0].length;
-        // upward
-        i--;
-        if (i >= 0 && i < m && j >= 0 && j < n && !visited[i][j] && board[i][j] == word.charAt(start)) {
-            visited[i][j] = true;
-            if (existRecursive(board, i, j, word, start + 1))
-                return true;
-            visited[i][j] = false;
-        }
+    public boolean search(char[][] board, String word, int spos, int w, int h, int x, int y, boolean[][] flag){
+        if(spos == word.length())  return true;
+        if(x < 0 || x >= w || y < 0 || y >= h)   return false;
+        if(flag[y][x] || board[y][x] != word.charAt(spos))   return false;
         
-        // downward
-        i += 2;
-        if (i >= 0 && i < m && j >= 0 && j < n && !visited[i][j] && board[i][j] == word.charAt(start)) {
-            visited[i][j] = true;
-            if (existRecursive(board, i, j, word, start + 1))
-                return true;
-            visited[i][j] = false;
-        }
+        flag[y][x] = true;
         
+        // up
+        if(search(board, word, spos + 1, w, h, x, y-1, flag)){
+            return true;
+        }
+        // down
+        if(search(board, word, spos + 1, w, h, x, y+1, flag)){
+            return true;
+        }
         // left
-        i--;
-        j--;
-        if (i >= 0 && i < m && j >= 0 && j < n && !visited[i][j] && board[i][j] == word.charAt(start)) {
-            visited[i][j] = true;
-            if (existRecursive(board, i, j, word, start + 1))
-                return true;
-            visited[i][j] = false;
+        if(search(board, word, spos + 1, w, h, x-1, y, flag)){
+            return true;
+        }
+        // right
+        if(search(board, word, spos + 1, w, h, x+1, y, flag)){
+            return true;
         }
         
-        // right
-        j += 2;
-        if (i >= 0 && i < m && j >= 0 && j < n && !visited[i][j] && board[i][j] == word.charAt(start)) {
-            visited[i][j] = true;
-            if (existRecursive(board, i, j, word, start + 1))
-                return true;
-            visited[i][j] = false;
-        }
+        flag[y][x] = false;
         
         return false;
     }
@@ -6078,6 +6119,901 @@ public boolean[][] visited;
         return true;
     }
 	
+	/**
+	 * Distinct Subsequences
+	 * 
+	 * Given a string S and a string T, count the number of distinct
+	 * subsequences of T in S.
+	 * 
+	 * A subsequence of a string is a new string which is formed from the
+	 * original string by deleting some (can be none) of the characters without
+	 * disturbing the relative positions of the remaining characters. (ie, "ACE"
+	 * is a subsequence of "ABCDE" while "AEC" is not).
+	 * 
+	 * Here is an example: S = "rabbbit", T = "rabbit"
+	 * 
+	 * Return 3.
+	 */
+	public int numDistinct(String S, String T) {
+        // Note: The Solution object is instantiated only once and is reused by each test case.
+        if(S == null || T == null) return -1;
+        
+        int[] dp = new int[T.length() + 1];
+        dp[T.length()] = 1;
+        
+        for (int i = S.length() - 1; i >= 0; --i) {
+            for (int j = 0; j < T.length(); ++j) {
+                if(S.charAt(i) == T.charAt(j))
+                	dp[j] += dp[j + 1];
+            }
+        }
+        
+        return dp[0];
+    }
+
+	public int numDistinctRecursive(String S, String T) {
+        return numDistinctRecursive(S, 0, T, 0);
+    }
+    
+    public int numDistinctRecursive(String S, int s, String T, int t) {
+        int sLen = S.length();
+        int tLen = T.length();
+        if (t == tLen) {
+            return 1;
+        }
+
+        int result = 0;
+        
+        while (s <= sLen - tLen + t) {
+            if (S.charAt(s) == T.charAt(t)) {
+                result += numDistinctRecursive(S, s + 1, T, t + 1);
+            }
+            s++;
+        }
+
+        return result;
+    }
+    
+    /**
+     * Decode Ways
+     */
+    public int numDecodings(String s) {
+        int len = s.length();
+        if (len == 0) return 0;
+        
+        int[] dp = new int[len + 1];
+        dp[0] = 1;
+        dp[1] = (s.charAt(0) == '0') ? 0 : 1;
+        
+        for (int i = 2; i <= len; i++) {
+            int n = s.charAt(i - 1) - '0';
+            if (n > 0) {
+                dp[i] = dp[i - 1];
+            }
+            
+            n += (s.charAt(i - 2) - '0') * 10;
+            if (n <= 26 && n >= 10) {
+                dp[i] += dp[i - 2];
+            }
+        }
+        
+        return dp[len];
+    }
+    
+    /**
+     * Scramble String
+     */
+    public boolean isScramble(String s1, String s2) {
+        if(s1.length() != s2.length()){
+			return false;
+		}
+        if(s1.length()==1 && s2.length()==1){
+        	return s1.charAt(0) == s2.charAt(0);
+        }
+        
+        char[] s1ch = s1.toCharArray();
+		char[] s2ch = s2.toCharArray();
+		Arrays.sort(s1ch);
+		Arrays.sort(s2ch);
+		if(!new String(s1ch).equals(new String(s2ch))){
+			return false;
+		}
+		
+		for(int i=1; i<s1.length(); i++){		
+			String s11 = s1.substring(0, i);
+			String s12 = s1.substring(i);
+			String s21 = s2.substring(0, i);
+			String s22 = s2.substring(i);
+
+			if(isScramble(s11, s21) && isScramble(s12, s22)){
+				return true;
+			}
+		
+			s21 = s2.substring(0, s2.length()-i);
+			s22 = s2.substring(s2.length()-i);
+			if(isScramble(s11, s22) && isScramble(s12, s21)){
+				return true;
+			}
+		}
+		return false;
+    }
+    
+    /**
+     * Simplify Path
+     */
+    public String simplifyPath(String path) {
+        String[] list = path.split("/");
+        
+        Stack<String> stack = new Stack<String>();
+        for (String s : list) {
+            if (s.equals("") || s.equals(".")) {
+                continue;
+            } else if (s.equals("..")) {
+                if (stack.size() != 0) {
+                    stack.pop();
+                }
+            } else {
+                stack.push(s);
+            }
+        }
+        
+        StringBuffer sb = new StringBuffer();
+        for (String s : stack) {
+            sb.append("/").append(s);
+        }
+        
+        return (sb.length() == 0) ? "/" : sb.toString();
+    }
+    
+    /**
+     * ZigZag Conversion
+     */
+    public String convert(String s, int nRows) {
+        ArrayList<StringBuffer> rowList = new ArrayList<StringBuffer>();
+        for (int i = 0; i < nRows; i++) {
+            rowList.add(new StringBuffer());
+        }
+        
+        int len = s.length();
+        
+        int i = 0;
+        while (i < len) {
+            // first column
+            for (int j = 0; j < nRows && i < len; j++) {
+                rowList.get(j).append(s.charAt(i++));
+            }
+            
+            // diagnal
+            for (int j = nRows - 2; j > 0 && i < len; j--) {
+                rowList.get(j).append(s.charAt(i++));
+            }
+        }
+        
+        StringBuffer result = new StringBuffer();
+        for (StringBuffer sb : rowList) {
+            result.append(sb);
+        }
+        
+        return result.toString();
+    }
+    
+    /**
+     * Copy List with Random Pointer
+     */
+    public RandomListNode copyRandomList(RandomListNode head) {
+        if (head == null) {
+            return null;
+        }
+        
+        // copy the main list to double the length
+        RandomListNode current = head;
+        while (current != null) {
+            RandomListNode node = new RandomListNode(current.label);
+            node.next = current.next;
+            current.next = node;
+            node.random = current.random;
+            current = node.next;
+        }
+        
+        // update the random
+        current = head;
+        while (current != null) {
+            current = current.next;
+            current.random = (current.random == null) ? null : current.random.next;
+            current = current.next;
+        }
+
+        // separate the two lists
+        RandomListNode newHead = head.next;
+        current = newHead;
+        while (current.next != null) {
+            head.next = current.next;
+            head = head.next;
+            current.next = head.next;
+            current = current.next;
+        }
+        head.next = null;
+        
+        return newHead;
+    }
+    
+    /**
+     * Merge k Sorted Lists
+     */
+    public ListNode mergeKLists(ArrayList<ListNode> lists) {
+        if (lists == null || lists.size() == 0) {
+            return null;
+        }
+
+        // construct dummy node
+        ListNode dummy = new ListNode(0);
+        ListNode current = dummy;
+        
+        // construct MinHeap
+        PriorityQueue<ListNode> pq = new PriorityQueue<ListNode>(lists.size(), 
+                new Comparator<ListNode>() {
+                    @Override
+                    public int compare(ListNode node1, ListNode node2) {
+                        if (node1.val < node2.val) {
+                            return -1;
+                        } else if (node1.val > node2.val) {
+                            return 1;
+                        }
+                        
+                        return 0;
+                    }
+                });
+        
+        // add all head node to heap
+        for (ListNode node : lists) {
+            if (node != null) { // this is ridiculous
+                pq.offer(node);
+            }
+        }
+        
+        while (!pq.isEmpty()) {
+            current.next = pq.poll();
+            current = current.next;
+            if (current.next != null) {
+                pq.offer(current.next);
+            }
+        }
+        
+        return dummy.next;
+    }
+    
+    /**
+     * Sort List
+     * 
+     * Sort a linked list in O(n log n) time using constant space complexity.
+     */
+    public ListNode sortList(ListNode head) {
+        if (head == null || head.next == null) {
+            return head;
+        }
+        
+        // divide
+        ListNode tail = findMiddle(head);
+        ListNode head2 = tail.next;
+        tail.next = null;
+        
+        // conquer
+        head = sortList(head);
+        head2 = sortList(head2);
+        return merge(head, head2);
+    }
+    
+    private ListNode findMiddle(ListNode head) {
+        ListNode slow = head;
+        ListNode fast = head.next;
+        
+        while (fast != null && fast.next != null) {
+            slow = slow.next;
+            fast = fast.next.next;
+        }
+        
+        return slow;
+    }
+    
+    private ListNode merge(ListNode head1, ListNode head2) {
+        ListNode dummy = new ListNode(0);
+        ListNode prev = dummy;
+        
+        while (head1 != null && head2 != null) {
+            
+            if (head1.val < head2.val) {
+                prev.next = head1;
+                prev = head1;
+                head1 = head1.next;
+            } else {
+                prev.next = head2;
+                prev = head2;
+                head2 = head2.next;
+            }
+        }
+        
+        prev.next = (head1 == null) ? head2 : head1;
+        
+        return dummy.next;
+    }
+
+    /**
+     * Evaluate Reverse Polish Notation
+     */
+    public int evalRPN(String[] tokens) {
+        if (tokens == null || tokens.length == 0) {
+            return 0;
+        }
+        
+        Stack<Integer> stack = new Stack<Integer>();
+        for (String s : tokens) {
+            int a, b;
+            
+            switch (s) {
+                case "+":
+                    b = stack.pop();
+                    a = stack.pop();
+                    stack.push(a + b);
+                    break;
+                case "-":
+                    b = stack.pop();
+                    a = stack.pop();
+                    stack.push(a - b);
+                    break;
+                case "*":
+                    b = stack.pop();
+                    a = stack.pop();
+                    stack.push(a * b);
+                    break;
+                case "/":
+                    b = stack.pop();
+                    a = stack.pop();
+                    stack.push(a / b);
+                    break;
+                default:
+                    stack.push(Integer.valueOf(s));
+            }
+        }
+        
+        return stack.pop();
+    }
+    
+    /**
+     * Text Justification
+     */
+    public ArrayList<String> fullJustify(String[] words, int L) {
+		ArrayList<String> result = new ArrayList<String>();
+		if (words == null || words.length == 0) {
+			return result;
+		}
+
+		int left = L - words[0].length();
+		int start = 0;
+		int end = 0;
+		int spaceSlots = 0;
+
+		for (int i = 1; i <= words.length; i++) {
+			// System.out.println("for...");
+			// can not add new word
+			if (i == words.length || left - words[i].length() - (end - start + 1) < 0) {
+				// System.out.println("  if...");
+				// System.out.println("    start: " + start + " end: " + end + " i: " + i);
+				// construct new line
+				StringBuffer line = new StringBuffer(L);
+				if (spaceSlots == 0) {
+					line.append(words[start]);
+					for (int j = words[start].length(); j < L; j++) {
+						line.append(" ");
+					}
+				} else {
+					for (int j = start; j < end; j++) {
+						line.append(words[j]);
+
+						if (i == words.length) {
+							line.append(" ");
+						} else {
+							int space = left / spaceSlots;
+							// System.out.println("    space: " + space);
+							if (left % spaceSlots > 0) {
+								space++;
+							}
+							
+							left -= space;
+							
+							while (space-- > 0) {
+								line.append(" ");
+							}
+						}
+
+						spaceSlots--;
+					}
+					line.append(words[end]);
+					for (int j = line.length(); j < L; j++) {
+						line.append(" ");
+					}
+				}
+				// System.out.println("    " + line.toString() + "\n");
+				result.add(line.toString());
+
+				// start next round
+				if (i < words.length) {
+					start = i;
+					end = i;
+					left = L - words[i].length();
+					spaceSlots = 0;
+				}
+			} else {
+				// System.out.println("  else...");
+			 	// System.out.println("    " + words[i]);
+				left -= words[i].length();
+				end = i;
+				spaceSlots++;
+			}
+		}
+
+		return result;
+    }
+    
+    /** Other's solution */
+	public ArrayList<String> fullJustify2(String[] words, int L) {
+		ArrayList<String> list = new ArrayList<String>();
+		ArrayList<String> res = new ArrayList<String>();
+		StringBuilder sb = new StringBuilder();
+		int cur = 0;
+		int len = 0;
+
+		while (cur < words.length) {
+			sb.setLength(0);
+			sb.append(words[cur]);
+
+			list.clear();
+			len = words[cur].length();
+			cur++;
+
+			while (cur < words.length && len + 1 + words[cur].length() <= L) {
+				list.add(" " + words[cur]);
+				len += words[cur].length() + 1;
+
+				cur++;
+
+			}
+			if (cur < words.length && list.size() > 0) {
+				int spaces = L - len;
+				int avg = spaces / list.size();
+				int rem = spaces % list.size();
+				for (int i = 0; i < list.size(); i++) {
+					appendSpaces(sb, i < rem ? avg + 1 : avg);
+					sb.append(list.get(i));
+				}
+			} else {
+				for (int i = 0; i < list.size(); i++)
+					sb.append(list.get(i));
+				// sb.append(list.get(0));
+				appendSpaces(sb, L - len);
+			}
+
+			res.add(sb.toString());
+		}
+		return res;
+	}
+
+	private void appendSpaces(StringBuilder sb, int n) {
+		for (int i = 0; i < n; i++)
+			sb.append(' ');
+	}
+    
+	/**
+	 * Candy
+	 */
+	public int candy(int[] ratings) {
+        if (ratings == null || ratings.length == 0) {
+            return 0;
+        }
+        
+        int[] candys = new int[ratings.length];
+        for (int i = 0; i < candys.length; i++) {
+            candys[i] = 1;
+        }
+        
+        for (int i = 1; i < candys.length; i++) {
+            if (ratings[i] > ratings[i - 1]) {
+                candys[i] = candys[i - 1] + 1;
+            }
+        }
+        
+        for (int i = candys.length - 2; i >= 0; i--) {
+            if (ratings[i] > ratings[i + 1]) {
+                candys[i] = Math.max(candys[i], candys[i + 1] + 1);
+            }
+        }
+        
+        int sum = 0;
+        for (int i = 0; i < candys.length; i++) {
+            sum += candys[i];
+        }
+        
+        return sum;
+    }
+	
+	/**
+	 * Merge Intervals
+	 */
+	public ArrayList<Interval> merge(ArrayList<Interval> intervals) {
+        ArrayList<Interval> result = new ArrayList<Interval>();
+        if (intervals == null || intervals.size() == 0) {
+            return result;
+        }
+        
+        Collections.sort(intervals, new Comparator<Interval>() {
+                    @Override
+                    public int compare(Interval interval1, Interval interval2) {
+                        if (interval1.start < interval2.start) {
+                            return -1;
+                        } else if (interval1.start > interval2.start) {
+                            return 1;
+                        } else if (interval1.end < interval2.end) {
+                            return -1;
+                        } else if (interval1.end > interval2.end) {
+                            return 1;
+                        }
+                        
+                        return 0;
+                    }
+                });
+        
+        result.add(intervals.get(0));
+        for (int i = 1; i < intervals.size(); i++) {
+            Interval last = result.get(result.size() - 1);
+            Interval next = intervals.get(i);
+            if (last.end < next.start) {
+                result.add(next);
+            } else if (last.end >= next.end) {
+                continue;
+            } else {
+                result.remove(last);
+                result.add(new Interval(last.start, next.end));
+            }
+        }
+        
+        return result;
+    }
+	
+	/**
+	 * Insert Interval
+	 */
+	public ArrayList<Interval> insert(ArrayList<Interval> intervals, Interval newInterval) {
+        if (intervals == null || newInterval == null || intervals.size() == 0) {
+            if (intervals == null) {
+                intervals = new ArrayList<Interval>();
+            }
+            
+            if (intervals != null) {
+                intervals.add(newInterval);
+            }
+            
+            return intervals;
+        }
+        
+        // newInterval beyond the origial range
+        if (newInterval.start > intervals.get(intervals.size() - 1).end) {
+            intervals.add(newInterval);
+            return intervals;
+        } else if (newInterval.end < intervals.get(0).start) {
+            intervals.add(0, newInterval);
+            return intervals;
+        }
+        
+        // start and end intervals to merge
+        int start = 0;
+        int end = intervals.size() - 1;
+        
+        // search for start
+        int left = 0;
+        int right = intervals.size() - 1;
+        while (left < right) {
+            int mid = (left + right) >>> 1;
+            if (intervals.get(mid).start > newInterval.start) {
+                right = mid;
+            } else if (intervals.get(mid).end < newInterval.start) {
+                left = mid + 1;
+            } else {
+                start = mid;
+                break;
+            }
+        }
+        if (left == right) {
+            start = left;
+        }
+        
+        // search for end
+        left = start - 1;
+        right = intervals.size() - 1;
+        while (left < right) {
+            int mid = (left + right + 1) >>> 1;
+            if (intervals.get(mid).start > newInterval.end) {
+                right = mid - 1;
+            } else if (intervals.get(mid).end < newInterval.end) {
+                left = mid;
+            } else {
+                end = mid;
+                break;
+            }
+        }
+        if (left == right) {
+            end = left;
+        }
+        System.out.println(start + " " + end);
+        // insert without merge
+        if (start > end) {
+            intervals.add(start, newInterval);
+            return intervals;
+        }
+        
+        // insert and merge the intervals
+        intervals.get(start).start = Math.min(intervals.get(start).start, newInterval.start);
+        intervals.get(start).end = Math.max(intervals.get(end).end, newInterval.end);
+        for (int i = end; i > start; i--) {
+            intervals.remove(i);
+        }
+        
+        return intervals;
+    }
+	
+	/**
+	 * Clone Graph
+	 */
+	public UndirectedGraphNode cloneGraph(UndirectedGraphNode node) {
+		HashMap<UndirectedGraphNode, UndirectedGraphNode> map = new HashMap<UndirectedGraphNode, UndirectedGraphNode>();
+		return cloneNode(node, map);
+	}
+
+	private UndirectedGraphNode cloneNode(UndirectedGraphNode node,
+			HashMap<UndirectedGraphNode, UndirectedGraphNode> map) {
+		if (node == null)
+			return null;
+		if (map.containsKey(node)) { // have copied before
+			return map.get(node);
+		} else { // hasn't been copied
+			UndirectedGraphNode copy = new UndirectedGraphNode(node.label);
+			map.put(node, copy); // put the new copy into map
+			// add copies of children
+			for (UndirectedGraphNode n : node.neighbors) {
+				copy.neighbors.add(cloneNode(n, map));
+			}
+			return copy;
+		}
+	}
+    
+    /**
+     * Surrounded Regions
+     */
+    public void solve(char[][] board) {
+		if (board.length == 0) {
+			return;
+		}
+		boolean isAlive[][] = new boolean[board.length][board[0].length];
+
+		for (int i = 1; i < board[0].length - 1; i++) {
+			dfs(0, i, isAlive, board);
+			dfs(board.length - 1, i, isAlive, board);
+		}
+
+		for (int i = 1; i < board.length - 1; i++) {
+			dfs(i, 0, isAlive, board);
+			dfs(i, board[0].length - 1, isAlive, board);
+		}
+
+		for (int i = 1; i < board.length - 1; i++) {
+			for (int j = 1; j < board[0].length - 1; j++) {
+				if (!isAlive[i][j]) {
+					board[i][j] = 'X';
+				}
+			}
+		}
+	}
+
+	public void dfs(int row, int col, boolean[][] isAlive, char[][] board) {
+		if (board[row][col] == 'X' || isAlive[row][col]) {
+			return;
+		} else if (board[row][col] == 'O') {
+			isAlive[row][col] = true;
+		}
+
+		if (col - 1 > 0) {
+			dfs(row, col - 1, isAlive, board);
+		}
+		if (col + 1 < isAlive[0].length - 1) {
+			dfs(row, col + 1, isAlive, board);
+		}
+		if (row - 1 > 0) {
+			dfs(row - 1, col, isAlive, board);
+		}
+		if (row + 1 < isAlive.length - 1) {
+			dfs(row + 1, col, isAlive, board);
+		}
+	}
+    
+	/**
+	 * Multiply Strings
+	 */
+	public String multiply(String num1, String num2) {
+        if (num1 == null || num2 == null || num1.length() == 0 || num2.length() == 0) {
+            return null;
+        }
+        
+        if (num1.equals("0") || num2.equals("0")) {
+            return "0";
+        }
+        
+		String n1 = new StringBuilder(num1).reverse().toString();
+		String n2 = new StringBuilder(num2).reverse().toString();
+		int[] d = new int[n1.length() + n2.length()];
+		for (int i = 0; i < n1.length(); i++) {
+			for (int j = 0; j < n2.length(); j++) {
+				d[i + j] += (n1.charAt(i) - '0') * (n2.charAt(j) - '0');
+			}
+		}
+		
+		StringBuilder sb = new StringBuilder();
+		for (int i = 0; i < d.length - 1; i++) {
+			int digit = d[i] % 10;
+			int carry = d[i] / 10;
+			d[i + 1] += carry;
+			sb.insert(0, digit);
+		}
+		
+		if (d[d.length - 1] != 0) {
+			sb.insert(0, d[d.length - 1]);
+		}
+
+		return sb.toString();
+	}
+	
+	/**
+	 * Interleaving String
+	 * 
+	 * Given s1, s2, s3, find whether s3 is formed by the interleaving of s1 and
+	 * s2.
+	 * 
+	 * For example, Given: 
+	 * s1 = "aabcc", 
+	 * s2 = "dbbca",
+	 * 
+	 * When s3 = "aadbbcbcac", return true. 
+	 * When s3 = "aadbbbaccc", return false.
+	 */
+	public boolean isInterleave(String s1, String s2, String s3) {
+        if (s1 == null || s2 == null || s3 == null) {
+            return false;
+        }
+        
+        int m = s1.length();
+        int n = s2.length();
+        int len = s3.length();
+        if (len != m + n) {
+            return false;
+        }
+
+        boolean[][] match = new boolean[m + 1][n + 1];
+        match[0][0] = true;
+        for (int i = 1; i <= m; i++) {
+            if (s1.charAt(i - 1) == s3.charAt(i - 1)) {
+                match[i][0] = true;
+            } else {
+                break;
+            }
+        }
+        for (int i = 1; i <= n; i++) {
+            if (s2.charAt(i - 1) == s3.charAt(i - 1)) {
+                match[0][i] = true;
+            } else {
+                break;
+            }
+        }
+        
+        for (int i = 1; i <= m; i++) {
+            for (int j = 1; j <= n; j++) {
+                if ((match[i - 1][j] && s1.charAt(i - 1) == s3.charAt(i + j - 1)) || 
+                    (match[i][j - 1] && s2.charAt(j - 1) == s3.charAt(i + j - 1))) {
+                    match[i][j] = true;
+                }
+            }
+        }
+        
+        return match[m][n];
+    }
+	
+	/**
+	 * Regular Expression Matching
+	 */
+	public boolean isMatchRegular(String s, String p) {
+		if (p.length() == 0) {
+			return s.length() == 0;
+		}
+		
+		if (p.length() == 1 || p.charAt(1) != '*') {
+			if (s.length() == 0) {
+				return false;
+			}
+			if (p.charAt(0) != '.' && p.charAt(0) != s.charAt(0)) {
+				return false;
+			} else {
+				return isMatchRegular(s.substring(1), p.substring(1));
+			}
+		} else {
+			if (isMatchRegular(s, p.substring(2))) {
+				return true;
+			} else {
+				int i = 1;
+				while (i <= s.length() && (p.charAt(0) == '.' || s.charAt(i - 1) == p.charAt(0))) {
+					if (isMatchRegular(s.substring(i), p.substring(2))) {
+						return true;
+					}
+					i++;
+				}
+				return false;
+			}
+		}
+	}
+	
+	/**
+	 * Reverse Words in a String
+	 */
+	public String reverseWords(String s) {
+        if (s == null || s.length() == 0) {
+            return "";
+        }
+        
+        int index = s.length() - 1;
+        StringBuffer sb = new StringBuffer();
+        
+        while (index >= 0) {
+            int end = index;
+            while (end >= 0 && s.charAt(end) == ' ') {
+                end--;
+            }
+            if (end < 0) {
+                break;
+            }
+            
+            int start = end;
+            while (start >= 0 && s.charAt(start) != ' ') {
+                start--;
+            }
+
+            sb.append(s.substring(start + 1, end + 1));
+            sb.append(' ');
+            index = start - 1;
+        }
+        
+        return (sb.length() > 0) ? sb.substring(0, sb.length() - 1) : "";
+    }
+
+	/**
+	 * Find Minimum in Rotated Sorted Array
+	 * Suppose a sorted array is rotated at some pivot unknown to you beforehand.
+	 * You may assume no duplicate exists in the array.
+	 */
+	public int findMin(int[] num) {
+		if (num == null || num.length == 0) {
+			return - 1;
+		}
+		
+        int left = 0;
+        int right = num.length - 1;
+        
+        while (left < right) {
+            int mid = (left + right) >> 1;
+            if (num[mid] < num[right]) {
+                right = mid;
+            } else {
+                left = mid + 1;
+            }
+        }
+        
+        return num[left];
+    }
+	
 	public void test() {
 		//int[] num = {0,0,0,0};
 		//int target = 0;
@@ -6086,9 +7022,16 @@ public boolean[][] visited;
 		//char[][] board = {{'.','8','7','6','5','4','3','2','1'},{'2','.','.','.','.','.','.','.','.'},{'3','.','.','.','.','.','.','.','.'},{'4','.','.','.','.','.','.','.','.'},{'5','.','.','.','.','.','.','.','.'},{'6','.','.','.','.','.','.','.','.'},{'7','.','.','.','.','.','.','.','.'},{'8','.','.','.','.','.','.','.','.'},{'9','.','.','.','.','.','.','.','.'}};
 		//System.out.println("mississippi\nissip");
 		//System.out.println(kmp("mississippi", "issip"));
-		ListNode head = new ListNode(1);
-		head.next = new ListNode(2);
-		System.out.println(reverseKGroup(head, 2));
+		System.out.println(numDecodings("650"));
+		Interval i1 = new Interval(3, 5);
+		Interval i2 = new Interval(12, 15);
+		Interval newInterval = new Interval(6, 6);
+		ArrayList<Interval> intervals = new ArrayList<Interval>();
+		intervals.add(i1);
+		intervals.add(i2);
+		for (Interval i : insert(intervals, newInterval)) {
+			System.out.println(i);
+		}
 	}
 	
 	public static void main(String[] args) {
