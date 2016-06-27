@@ -7,7 +7,10 @@ import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 
-
+/**
+ * Essential skill testers.
+ * @author Guangcheng Lu
+ */
 public class Basic {
 
 	/**
@@ -36,7 +39,7 @@ public class Basic {
 		
 		return null;
 	}
-	
+
 	/** KMP */
     public String kmp(String haystack, String needle) {
         int m = haystack.length();
@@ -76,7 +79,7 @@ public class Basic {
         
         return (j == n) ? haystack.substring(i - n) : null;
     }
-    
+
 	/**
 	 * Reverse Words in a String
 	 */

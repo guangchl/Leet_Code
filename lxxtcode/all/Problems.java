@@ -430,43 +430,6 @@ public class Problems {
 	}
 
 	/**
-	 * Search Insert Position
-	 * 
-	 * Given a sorted array and a target value, return the index if the target
-	 * is found. If not, return the index where it would be if it were inserted
-	 * in order. You may assume no duplicates in the array.
-	 */
-	public int searchInsert(int[] A, int target) {
-		// give a range to for recursion
-		return binarySearchInsert(A, target, 0, A.length - 1);
-	}
-
-	public int binarySearchInsert(int[] A, int target, int left, int right) {
-		// base case: length of insert range == 1
-		if (left == right) {
-			if (A[left] >= target) {
-				return left;
-			} else {
-				return left + 1;
-			}
-		}
-
-		// binary recursion
-		int mid = (left + right) / 2;
-		if (A[mid] == target) {
-			return mid;
-		} else if (A[mid] < target) {
-			return binarySearchInsert(A, target, mid + 1, right);
-		} else {
-			if (mid == left) { // length of insert range == 2
-				return mid;
-			} else {
-				return binarySearchInsert(A, target, left, mid - 1);
-			}
-		}
-	}
-
-	/**
 	 * Remove Duplicates from Sorted List
 	 * 
 	 * Given a sorted linked list, delete all duplicates such that each element
@@ -2058,70 +2021,6 @@ public class Problems {
     }
 	
 	/**
-	 * Search a 2D Matrix
-	 * 
-	 * Write an efficient algorithm that searches for a value in an m x n
-	 * matrix. This matrix has the following properties:
-	 * 
-	 * Integers in each row are sorted from left to right. The first integer of
-	 * each row is greater than the last integer of the previous row.
-	 */
-	public boolean searchMatrix(int[][] matrix, int target) {
-		int length = matrix.length;
-        int width = matrix[0].length;
-        
-        int row = binarySearchRow(matrix, target, 0, length - 1);
-        if (row == -1) {
-            return false;
-        }
-        
-        return binarySearchArray(target, matrix[row], 0, width - 1);
-    }
-    
-    public int binarySearchRow(int[][] matrix, int target, int left, int right) {
-        if (left == right) {
-            if (matrix[left][0] <= target || matrix[left][matrix[0].length-1] >= target) {
-                return left;
-            } else {
-                return -1;
-            }
-        } else if (right - left == 1) {
-            if (matrix[right][0] <= target) {
-                return binarySearchRow(matrix, target, right, right);
-            } else {
-                return binarySearchRow(matrix, target, left, left);
-            }
-        } else {
-            int mid = (left + right) / 2;
-            
-            if (matrix[mid][0] > target) {
-                return binarySearchRow(matrix, target, left, mid - 1);
-            } else if (matrix[mid][matrix[0].length-1] < target) {
-                return binarySearchRow(matrix, target, mid + 1, right);
-            } else {
-                return mid;
-            }
-        }
-    }
-    
-    public boolean binarySearchArray(int target, int[] array, int left, int right) {
-        if (left == right) {
-            return target == array[left];
-        } else if (right - left == 1) {
-            return target == array[left] || target == array[right];
-        } else {
-            int mid = (left + right) / 2;
-            if (target < array[mid]) {
-                return binarySearchArray(target, array, left, mid - 1);
-            } else if (target > array[mid]) {
-                return binarySearchArray(target, array, mid + 1, right);
-            } else {
-                return true;
-            }
-        }
-	}
-	
-	/**
 	 * Set Matrix Zeroes
 	 * 
 	 * Given a m x n matrix, if an element is 0, set its entire row and column
@@ -2510,104 +2409,7 @@ public class Problems {
         
         return matrix;
     }
-	
-	/**
-	 * Search in Rotated Sorted Array
-	 * 
-	 * Suppose a sorted array is rotated at some pivot unknown to you
-	 * beforehand.
-	 * 
-	 * (i.e., 0 1 2 4 5 6 7 might become 4 5 6 7 0 1 2).
-	 * 
-	 * You are given a target value to search. If found in the array return its
-	 * index, otherwise return -1.
-	 * 
-	 * You may assume no duplicate exists in the array.
-	 */
-	public int searchRotated(int[] A, int target) {
-        return binarySearchRotated(A, 0, A.length - 1, target);
-    }
-    
-    public int binarySearchRotated(int[] A, int left, int right, int target) {
-        if (left == right) {
-            if (A[left] == target) {
-                return left;
-            } else {
-                return -1;
-            }
-            
-        } else if (right - left == 1) {
-            if (A[left] == target) {
-                return left;
-            } else if (A[right] == target) {
-                return right;
-            } else {
-                return -1;
-            }
-            
-        } else {
-            int mid = (left + right) / 2;
-            
-            if (A[mid] == target) {
-                return mid;
-            
-            } else if ((A[mid] < target && (A[right] >= target || A[right] < A[mid])) 
-            		|| (A[mid] > target && A[left] > target && A[left] < A[mid])) {
-                return binarySearchRotated(A, mid + 1, right, target);
-            
-            } else {
-                return binarySearchRotated(A, left, mid - 1, target);
-            }
-        }
-    }
-	
-	/**
-	 * Search in Rotated Sorted Array II
-	 * 
-	 * Follow up for "Search in Rotated Sorted Array": What if duplicates are
-	 * allowed?
-	 * 
-	 * Would this affect the run-time complexity? How and why?
-	 * 
-	 * Write a function to determine if a given target is in the array.
-	 * 
-	 * O(logN) ~ O(n), depends on number of duplicates.
-	 * 
-	 * This solutions is so concise and beautiful.
-	 */
-	public boolean searchRotatedWithDup(int[] A, int target) {
-		int left = 0;
-        int right = A.length - 1;
-        
-        while (left <= right) {
-            int mid = (left + right) / 2;
-            
-            if (A[mid] == target) {
-                return true; // or return index according to requirement
-            }
-            
-            if (A[left] < A[mid]) { // left part is sorted
-                if (A[left] <= target && A[mid] >= target) {
-                    right = mid;
-                } else {
-                    left = mid + 1;
-                }
-                
-            } else if (A[left] > A[mid]) { // right part is sorted
-                if (A[mid] <= target && A[right] >= target) {
-                    left = mid;
-                } else {
-                    right = mid - 1;
-                }
-                
-            } else {
-                left++;
-            }
-        }
-        
-        return false;
-	}
-	
+
 	/**
 	 * Palindrome Number
 	 * 
@@ -3047,71 +2849,6 @@ public class Problems {
         return step[step.length - 1];
     }
     
-    /**
-	 * Search for a Range
-	 * 
-	 * Given a sorted array of integers, find the starting and ending position
-	 * of a given target value.
-	 * 
-	 * Your algorithm's runtime complexity must be in the order of O(log n).
-	 * 
-	 * If the target is not found in the array, return [-1, -1].
-	 * 
-	 * For example, Given [5, 7, 7, 8, 8, 10] and target value 8, return [3, 4].
-	 */
-    public int[] searchRange(int[] A, int target) {
-        int[] range = new int[2];
-        
-        // empty A
-        if (A.length == 0) {
-            range[0] = -1;
-            range[1] = -1;
-            return range;
-        }
-
-        range[0] = searchStart(A, target, 0, A.length - 1);
-        range[1] = range[0] == -1 ? -1 : searchEnd(A, target, range[0], A.length - 1);
-        
-        return range;
-    }
-
-    public int searchStart(int[] A, int target, int left, int right) {
-        // base case
-        if (left == right) {
-            if (A[left] == target) {
-                return left;
-            } else {
-                return -1;
-            }
-        }
-        
-        // recursive search
-        int mid = (left + right) / 2; // tend to choose left mid
-        if (A[mid] >= target) {
-            return searchStart(A, target, left, mid);
-        } else {
-            return searchStart(A, target, mid + 1, right);
-        }
-    }
-    
-    public int searchEnd(int[] A, int target, int left, int right) {
-        // base case
-        if (left == right) {
-            if (A[left] == target) {
-                return left;
-            } else {
-                return -1;
-            }
-        }
-        
-        // recursive search
-        int mid = (left + right + 1) / 2; // tend to choose right mid
-        if (A[mid] <= target) {
-            return searchEnd(A, target, mid, right);
-        } else {
-            return searchEnd(A, target, left, mid - 1);
-        }
-    }
     
     /**
 	 * Valid Sudoku
@@ -5159,77 +4896,6 @@ public class Problems {
     }
     
     /**
-	 * Implement strStr()
-	 * 
-	 * Returns a pointer to the first occurrence of needle in haystack, or null
-	 * if needle is not part of haystack.
-	 */
-    public String strStr(String haystack, String needle) {
-        int m = haystack.length();
-        int n = needle.length();
-        if (n == 0) {
-            return haystack;
-        }
-
-        for (int i = 0; i < m && m - i >= n; i++) {
-            // match the substring of haystack from i with needle
-            int j = 0;
-            for (; j < n; j++) {
-                if (haystack.charAt(i + j) != needle.charAt(j)) {
-                    break;
-                }
-            }
-            
-            // find the first occurrence
-            if (j == n) {
-                return haystack.substring(i);
-            }
-        }
-        
-        return null;
-    }
-    
-    /** KMP */
-    public String kmp(String haystack, String needle) {
-        int m = haystack.length();
-        int n = needle.length();
-        if (n == 0) {
-            return haystack;
-        } else if (m < n) {
-        	return null;
-        }
-        
-        // construct cover of needle
-        int[] cover = new int[n];
-        int iter = 0;
-        for (int i = 1; i < n; i++) {
-            while (i < n && needle.charAt(i) == needle.charAt(iter)) {
-                cover[i] = cover[i - 1] + 1;
-                i++;
-                iter++;
-            }
-            iter = 0;
-        }
-
-        int i = 0;
-        int j = 0;
-        while (i < m && j < n && m - i >= n - j) {
-       		if (haystack.charAt(i) != needle.charAt(j)) {
-       			if (j == 0) {
-       				i += 1;
-       			} else {
-           			j = cover[j - 1];
-       			}
-       		} else {
-       			i++;
-       			j++;
-       		}
-        }
-        
-        return (j == n) ? haystack.substring(i - n) : null;
-    }
-    
-    /**
 	 * Two Sum
 	 * 
 	 * Given an array of integers, find two numbers such that they add up to a
@@ -6989,30 +6655,6 @@ public class Problems {
         return (sb.length() > 0) ? sb.substring(0, sb.length() - 1) : "";
     }
 
-	/**
-	 * Find Minimum in Rotated Sorted Array
-	 * Suppose a sorted array is rotated at some pivot unknown to you beforehand.
-	 * You may assume no duplicate exists in the array.
-	 */
-	public int findMin(int[] num) {
-		if (num == null || num.length == 0) {
-			return - 1;
-		}
-		
-        int left = 0;
-        int right = num.length - 1;
-        
-        while (left < right) {
-            int mid = (left + right) >> 1;
-            if (num[mid] < num[right]) {
-                right = mid;
-            } else {
-                left = mid + 1;
-            }
-        }
-        
-        return num[left];
-    }
 	
 	public void test() {
 		//int[] num = {0,0,0,0};
