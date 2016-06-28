@@ -108,9 +108,10 @@ public class ArrayString {
 		}
 		return 0;
 	}
+
 	/**
 	 * Longest Substring Without Repeating Characters
-	 * 
+	 *
 	 * Given a string, find the length of the longest substring without
 	 * repeating characters. For example, the longest substring without
 	 * repeating letters for "abcabcbb" is "abc", which the length is 3. For
