@@ -7,7 +7,7 @@ public class BinarySearch {
 	// ******************************* TEMPLATE *******************************
 
 	/**
-	 * Template: Binary Search
+	 * Classical Binary Search - Template
 	 */
     public int binarySearch(int[] nums, int target) {
     	if (nums == null || nums.length == 0) { // length == 0 is not necessary
@@ -158,6 +158,52 @@ public class BinarySearch {
     }
 
     /**
+	 * Search a 2D Matrix II.
+	 *
+	 * Write an efficient algorithm that searches for a value in an m x n
+	 * matrix, return the occurrence of it.
+	 *
+	 * This matrix has the following properties:
+	 *
+	 * Integers in each row are sorted from left to right. Integers in each
+	 * column are sorted from up to bottom. No duplicate integers in each row or
+	 * column.
+	 *
+	 * This is not a binary search version, worst case complexity can be
+	 * discussed. Time complexity: O(m + n).
+	 *
+	 * @param matrix:
+	 *            A list of lists of integers
+	 * @param: A
+	 *             number you want to search in the matrix
+	 * @return: An integer indicate the occurrence of target in the given matrix
+	 */
+    public int searchMatrix2(int[][] matrix, int target) {
+        if (matrix == null || matrix.length == 0 || matrix[0] == null
+            || matrix[0].length == 0) {
+            return 0;
+        }
+
+        int m = matrix.length, n = matrix[0].length;
+        int i = 0, j = n - 1;
+        int count = 0;
+
+        while (i < m && j >= 0) {
+            if (matrix[i][j] > target) {
+                j--;
+            } else if (matrix[i][j] < target) {
+                i++;
+            } else {
+                count++;
+                i++;
+                j--;
+            }
+        }
+
+        return count;
+    }
+
+    /**
 	 * First Position of Target.
 	 *
 	 * For a given sorted array (ascending order) and a
@@ -191,6 +237,41 @@ public class BinarySearch {
         }
 
         return (nums[start] == target) ? start : -1;
+    }
+
+	/**
+	 * Last Position of Target.
+	 *
+	 * Find the last position of a target number in a sorted array. Return -1 if
+	 * target does not exist.
+	 *
+	 * @param A
+	 *            an integer array sorted in ascending order
+	 * @param target
+	 *            an integer
+	 * @return an integer
+	 */
+    public int lastPosition(int[] A, int target) {
+        if (A == null || A.length == 0) {
+            return -1;
+        }
+
+        int start = 0, end = A.length - 1;
+        while (start < end) {
+            int mid = (start + end + 1) >>> 1;
+            if (A[mid] == target) {
+                start = mid;
+            } else if (A[mid] < target) {
+                start = mid + 1;
+            } else {
+                end = mid - 1;
+            }
+        }
+
+        if (start == end && A[start] == target) {
+            return start;
+        }
+        return -1;
     }
 
     /**
@@ -276,6 +357,40 @@ public class BinarySearch {
         return num[start];
     }
 
+	/**
+	 * Find Minimum in Rotated Sorted Array II.
+	 *
+	 * Suppose a sorted array is rotated at some pivot unknown to you
+	 * beforehand. (i.e., 0 1 2 4 5 6 7 might become 4 5 6 7 0 1 2).
+	 *
+	 * Find the minimum element.
+	 *
+	 * Notice: The array may contain duplicates.
+	 *
+	 * @param num:
+	 *            a rotated sorted array
+	 * @return: the minimum number in the array
+	 */
+    public int findMinWithDup(int[] num) {
+        if (num == null || num.length == 0) {
+            return -1;
+        }
+
+        int start = 0, end = num.length - 1;
+        while (start < end) {
+            int mid = (start + end) >>> 1;
+            if (num[mid] == num[end]) {
+                end--;
+            } else if (num[mid] < num[end]) {
+                end = mid;
+            } else {
+                start = mid + 1;
+            }
+        }
+
+        return num[start];
+    }
+
     /**
 	 * Search in Rotated Sorted Array
 	 *
@@ -322,6 +437,109 @@ public class BinarySearch {
     }
 
     /**
+     * Search in Rotated Sorted Array II
+     *
+     * Follow up for "Search in Rotated Sorted Array": What if duplicates are
+     * allowed? Would this affect the run-time complexity? How and why?
+     *
+     * Write a function to determine if a given target is in the array.
+     *
+     * O(logN) ~ O(n), depends on number of duplicates.
+     *
+     * This solutions is so concise and beautiful.
+     *
+     * @param A
+     *            : an integer ratated sorted array and duplicates are allowed
+     * @param target
+     *            : an integer to be search
+     * @return : a boolean
+     */
+    public boolean searchWithDup(int[] A, int target) {
+        if (A == null || A.length == 0) {
+            return false;
+        }
+
+        int start = 0, end = A.length - 1;
+
+        while (start <= end) {
+            int mid = (start + end) >>> 1;
+
+            if (A[mid] == target) {
+                return true; // or return index according to requirement;
+            }
+
+            if (A[mid] < A[end]) { // right part is sorted
+                if (A[mid] < target && A[end] >= target) {
+                    start = mid + 1;
+                } else {
+                    end = mid - 1;
+                }
+            } else if (A[mid] > A[end]) { // left part is sorted
+                if (A[mid] < target && A[start] >= target) {
+                    end = mid - 1;
+                } else {
+                    start = mid + 1;
+                }
+            } else {
+                end--;
+            }
+        }
+
+        return false;
+    }
+
+    /**
+     * Search in Rotated Sorted Array II
+     *
+     * Follow up for "Search in Rotated Sorted Array": What if duplicates are
+     * allowed? Would this affect the run-time complexity? How and why?
+     *
+     * Write a function to determine if a given target is in the array.
+     *
+     * O(logN) ~ O(n), depends on number of duplicates.
+     *
+     * This solutions is so concise and beautiful.
+     *
+     * @param A
+     *            : an integer ratated sorted array and duplicates are allowed
+     * @param target
+     *            : an integer to be search
+     * @return : a boolean
+     */
+    public boolean searchRotatedWithDup(int[] A, int target) {
+        int left = 0;
+        int right = A.length - 1;
+
+        while (left <= right) {
+            int mid = (left + right) / 2;
+
+            if (A[mid] == target) {
+                return true;
+            }
+
+            if (A[left] < A[mid]) { // left part is sorted
+                if (A[left] <= target && A[mid] >= target) {
+                    right = mid;
+                } else {
+                    left = mid + 1;
+                }
+
+            } else if (A[left] > A[mid]) { // right part is sorted
+                if (A[mid] <= target && A[right] >= target) {
+                    left = mid;
+                } else {
+                    right = mid - 1;
+                }
+
+            } else {
+                left++;
+            }
+        }
+
+        return false;
+    }
+
+	/**
 	 * Find Peek Element.
 	 *
 	 * There is an integer array which has the following features:
@@ -399,49 +617,256 @@ public class BinarySearch {
     }
 
     /**
-     * 3. 2774:Ä¾²Ä¼Ó¹¤
-     * http://bailian.openjudge.cn/practice/2774
-     */
-//    #include <iostream>
-//    using namespace std;
-//
-//    int cut_by_length(int wood[], int n, int length) {
-//        int count = 0;
-//        for (int i = 0; i < n; i++) {
-//            count += wood[i] / length;
-//        }
-//        return count;
-//    }
-//
-//    int main() {
-//        int n, target, sum = 0;
-//        
-//        cin >> n >> target;
-//        int wood[n];
-//        for (int i = 0; i < n; i++) {
-//            cin >> wood[i];
-//            sum += wood[i];
-//        }
-//        
-//        int start = 1, end = sum, mid, count;
-//        while (start + 1 < end) {
-//            mid = start + (end - start) / 2;
-//            count = cut_by_length(wood, n, mid);
-//            if (count == target) {
-//                start = mid;
-//            } else if (count < target) {
-//                end = mid;
-//            } else {
-//                start = mid;
-//            }
-//        }
-//        if (cut_by_length(wood, n, end) >= target) {
-//            cout << end;
-//        } else {
-//            cout << start;
-//        }
-//        return 0;
-//    }
+     * Total Occurrence of Target.
+     *
+	 * Given a target number and an integer array sorted in ascending order.
+	 * Find the total number of occurrences of target in the array.
+	 *
+	 * @param A
+	 *            an integer array sorted in ascending order
+	 * @param target
+	 *            an integer
+	 * @return an integer
+	 */
+    public int totalOccurrence(int[] A, int target) {
+        if (A == null || A.length == 0) {
+            return 0;
+        }
+
+        int firstIndex;
+
+        // find first index
+
+        int start = 0, end = A.length - 1;
+        while (start < end) {
+            int mid = (start + end) >>> 1; // left middle
+            if (A[mid] == target) {
+                end = mid;
+            } else if (A[mid] > target) {
+                end = mid - 1;
+            } else {
+                start = mid + 1;
+            }
+        }
+
+        if (A[start] == target) {
+            firstIndex = start;
+        } else {
+            return 0;
+        }
+
+        // find last index
+
+        end = A.length - 1;
+        while (start < end) {
+            int mid = (start + end + 1) >>> 1; // right middle
+            if (A[mid] == target) {
+                start = mid;
+            } else {
+                end = mid - 1;
+            }
+        }
+
+        return end - firstIndex + 1;
+    }
+
+	/**
+	 * Closest Number in Sorted Array.
+	 *
+	 * Given a target number and an integer array A sorted in ascending order,
+	 * find the index i in A such that A[i] is closest to the given target.
+	 *
+	 * Return -1 if there is no element in the array.
+	 *
+	 * Notice: There can be duplicate elements in the array, and we can return
+	 * any of the indices with same value.
+	 *
+	 * @param A
+	 *            an integer array sorted in ascending order
+	 * @param target
+	 *            an integer
+	 * @return an integer
+	 */
+	public int closestNumber(int[] A, int target) {
+		if (A == null || A.length == 0) {
+			return -1;
+		}
+
+		int start = 0, end = A.length - 1;
+		while (start < end) {
+			int mid = (start + end) >>> 1;
+			if (A[mid] == target) {
+				return mid;
+			} else if (A[mid] > target) {
+				end = mid - 1;
+			} else {
+				start = mid + 1;
+			}
+		}
+
+		int min = start;
+		if (min + 1 < A.length) {
+			if (Math.abs(A[min] - target) > Math.abs(A[min + 1] - target)) {
+				min = min + 1;
+			}
+		}
+
+		if (min - 1 >= 0) {
+			if (Math.abs(A[min] - target) > Math.abs(A[min - 1] - target)) {
+				min = min - 1;
+			}
+		}
+		return min;
+	}
+
+	/**
+	 * K Closest Numbers In Sorted Array.
+	 *
+	 * Given a target number, a non-negative
+	 * integer k and an integer array A sorted in ascending order, find the k
+	 * closest numbers to target in A, sorted in ascending order by the
+	 * difference between the number and target. Otherwise, sorted in ascending
+	 * order by number if the difference is same.
+	 *
+	 * @param A
+	 *            an integer array
+	 * @param target
+	 *            an integer
+	 * @param k
+	 *            a non-negative integer
+	 * @return an integer array
+	 */
+    public int[] kClosestNumbers(int[] A, int target, int k) {
+        int[] result = new int[k];
+        if (A == null || k <= 0) {
+            return result;
+        } else if (A.length <= k) {
+            return A;
+        }
+
+        int start = 0, end = A.length - 1;
+        int min = -1;
+
+        while (start < end) {
+            int mid = (start + end) >>> 1;
+
+            if (A[mid] == target) {
+                min = mid;
+                break;
+            } else if (A[mid] > target) {
+                end = mid - 1;
+            } else {
+                start = mid + 1;
+            }
+        }
+
+        // find the closest one
+        if (start == end) {
+            min = start;
+            if (min + 1 < A.length) {
+                if (Math.abs(A[min] - target) > Math.abs(A[min + 1] - target)) {
+                    min = min + 1;
+                }
+            }
+
+            if (min - 1 >= 0) {
+                if (Math.abs(A[min] - target) > Math.abs(A[min - 1] - target)) {
+                    min = min - 1;
+                }
+            }
+        }
+
+        // compare left and right
+        result[0] = A[min];
+        int index = 1;
+        start = min;
+        end = min;
+        while (index < k) {
+            int next = -1;
+            if (start - 1 >= 0) {
+                start = start - 1;
+                next = start;
+            }
+
+            if (end + 1 < A.length) {
+                if (next == -1) {
+                    end = end + 1;
+                    next = end;
+                } else {
+                    int startDiff = Math.abs(A[start] - target);
+                    int endDiff = Math.abs(A[end + 1] - target);
+                    if ((startDiff == endDiff && A[end + 1] < A[start]) || startDiff > endDiff) {
+                        start++;
+                        end--;
+                        next = end;
+                    }
+                }
+            }
+
+            if (next == -1) {
+                return result;
+            }
+
+            result[index] = A[next];
+            index++;
+        }
+
+        return result;
+    }
+
+    /**
+	 * Wood Cut.
+	 *
+	 * Given n pieces of wood with length L[i] (integer array). Cut them into
+	 * small pieces to guarantee you could have equal or more than k pieces with
+	 * the same length. What is the longest length you can get from the n pieces
+	 * of wood? Given L & k, return the maximum length of the small pieces.
+	 *
+	 * Notice: You couldn't cut wood into float length.
+	 *
+	 * @param L:
+	 *            Given n pieces of wood with length L[i]
+	 * @param k:
+	 *            An integer
+	 * @return: The maximum length of the small pieces.
+	 */
+    public int woodCut(int[] L, int k) {
+        if (L == null || L.length == 0 || k <= 0) {
+            return 0;
+        }
+
+        // find the longest
+        int max = L[0];
+        for (int i = 1; i < L.length; i++) {
+            if (L[i] > max) {
+                max = L[i];
+            }
+        }
+
+        int start = 1, end = max;
+        while (start < end) {
+            int mid = (start + end + 1) >>> 1;
+
+            if (countPieces(L, mid) >= k) {
+                start = mid;
+            } else {
+                end = mid - 1;
+            }
+        }
+
+        if (countPieces(L, start) >= k) {
+            return start;
+        }
+        return 0;
+    }
+
+    private int countPieces(int[] L, int len) {
+        int count = 0;
+        for (int i = 0; i < L.length; i++) {
+            count += L[i] / len;
+        }
+        return count;
+    }
 
     /**
      * 
@@ -543,61 +968,16 @@ public class BinarySearch {
 //      return 0;
 //  }
 
-	/**
-	 * Search in Rotated Sorted Array II
-	 * 
-	 * Follow up for "Search in Rotated Sorted Array": What if duplicates are
-	 * allowed?
-	 * 
-	 * Would this affect the run-time complexity? How and why?
-	 * 
-	 * Write a function to determine if a given target is in the array.
-	 * 
-	 * O(logN) ~ O(n), depends on number of duplicates.
-	 * 
-	 * This solutions is so concise and beautiful.
-	 */
-	public boolean searchRotatedWithDup(int[] A, int target) {
-		int left = 0;
-        int right = A.length - 1;
-        
-        while (left <= right) {
-            int mid = (left + right) / 2;
-            
-            if (A[mid] == target) {
-                return true; // or return index according to requirement
-            }
-            
-            if (A[left] < A[mid]) { // left part is sorted
-                if (A[left] <= target && A[mid] >= target) {
-                    right = mid;
-                } else {
-                    left = mid + 1;
-                }
-                
-            } else if (A[left] > A[mid]) { // right part is sorted
-                if (A[mid] <= target && A[right] >= target) {
-                    left = mid;
-                } else {
-                    right = mid - 1;
-                }
-                
-            } else {
-                left++;
-            }
-        }
-        
-        return false;
-	}
-
 	public void test() {
 		int[] nums = new int[3];
 		nums[0] = 1;
 		nums[1] = 2;
 		nums[2] = 3;
 		System.out.println(binarySearch(nums, 1));
+
+		System.out.println(kClosestNumbers(nums, 2, 3));
 	}
-	
+
 	public static void main(String[] args) {
 		BinarySearch test = new BinarySearch();
 		test.test();
