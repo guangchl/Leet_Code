@@ -3,7 +3,10 @@ package ninechapter;
 import java.util.ArrayList;
 
 public class BinaryTree {
-	/** Definition for binary tree */
+
+    // ***************************** Data Structure *****************************
+
+    /** Definition for binary tree */
 	public class TreeNode {
 		int val;
 		TreeNode left;
@@ -25,8 +28,61 @@ public class BinaryTree {
         }
     }
 
-	/**
-	 * 1. Binary Tree Preorder Traversal
+    // ******************************* PROBLEMS *******************************
+
+    /**
+     * Maximum Depth of Binary Tree.
+     *
+     * Given a binary tree, find its maximum depth. The maximum depth is the
+     * number of nodes along the longest path from the root node down to the
+     * farthest leaf node.
+     *
+     * @param root:
+     *            The root of binary tree.
+     * @return: An integer.
+     */
+    public int maxDepth(TreeNode root) {
+        if (root == null) {
+            return 0;
+        }
+
+        return Math.max(maxDepth(root.left), maxDepth(root.right)) + 1;
+    }
+
+    /**
+     * Balanced Binary Tree.
+     *
+     * Given a binary tree, determine if it is height-balanced.
+     *
+     * For this problem, a height-balanced binary tree is defined as a binary
+     * tree in which the depth of the two subtrees of every node never differ by
+     * more than 1.
+     *
+     * @param root:
+     *            The root of binary tree.
+     * @return: True if this Binary tree is Balanced, or false.
+     */
+    public boolean isBalanced(TreeNode root) {
+        return height(root) != -1;
+    }
+
+    private int height(TreeNode node) {
+        if (node == null) {
+            return 0;
+        }
+
+        int leftH = height(node.left);
+        int rightH = height(node.right);
+
+        if (leftH == -1 || rightH == -1 || Math.abs(leftH - rightH) > 1) {
+            return -1;
+        }
+
+        return Math.max(leftH, rightH) + 1;
+    }
+
+    /**
+	 * Binary Tree Preorder Traversal
 	 */
 	public ArrayList<Integer> preorderTraversalRec(TreeNode root) {
 		ArrayList<Integer> result = new ArrayList<Integer>();

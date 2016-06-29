@@ -166,21 +166,6 @@ public class Problems {
 	}
 
 	/**
-	 * Maximum Depth of Binary Tree
-	 * 
-	 * Given a binary tree, find its maximum depth. The maximum depth is the
-	 * number of nodes along the longest path from the root node down to the
-	 * farthest leaf node.
-	 */
-	public int maxDepth(TreeNode root) {
-		if (root == null) { // base case: empty tree from root
-			return 0;
-		} else { // recursion
-			return 1 + Math.max(maxDepth(root.left), maxDepth(root.right));
-		}
-	}
-
-	/**
 	 * Same Tree
 	 * 
 	 * Given two binary trees, write a function to check if they are equal or
@@ -1437,41 +1422,6 @@ public class Problems {
         return row;
     }
 
-	/**
-	 * Balanced Binary Tree
-	 * 
-	 * Given a binary tree, determine if it is height-balanced.
-	 * 
-	 * For this problem, a height-balanced binary tree is defined as a binary
-	 * tree in which the depth of the two subtrees of every node never differ by
-	 * more than 1.
-	 */
-	public boolean isBalanced(TreeNode root) {
-        return heightWithBalanceCheck(root) != -1;
-    }
-	
-	public int heightWithBalanceCheck(TreeNode root) {
-		if (root == null) {
-			return 0;
-		}
-		
-		int leftHeight = heightWithBalanceCheck(root.left);
-		if (leftHeight == -1) {
-			return -1;
-		}
-		
-		int rightHeight = heightWithBalanceCheck(root.right);
-		if (rightHeight == -1) {
-			return -1;
-		}
-		
-		if (Math.abs(leftHeight - rightHeight) > 1) {
-			return -1;
-		}
-
-		return 1 + Math.max(leftHeight, rightHeight);
-	}
-	
 	/**
 	 * Gray Code
 	 * 
