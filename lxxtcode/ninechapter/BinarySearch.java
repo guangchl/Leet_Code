@@ -688,35 +688,29 @@ public class BinarySearch {
 	 * @return an integer
 	 */
 	public int closestNumber(int[] A, int target) {
-		if (A == null || A.length == 0) {
-			return -1;
-		}
+        if (A == null || A.length < 1) {
+            return -1;
+        }
 
-		int start = 0, end = A.length - 1;
-		while (start < end) {
-			int mid = (start + end) >>> 1;
-			if (A[mid] == target) {
-				return mid;
-			} else if (A[mid] > target) {
-				end = mid - 1;
-			} else {
-				start = mid + 1;
-			}
-		}
+        int start = 0, end = A.length - 1;
 
-		int min = start;
-		if (min + 1 < A.length) {
-			if (Math.abs(A[min] - target) > Math.abs(A[min + 1] - target)) {
-				min = min + 1;
-			}
-		}
+        while (start + 1 < end) {
+            int mid = (start + end) >>> 1;
 
-		if (min - 1 >= 0) {
-			if (Math.abs(A[min] - target) > Math.abs(A[min - 1] - target)) {
-				min = min - 1;
-			}
-		}
-		return min;
+            if (A[mid] == target) {
+                return mid;
+            } else if (A[mid] < target) {
+                start = mid;
+            } else {
+                end = mid;
+            }
+        }
+
+        if (Math.abs(A[start] - target) <= Math.abs(A[end] - target)) {
+            return start;
+        }
+
+        return end;
 	}
 
 	/**
@@ -738,41 +732,31 @@ public class BinarySearch {
 	 */
     public int[] kClosestNumbers(int[] A, int target, int k) {
         int[] result = new int[k];
-        if (A == null || k <= 0) {
+        if (A == null || k <= 0 || A.length < k) {
             return result;
-        } else if (A.length <= k) {
-            return A;
         }
 
         int start = 0, end = A.length - 1;
         int min = -1;
 
-        while (start < end) {
+        while (start + 1 < end) {
             int mid = (start + end) >>> 1;
 
             if (A[mid] == target) {
                 min = mid;
                 break;
-            } else if (A[mid] > target) {
-                end = mid - 1;
+            } else if (A[mid] < target) {
+                start = mid;
             } else {
-                start = mid + 1;
+                end = mid;
             }
         }
 
-        // find the closest one
-        if (start == end) {
-            min = start;
-            if (min + 1 < A.length) {
-                if (Math.abs(A[min] - target) > Math.abs(A[min + 1] - target)) {
-                    min = min + 1;
-                }
-            }
-
-            if (min - 1 >= 0) {
-                if (Math.abs(A[min] - target) > Math.abs(A[min - 1] - target)) {
-                    min = min - 1;
-                }
+        if (min == -1) {
+            if (Math.abs(A[start] - target) <= Math.abs(A[end] - target)) {
+                min = start;
+            } else {
+                min = end;
             }
         }
 
@@ -795,9 +779,9 @@ public class BinarySearch {
                 } else {
                     int startDiff = Math.abs(A[start] - target);
                     int endDiff = Math.abs(A[end + 1] - target);
-                    if ((startDiff == endDiff && A[end + 1] < A[start]) || startDiff > endDiff) {
+                    if (startDiff > endDiff) {
                         start++;
-                        end--;
+                        end++;
                         next = end;
                     }
                 }
