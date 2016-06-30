@@ -639,65 +639,6 @@ public class Problems {
 	}
 
 	/**
-	 * Binary Tree Preorder Traversal
-	 * 
-	 * Given a binary tree, return the preorder traversal of its nodes' values.
-	 * 
-	 * For example: Given binary tree {1,#,2,3}, return [1, 2, 3]
-	 * 
-	 * Note: Recursive solution is trivial, could you do it iteratively?
-	 */
-	public ArrayList<Integer> preorderTraversalIterative(TreeNode root) {
-		ArrayList<Integer> preList = new ArrayList<Integer>();
-
-		// the while loop below don't handle null, so null won't be pushed in s
-		if (root == null) {
-			return preList;
-		}
-
-		// initial the stack which will store the TreeNodes preorderly
-		Stack<TreeNode> s = new Stack<TreeNode>();
-		s.push(root);
-
-		TreeNode n;
-		while (!s.isEmpty()) {
-			n = s.pop();
-
-			if (n.right != null) {
-				s.push(n.right);
-			}
-
-			if (n.left != null) {
-				s.push(n.left);
-			}
-
-			preList.add(n.val);
-		}
-
-		return preList;
-	}
-
-	public ArrayList<Integer> preorderTraversalRecursive(TreeNode root) {
-		ArrayList<Integer> preList = new ArrayList<Integer>();
-
-		if (root == null) {
-			return preList;
-		}
-
-		preList.add(root.val);
-
-		for (Integer i : preorderTraversalRecursive(root.left)) {
-			preList.add(i);
-		}
-
-		for (Integer i : preorderTraversalRecursive(root.right)) {
-			preList.add(i);
-		}
-
-		return preList;
-	}
-
-	/**
 	 * Binary Tree Postorder Traversal
 	 * 
 	 * Given a binary tree, return the post-order traversal of its nodes'
@@ -761,72 +702,6 @@ public class Problems {
 		return postList;
 	}
 
-	/**
-	 * Binary Tree Level Order Traversal
-	 * 
-	 * Given a binary tree, return the level order traversal of its nodes'
-	 * values. (ie, from left to right, level by level).
-	 */
-	public ArrayList<ArrayList<Integer>> levelOrder(TreeNode root) {
-		// construct the level order list
-		ArrayList<ArrayList<Integer>> lol = new ArrayList<ArrayList<Integer>>();
-
-		if (root == null) {
-			return lol;
-		}
-
-		// store the TreeNode in sequence of visit
-		Queue<TreeNode> queue = new LinkedList<TreeNode>();
-		queue.add(root);
-		queue.add(null); // use null to separate different level
-		
-		while (!queue.isEmpty()) {
-			// store integer of each level
-			ArrayList<Integer> level = new ArrayList<Integer>();
-
-			while (queue.peek() != null) {
-				TreeNode n = queue.poll();
-
-				if (n.left != null) {
-					queue.add(n.left);
-				}
-				if (n.right != null) {
-					queue.add(n.right);
-				}
-
-				level.add(n.val);
-			}
-
-			queue.poll();
-			lol.add(level);
-
-			if (!queue.isEmpty()) {
-				queue.add(null);
-			}
-		}
-
-		return lol;
-	}
-
-	/**
-	 * Binary Tree Level Order Traversal II
-	 * 
-	 * Given a binary tree, return the bottom-up level order traversal of its
-	 * nodes' values. (ie, from left to right, level by level from leaf to
-	 * root).
-	 */
-	public ArrayList<ArrayList<Integer>> levelOrderBottom(TreeNode root) {
-		ArrayList<ArrayList<Integer>> lol = levelOrder(root);
-		ArrayList<ArrayList<Integer>> lob = new ArrayList<ArrayList<Integer>>(
-				lol.size());
-
-		for (int i = lol.size() - 1; i >= 0; i--) {
-			lob.add(lol.get(i));
-		}
-
-		return lob;
-	}
-	
 	/**
 	 * Binary Tree Zigzag Level Order Traversal
 	 * 
@@ -3374,29 +3249,7 @@ public class Problems {
 		}
 		return (int) Math.floor(high);
     }
-    
-    /**
-	 * Validate Binary Search Tree
-	 * 
-	 * Given a binary tree, determine if it is a valid binary search tree (BST).
-	 * 
-	 * Assume a BST is defined as follows: The left subtree of a node contains
-	 * only nodes with keys less than the node's key. The right subtree of a
-	 * node contains only nodes with keys greater than the node's key. Both the
-	 * left and right subtrees must also be binary search trees.
-	 */
-    public boolean isValidBST(TreeNode root) {
-        return isBST(root, Integer.MIN_VALUE, Integer.MAX_VALUE);
-    }
-    
-    public boolean isBST(TreeNode root, int min, int max) {
-        if (root == null) {
-            return true;
-        }
 
-        return root.val > min && root.val < max && isBST(root.left, min, root.val) && isBST(root.right, root.val, max);
-    }
-    
     /**
 	 * Next Permutation
 	 * 

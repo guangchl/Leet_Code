@@ -16,10 +16,12 @@ public class Basic {
 
 	/**
 	 * Implement strStr()
-	 * 
+	 *
 	 * Returns a pointer to the first occurrence of needle in haystack, or null
 	 * if needle is not part of haystack.
 	 */
+    @tags.BasicImplementation
+    @tags.String
 	public String strStr(String src, String dest) {
 		if (src == null || dest == null) {
 			return null;
@@ -399,7 +401,9 @@ public class Basic {
         return permutations;
     }
 
-	/**
+    // --------------------------- OLD ---------------------------
+
+    /**
 	 * Reverse Words in a String
 	 */
 	public String reverseWords(String s) {
