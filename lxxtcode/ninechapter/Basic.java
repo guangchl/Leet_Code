@@ -891,7 +891,7 @@ public class Basic {
 
 		return max;
 	}
-	
+
 	/**
 	 * N-Queens
 	 * 
