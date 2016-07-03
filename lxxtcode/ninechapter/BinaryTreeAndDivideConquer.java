@@ -646,7 +646,7 @@ public class BinaryTreeAndDivideConquer {
     }
 
     /**
-     * Identical Binary Tree.
+     * Identical Binary Tree (Same Tree).
      *
      * Check if two binary trees are identical. Identical means the two binary
      * trees have the same structure and every identical position has the same
@@ -702,6 +702,7 @@ public class BinaryTreeAndDivideConquer {
     /**
      * Symmetric Binary Tree - iterative solution.
      */
+    @tags.BinaryTree
     public boolean isSymmetricIter(TreeNode root) {
         if (root == null) return true;
 
