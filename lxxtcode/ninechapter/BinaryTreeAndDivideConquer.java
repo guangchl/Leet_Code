@@ -344,7 +344,7 @@ public class BinaryTreeAndDivideConquer {
      * @return: An integer.
      */
     @tags.DivideAndConquer
-    @tags.DanymicProgramming
+    @tags.DynamicProgramming
     @tags.Recursion
     public int maxPathSum(TreeNode root) {
         return longestPathToNode(root).max;
@@ -1099,6 +1099,13 @@ public class BinaryTreeAndDivideConquer {
             parent.right = temp;
         }
     }
+
+    /**
+     * Find Leaves of Binary Tree
+     * 
+     */
+    @tags.DFS
+    @tags.BinaryTree
 
     // ------------------------ OLD ------------------------------------
 
