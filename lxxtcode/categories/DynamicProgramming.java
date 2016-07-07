@@ -1,4 +1,4 @@
-package ninechapter;
+package categories;
 
 public class DynamicProgramming {
 
@@ -397,6 +397,66 @@ public class DynamicProgramming {
         }
         return end;
     }
+
+    /**
+     * Coin Change.
+     *
+     * You are given coins of different denominations and a total amount of
+     * money amount. Write a function to compute the fewest number of coins that
+     * you need to make up that amount. If that amount of money cannot be made
+     * up by any combination of the coins, return -1.
+     *
+     * Example 1: coins = [1, 2, 5], amount = 11 return 3 (11 = 5 + 5 + 1)
+     *
+     * Example 2: coins = [2], amount = 3 return -1.
+     *
+     * Note: You may assume that you have an infinite number of each kind of
+     * coin.
+     *
+     * @param coins
+     * @param amount
+     * @return
+     */
+    @tags.DynamicProgramming
+    @tags.Site.LeetCode
+    public int coinChange(int[] coins, int amount) {
+        if (coins == null || coins.length == 0) {
+            return -1;
+        } else if (amount == 0) {
+            return 0;
+        }
+
+        // initialize
+        int[] count = new int[amount];
+        for (int i = 0; i < count.length; i++) {
+            count[i] = -1;
+        }
+        for (Integer coin : coins) {
+            if (coin - 1 < count.length) { 
+                count[coin - 1] = 1;
+            }
+        }
+
+        for (int i = 0; i < count.length; i++) {
+            for (Integer coin : coins) {
+                if (i - coin >= 0) {
+                    if (count[i] == -1 && count[i - coin] == -1) {
+                        continue;
+                    } else if (count[i] == -1) {
+                        count[i] = count[i - coin] + 1;
+                    } else if (count[i - coin] == -1) {
+                        continue;
+                    } else {
+                        count[i] = Math.min(count[i - coin] + 1, count[i]);
+                    }
+                }
+            }
+        }
+
+        return count[amount - 1];
+    }
+
+    // ------------------------ Main Function and Tests ------------------------
 
     public void test() {
         int[] nums = { 5, 4, 1, 2, 3 };

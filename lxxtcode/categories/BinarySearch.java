@@ -1,4 +1,4 @@
-package ninechapter;
+package categories;
 
 import java.util.List;
 

@@ -1,13 +1,15 @@
-package ninechapter;
+package categories;
 
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.HashMap;
 import java.util.PriorityQueue;
 
-public class Linked_List {
+public class LinkedLists {
+
 	//******************************** MODELS ********************************
-	/** Definition for singly-linked list. */
+
+    /** Definition for singly-linked list. */
     public class ListNode {
         int val;
         ListNode next;
@@ -37,48 +39,79 @@ public class Linked_List {
 	}
 
 	//******************************* TEMPLATE *******************************
-    /** 
+
+    /**
      * Remove a node from a single linked list
-	 */
+     */
     public boolean remove(ListNode head, int val) {
         if (head == null) {
             return false;
         }
-        
+
         ListNode dummy = new ListNode(0);
         dummy.next = head;
         head = dummy;
-        
+
         while (head.next != null) {
             if (head.next.val == val) {
                 head.next = head.next.next;
                 return true;
             }
-            
+
             head = head.next;
         }
-        
+
         return false;
     }
-    
+
     /**
-     * Reverse a single linked list
+     * Reverse Linked List.
+     *
+     * Reverse a single linked list - iterative.
      */
+    @tags.LinkedList
+    @tags.Site.LeetCode
+    @tags.Site.LintCode
+    @tags.Company.Facebook
+    @tags.Company.Uber
     public ListNode reverse(ListNode head) {
         ListNode newHead = null;
-        ListNode next;
-        
+
         while (head != null) {
-            next = head.next;
+            ListNode next = head.next;
             head.next = newHead;
             newHead = head;
             head = next;
         }
-        
+
+        return newHead;
+    }
+
+    /**
+     * Reverse Linked List.
+     *
+     * Reverse a single linked list - recursive.
+     */
+    @tags.LinkedList
+    @tags.Recursion
+    @tags.Site.LeetCode
+    @tags.Site.LintCode
+    @tags.Company.Facebook
+    @tags.Company.Uber
+    public ListNode reverseList(ListNode head) {
+        if (head == null || head.next == null) {
+            return head;
+        }
+
+        ListNode newHead = reverseList(head.next);
+        head.next.next = head;
+        head.next = null;
+
         return newHead;
     }
     
 	//******************************* PROBLEMS *******************************
+
     /**
 	 * 1. Reverse Linked List II
 	 * 

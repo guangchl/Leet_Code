@@ -1,4 +1,4 @@
-package ninechapter;
+package categories;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -7,7 +7,7 @@ import java.util.List;
 import java.util.Queue;
 import java.util.Stack;
 
-import ninechapter.BinaryTreeAndDivideConquer.TreeNode;
+import categories.BinaryTreeAndDivideConquer.TreeNode;
 
 public class BinaryTreeAndDivideConquer {
 
@@ -1101,11 +1101,27 @@ public class BinaryTreeAndDivideConquer {
     }
 
     /**
-     * Find Leaves of Binary Tree
-     * 
+     * Find Leaves of Binary Tree.
+     *
+     * Given a binary tree, find all leaves and then remove those leaves. Then
+     * repeat the previous steps until the tree is empty.
+     *
+     * Example:
+     * Given binary tree 
+     *           1
+     *          / \
+     *         2   3
+     *        / \     
+     *       4   5    
+     * Returns [4, 5, 3], [2], [1].
      */
     @tags.DFS
     @tags.BinaryTree
+    @tags.Site.LeetCode
+    public List<List<Integer>> findLeaves(TreeNode root) {
+        // TODO: locked problem from LeetCode
+        return null;
+    }
 
     // ------------------------ OLD ------------------------------------
 
