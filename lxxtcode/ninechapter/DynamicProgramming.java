@@ -397,4 +397,14 @@ public class DynamicProgramming {
         }
         return end;
     }
+
+    public void test() {
+        int[] nums = { 5, 4, 1, 2, 3 };
+        longestIncreasingSubsequence2(nums);
+    }
+
+    public static void main(String[] args) {
+        DynamicProgramming dp = new DynamicProgramming();
+        dp.test();
+    }
 }
