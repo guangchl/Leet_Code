@@ -397,67 +397,6 @@ public class Problems {
 	}
 
 	/**
-	 * Remove Duplicates from Sorted List
-	 * 
-	 * Given a sorted linked list, delete all duplicates such that each element
-	 * appear only once.
-	 * 
-	 * For example: Given 1->1->2, return 1->2. Given 1->1->2->3->3, return
-	 * 1->2->3.
-	 */
-	public ListNode deleteDuplicates(ListNode head) {
-		if (head == null) {
-			return head;
-		}
-		
-		ListNode current = head;
-		while (current.next != null) {
-			if (current.next.val == current.val) {
-				current.next = current.next.next;
-			} else {
-				current = current.next;
-			}
-		}
-		
-		return head;
-	}
-
-	/**
-	 * Remove Duplicates from Sorted List II
-	 * 
-	 * Given a sorted linked list, delete all nodes that have duplicate numbers,
-	 * leaving only distinct numbers from the original list.
-	 * 
-	 * For example, Given 1->2->3->3->4->4->5, return 1->2->5. Given
-	 * 1->1->1->2->3, return 2->3.
-	 */
-	public ListNode deleteDuplicates2(ListNode head) {
-		if (head == null || head.next == null) {
-			return head;
-		}
-		
-		// dummy node
-		ListNode dummy = new ListNode(0);
-		dummy.next = head;
-		head = dummy;
-		
-		// check each different number
-		while (head.next != null && head.next.next != null) {
-		    if (head.next.val == head.next.next.val) { // duplicate found
-		    	int val = head.next.val;
-		        head.next = head.next.next.next;
-		        while (head.next != null && head.next.val == val) {
-    		        head.next = head.next.next;
-    		    }
-		    } else {
-		        head = head.next;
-		    }
-		}
-		
-		return dummy.next;
-	}
-
-	/**
 	 * Populating Next Right Pointers in Each Node
 	 * 
 	 * Populate each next pointer to point to its next right node. If there is
@@ -869,80 +808,6 @@ public class Problems {
 
 		return root;
 	}
-
-	/**
-	 * Convert Sorted List to Binary Search Tree
-	 * 
-	 * Given a singly linked list where elements are sorted in ascending order,
-	 * convert it to a height balanced BST.
-	 */
-	public TreeNode sortedListToBST(ListNode head) {
-        if (head == null) {
-            return null;
-        }
-        
-        // convert the list to ArrayList
-        ArrayList<Integer> list = new ArrayList<Integer>();
-        while (head != null) {
-            list.add(head.val);
-            head = head.next;
-        }
-        
-        // recursively construct the binary search tree
-        return sortedListToBST(list, 0, list.size() - 1);
-    }
-    
-    public TreeNode sortedListToBST(ArrayList<Integer> list, int start, int end) {
-        // only 1 element
-        if (start == end) {
-            return new TreeNode(list.get(start));
-        }
-        
-        // only 2 elements
-        if (end - start == 1) {
-            TreeNode root = new TreeNode(list.get(end));
-            root.left = new TreeNode(list.get(start));
-            return root;
-        }
-        
-        // 3 or more elements
-        int mid = (start + end) / 2;
-        TreeNode root = new TreeNode(list.get(mid));
-        root.left = sortedListToBST(list, start, mid - 1);
-        root.right = sortedListToBST(list, mid + 1, end);
-        return root;
-    }
-    
-    public static ListNode pointer = null;
-
-	public TreeNode sortedListToBST2(ListNode head) {
-		pointer = head;
-		int n = 0;
-		while (pointer != null) {
-			pointer = pointer.next;
-			n++;
-		}
-		pointer = head;
-		return create(0, n - 1);
-	}
-
-	private TreeNode create(int start, int end) {
-		if (pointer == null)
-			return null;
-
-		if (start > end)
-			return null;
-		int mid = (end - start) / 2 + start;
-		TreeNode left = create(start, mid - 1);
-		TreeNode root = new TreeNode(pointer.val);
-		root.left = left;
-
-		pointer = pointer.next;
-
-		root.right = create(mid + 1, end);
-		return root;
-	}
-
 	
 	/**
 	 * Pascal's Triangle
@@ -1569,39 +1434,6 @@ public class Problems {
         }
         
         return combinations;
-    }
-	
-	/**
-	 * Remove Nth Node From End of List
-	 * 
-	 * Given a linked list, remove the nth node from the end of list and return
-	 * its head.
-	 */
-	public ListNode removeNthFromEnd(ListNode head, int n) {
-        // two runner method
-        ListNode slow = head;
-        ListNode fast = head;
-        
-        // move the fast runner to forward by n steps
-        for (int i = 0; i < n; i++) {
-            fast = fast.next;
-        }
-        
-        // the length of the list is n
-        if (fast == null) {
-            return head.next;
-        }
-        
-        // move fast and slow simultaneously until fast hit the end
-        while (fast.next != null) {
-            slow = slow.next;
-            fast = fast.next;
-        }
-        
-        // delete the node next to slow
-        slow.next = slow.next.next;
-        
-        return head;
     }
 	
 	/**
@@ -2307,65 +2139,7 @@ public class Problems {
         
         return max;
     }
-    
-    /**
-	 * Partition List
-	 * 
-	 * Given a linked list and a value x, partition it such that all nodes less
-	 * than x come before nodes greater than or equal to x.
-	 * 
-	 * You should preserve the original relative order of the nodes in each of
-	 * the two partitions.
-	 * 
-	 * For example, Given 1->4->3->2->5->2 and x = 3, return 1->2->2->4->3->5.
-	 */
-    public ListNode partition(ListNode head, int x) {
-        if (head == null) {
-            return null;
-        }
-        
-        // construct a list store all node greater or equals to x
-        ListNode greaterHead = null;
-        ListNode greaterTail = null;
-        
-        // construct a dummy node to be head
-        ListNode dummy = new ListNode(x - 1);
-        dummy.next = head;
-        head = dummy;
-        ListNode current = head;
 
-        // find the first node belongs to the greater part
-        while (current.next != null && current.next.val < x) {
-            current = current.next;
-        }
-        
-        // if no node have val greater or equals to x
-        if (current.next == null) {
-            return head.next;
-        } else { // find the first one, add it to greater list
-            greaterHead = current.next;
-            greaterTail = current.next;
-            current.next = current.next.next;
-        }
-        
-        // traverse remaining nodes, add greater node to greater list
-        while (current.next != null) {
-            if (current.next.val >= x) {
-                greaterTail.next = current.next;
-                greaterTail = greaterTail.next;
-                current.next = current.next.next;
-            } else {
-                current = current.next;
-            }
-        }
-        
-        // connect the greater list next to the original list
-        current.next = greaterHead;
-        greaterTail.next = null;
-        
-        return head.next;
-    }
-    
     /**
      * Flatten Binary Tree to Linked List
      * 
