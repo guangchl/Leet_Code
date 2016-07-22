@@ -2807,65 +2807,6 @@ public class Problems {
     }
     
     /**
-	 * Palindrome Partitioning II
-	 * 
-	 * Given a string s, partition s such that every substring of the partition
-	 * is a palindrome.
-	 * 
-	 * Return the minimum cuts needed for a palindrome partitioning of s.
-	 * 
-	 * For example, given s = "aab", Return 1 since the palindrome partitioning
-	 * ["aa","b"] could be produced using 1 cut.
-	 */
-    public int minCut(String s) {
-        int len = s.length();
-        boolean[][] isPal = new boolean[len][len];
-        int[] dp = new int[len + 1];
-        
-        for(int i = 0; i <= len; i++)
-            dp[i] = len - 1 - i;
-            
-        for(int i = len - 2; i >= 0; i--) {
-            for(int j = i; j < len; j++) {
-                if(s.charAt(i) == s.charAt(j) && (j <= i+2 || isPal[i+1][j-1])) {
-                    isPal[i][j] = true;
-                    dp[i] = Math.min(dp[i], dp[j+1] + 1);
-                }
-            }
-        }
-        return dp[0];
-    }
-    
-    /**
-	 * Word Break
-	 * 
-	 * Given a string s and a dictionary of words dict, determine if s can be
-	 * segmented into a space-separated sequence of one or more dictionary
-	 * words.
-	 * 
-	 * For example, given s = "leetcode", dict = ["leet", "code"].
-	 * Return true because "leetcode" can be segmented as "leet code".
-	 * 
-	 * Bottom up DP seems quick useful
-	 */
-    public boolean wordBreak(String s, Set<String> dict) {
-        int len = s.length();
-        boolean[] dp = new boolean[len + 1];
-        dp[len] = true;
-
-        for (int i = len - 1; i >= 0; i--) {
-            for (int j = i; j < len; j++) {
-                String str = s.substring(i,j + 1);
-                if (dict.contains(str) && dp[j + 1]) {
-                    dp[i] = true;
-                    break;
-                }
-            }
-        }
-        return dp[0];
-    }
-    
-    /**
 	 * Word Break II
 	 * 
 	 * Given a string s and a dictionary of words dict, add spaces in s to
@@ -4693,46 +4634,6 @@ public class Problems {
         }
         
         return s.substring(left, right + 1);
-    }
-	
-	/**
-	 * Edit Distance
-	 * 
-	 * Given two words word1 and word2, find the minimum number of steps
-	 * required to convert word1 to word2. (each operation is counted as 1
-	 * step.)
-	 * 
-	 * You have the following 3 operations permitted on a word:
-	 * a) Insert a character b) Delete a character c) Replace a character
-	 */
-	public int minDistance(String word1, String word2) {
-        int len1 = word1.length();
-        int len2 = word2.length();
-        int[][] dist = new int[len1 + 1][len2 + 1];
-        
-        // first row
-        for (int i = 1; i <= len2; i++) {
-            dist[0][i] = i;
-        }
-        
-        // first column
-        for (int i = 1; i <= len1; i++) {
-            dist[i][0] = i;
-        }
-        
-        // fill the remaining elements
-        for (int i = 1; i <= len1; i++) {
-            for (int j = 1; j <= len2; j++) {
-                dist[i][j] = Math.min(dist[i - 1][j], dist[i][j - 1]) + 1;
-                if (word1.charAt(i - 1) == word2.charAt(j - 1)) {
-                    dist[i][j] = Math.min(dist[i][j], dist[i - 1][j - 1]);
-                } else {
-                    dist[i][j] = Math.min(dist[i][j], dist[i - 1][j - 1] + 1);
-                }
-            }
-        }
-        
-        return dist[len1][len2];
     }
 	
 	/**
