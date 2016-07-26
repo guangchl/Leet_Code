@@ -389,10 +389,10 @@ public class BinaryTreeAndDivideConquer {
      * @return an integer
      */
     @tags.BinaryTree
-    public int maxPathSum2(TreeNode root) {
+    public int maxPathSumII(TreeNode root) {
         if (root != null) {
-            int leftMax = maxPathSum2(root.left);
-            int rightMax = maxPathSum2(root.right);
+            int leftMax = maxPathSumII(root.left);
+            int rightMax = maxPathSumII(root.right);
             int childMax = Math.max(leftMax, rightMax);
 
             return root.val + Math.max(childMax, 0);
@@ -1150,50 +1150,6 @@ public class BinaryTreeAndDivideConquer {
         }
 
         return buildTree(num, 0, num.length - 1);
-    }
-
-    /**
-     * Convert Sorted List to Binary Search Tree
-     *
-     * Given a singly linked list where elements are sorted in ascending order,
-     * convert it to a height balanced BST.
-     */
-    private ListNode currentHead;
-
-    public TreeNode sortedListToBST(ListNode head) {
-        int size;
-
-        currentHead = head;
-        size = getListLength(head);
-
-        return sortedListToBSTHelper(size);
-    }
-
-    private int getListLength(ListNode head) {
-        int size = 0;
-
-        while (head != null) {
-            size++;
-            head = head.next;
-        }
-
-        return size;
-    }
-
-    private TreeNode sortedListToBSTHelper(int size) {
-        if (size <= 0) {
-            return null;
-        }
-
-        TreeNode left = sortedListToBSTHelper(size / 2);
-        TreeNode root = new TreeNode(currentHead.val);
-        currentHead = currentHead.next;
-        TreeNode right = sortedListToBSTHelper((size - 1) / 2);
-
-        root.left = left;
-        root.right = right;
-
-        return root;
     }
 
     public void test () {

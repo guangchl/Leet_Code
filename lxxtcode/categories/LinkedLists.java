@@ -253,7 +253,7 @@ public class LinkedLists {
      * @return: ListNode head of the linked list
      */
     @tags.LinkedList
-    public ListNode deleteDuplicates2(ListNode head) {
+    public ListNode deleteDuplicatesII(ListNode head) {
         ListNode dummy = new ListNode(-1);
         dummy.next = head;
         head = dummy;
@@ -274,11 +274,13 @@ public class LinkedLists {
     }
 
     /**
-     * Convert Sorted List to Binary Search Tree
+     * Convert Sorted List to Balanced BST
      *
      * Given a singly linked list where elements are sorted in ascending order,
      * convert it to a height balanced BST.
      */
+    @tags.LinkedList
+    @tags.Recursion
     public TreeNode sortedListToBST(ListNode head) {
         ArrayList<TreeNode> treeNodes = new ArrayList<>();
         while (head != null) {
@@ -304,10 +306,12 @@ public class LinkedLists {
     }
 
     /**
-     * Convert Sorted List to Binary Search Tree.
+     * Convert Sorted List to Balanced BST
      *
      * TODO: Compare this solution.
      */
+    @tags.LinkedList
+    @tags.Recursion
     public static ListNode pointer = null;
 
     public TreeNode sortedListToBST2(ListNode head) {

@@ -1,5 +1,6 @@
 package categories;
 
+import java.util.ArrayList;
 import java.util.Set;
 
 public class DynamicProgramming {
@@ -78,7 +79,8 @@ public class DynamicProgramming {
     @tags.DynamicProgramming
     @tags.Array
     public int uniquePathsWithObstacles(int[][] obstacleGrid) {
-        if (obstacleGrid == null || obstacleGrid.length == 0 || obstacleGrid[0].length == 0) {
+        if (obstacleGrid == null || obstacleGrid.length == 0
+                || obstacleGrid[0].length == 0) {
             return 0;
         }
 
@@ -633,7 +635,7 @@ public class DynamicProgramming {
      * ["aa","b"] could be produced using 1 cut.
      */
     public int minCut(String s) {
-        // TODO get used to defining dp array in reversed order
+        // TODO get used to defining dp array in backward order
         int len = s.length();
         boolean[][] isPal = new boolean[len][len];
         int[] dp = new int[len + 1];
@@ -644,7 +646,8 @@ public class DynamicProgramming {
 
         for (int i = len - 2; i >= 0; i--) {
             for (int j = i; j < len; j++) {
-                if (s.charAt(i) == s.charAt(j) && (j <= i + 2 || isPal[i + 1][j - 1])) {
+                if (s.charAt(i) == s.charAt(j)
+                        && (j <= i + 2 || isPal[i + 1][j - 1])) {
                     isPal[i][j] = true;
                     dp[i] = Math.min(dp[i], dp[j + 1] + 1);
                 }
@@ -678,7 +681,8 @@ public class DynamicProgramming {
         for (int i = 0; i < alen; ++i) {
             for (int j = 0; j < blen; ++j) {
                 int len = 0;
-                while (i + len < alen && j + len < blen && A.charAt(i + len) == B.charAt(j + len)) {
+                while (i + len < alen && j + len < blen
+                        && A.charAt(i + len) == B.charAt(j + len)) {
                     len++;
                 }
                 if (len > maxlen)
@@ -826,13 +830,608 @@ public class DynamicProgramming {
         return dp[0][0];
     }
 
+    /**
+     * Decode Ways
+     *
+     * A message containing letters from A-Z is being encoded to numbers using
+     * the following mapping: 'A' -> 1 'B' -> 2 ... 'Z' -> 26. Given an encoded
+     * message containing digits, determine the total number of ways to decode
+     * it.
+     *
+     * @param s
+     *            a string, encoded message
+     * @return an integer, the number of ways decoding
+     */
+    @tags.String
+    @tags.DynamicProgramming
+    public int numDecodings(String s) {
+        if (s == null || s.length() == 0) {
+            return 0;
+        }
+
+        int len = s.length();
+        int[] dp = new int[len + 1];
+        dp[len] = 1;
+        if (s.charAt(len - 1) != '0') {
+            dp[len - 1] = 1;
+        }
+
+        for (int i = len - 2; i >= 0; i--) {
+            int n10 = s.charAt(i) - '0';
+            int n1 = s.charAt(i + 1) - '0';
+            if (n10 != 0) {
+                if (n10 * 10 + n1 <= 26) {
+                    dp[i] = dp[i + 2];
+                }
+                dp[i] += dp[i + 1];
+            }
+
+        }
+
+        return dp[0];
+    }
+
+    /**
+     * Backpack.
+     *
+     * Given n items with size Ai, an integer m denotes the size of a backpack.
+     * How full you can fill this backpack?
+     *
+     * If we have 4 items with size [2, 3, 5, 7], the backpack size is 11, we
+     * can select [2, 3, 5], so that the max size we can fill this backpack is
+     * 10. If the backpack size is 12. we can select [2, 3, 7] so that we can
+     * fulfill the backpack. You function should return the max size we can fill
+     * in the given backpack.
+     *
+     * ±³°üÎÊÌâ¾Å½²[http://love-oriented.com/pack/], awesome work by Tianyi Cui.
+     *
+     * @param m:
+     *            An integer m denotes the size of a backpack
+     * @param A:
+     *            Given n items with size A[i]
+     * @return: The maximum size
+     */
+    @tags.DynamicProgramming
+    @tags.Backpack
+    @tags.Site.LintCode
+    public int backPack(int m, int[] A) {
+        if (m <= 0 || A == null || A.length == 0) {
+            return 0;
+        }
+
+        // dp[i] = whether i can be reached
+        boolean[] dp = new boolean[m + 1];
+        dp[0] = true;
+
+        for (Integer item : A) {
+            for (int i = m; i > 0; i--) {
+                if (!dp[i] && i - item >= 0 && dp[i - item]) {
+                    dp[i] = true;
+                }
+            }
+        }
+
+        for (int i = m; i > 0; i--) {
+            if (dp[i]) {
+                return i;
+            }
+        }
+        return 0;
+    }
+
+    /**
+     * Backpack II
+     *
+     * Given n items with size Ai and value Vi, and a backpack with size m.
+     * What's the maximum value can you put into the backpack?
+     *
+     * Notice: You cannot divide item into small pieces and the total size of
+     * items you choose should smaller or equal to m.
+     *
+     * Example: Given 4 items with size [2, 3, 5, 7] and value [1, 5, 2, 4], and
+     * a backpack with size 10. The maximum value is 9.
+     *
+     * @param m:
+     *            An integer m denotes the size of a backpack
+     * @param A
+     *            & V: Given n items with size A[i] and value V[i]
+     * @return: The maximum value
+     */
+    @tags.DynamicProgramming
+    @tags.Backpack
+    @tags.Site.LintCode
+    public int backPackII(int m, int[] A, int V[]) {
+        if (m <= 0 || A == null || A.length == 0 || V == null
+                || A.length != V.length) {
+            return 0;
+        }
+
+        int[] dp = new int[m + 1];
+
+        for (int i = 0; i < A.length; i++) {
+            for (int j = m; j > 0; j--) {
+                int pre = j - A[i];
+                if (pre == 0 || (pre > 0 && dp[pre] > 0)) {
+                    dp[j] = Math.max(dp[pre] + V[i], dp[j]);
+                }
+            }
+        }
+
+        int max = 0;
+        for (int j = 1; j <= m; j++) {
+            if (dp[j] > max) {
+                max = dp[j];
+            }
+        }
+        return max;
+    }
+
+    /**
+     * Backpack III.
+     *
+     * Given n items with size Ai and value Vi, and a backpack with size m.
+     * What's the maximum value can you put into the backpack?
+     *
+     * Notice: You cannot divide item into small pieces and the total size of
+     * items you choose should smaller or equal to m.
+     *
+     * Example Given 4 items with size [2, 3, 5, 7] and value [1, 5, 2, 4], and
+     * a backpack with size 10. The maximum value is 15.
+     *
+     * @param A
+     *            an integer array
+     * @param V
+     *            an integer array
+     * @param m
+     *            an integer
+     * @return an array
+     */
+    @tags.DynamicProgramming
+    @tags.Backpack
+    public int backPackIII(int[] A, int[] V, int m) {
+        if (m <= 0 || A == null || A.length == 0 || V == null
+                || V.length != A.length) {
+            return 0;
+        }
+
+        int[] dp = new int[m + 1];
+        for (int i = 0; i <= m; i++) {
+            for (int j = 0; j < A.length; j++) {
+                int next = i + A[j];
+                if (i == 0 || (next <= m && dp[i] > 0)) {
+                    dp[next] = Math.max(dp[i] + V[j], dp[next]);
+                }
+            }
+        }
+
+        int max = 0;
+        for (int i = 1; i <= m; i++) {
+            if (dp[i] > max) {
+                max = dp[i];
+            }
+        }
+        return max;
+    }
+
+    /**
+     * Minimum Adjustment Cost
+     *
+     * Given an integer array, adjust each integers so that the difference of
+     * every adjacent integers are not greater than a given number target. If
+     * the array before adjustment is A, the array after adjustment is B, you
+     * should minimize the sum of |A[i]-B[i]|
+     *
+     * Notice: You can assume each number in the array is a positive integer and
+     * not greater than 100.
+     *
+     * Example: Given [1,4,2,3] and target = 1, one of the solutions is
+     * [2,3,2,3], the adjustment cost is 2 and it's minimal. Return 2.
+     *
+     * @param A:
+     *            An integer array.
+     * @param target:
+     *            An integer.
+     */
+    @tags.DynamicProgramming
+    @tags.Backpack
+    @tags.Site.LintCode
+    public int MinAdjustmentCost(ArrayList<Integer> A, int target) {
+        // write your code here
+        return 0;
+    }
+
+    /**
+     * Wildcard Matching.
+     *
+     * Implement wildcard pattern matching with support for '?' and '*'.
+     *
+     * '?' Matches any single character. '*' Matches any sequence of characters
+     * (including the empty sequence).
+     *
+     * The matching should cover the entire input string (not partial).
+     *
+     * Some examples: isMatch("aa","a") ¡ú false, isMatch("aa","aa") ¡ú true,
+     * isMatch("aaa","aa") ¡ú false, isMatch("aa", "*") ¡ú true, isMatch("aa",
+     * "a*") ¡ú true, isMatch("ab", "?*") ¡ú true, isMatch("aab", "c*a*b") ¡ú false
+     *
+     * @param s:
+     *            A string
+     * @param p:
+     *            A string includes "?" and "*"
+     * @return: A boolean
+     */
+    @tags.Greedy
+    @tags.String
+    @tags.Backtracking
+    @tags.DynamicProgramming
+    @tags.Recursion
+    @tags.DFS
+    @tags.Company.Facebook
+    @tags.Company.Google
+    /** My DP solution */
+    public boolean isMatch(String s, String p) {
+        if (s == null || p == null) {
+            return true;
+        }
+
+        int sLen = s.length();
+        int pLen = p.length();
+        boolean[][] match = new boolean[sLen + 1][pLen + 1];
+
+        match[0][0] = true;
+        for (int i = 1; i <= pLen; i++) {
+            if (p.charAt(i - 1) == '*') {
+                match[0][i] = true;
+            } else {
+                break;
+            }
+        }
+
+        for (int i = 1; i <= sLen; i++) {
+            for (int j = 1; j <= pLen; j++) {
+                char pchar = p.charAt(j - 1);
+                char schar = s.charAt(i - 1);
+                if (pchar == '*') {
+                    match[i][j] = match[i - 1][j] || match[i][j - 1];
+                } else if (pchar == '?' || pchar == schar) {
+                    match[i][j] = match[i - 1][j - 1];
+                }
+            }
+        }
+
+        return match[sLen][pLen];
+    }
+
+    /**
+     * Wildcard Matching.
+     *
+     * This will exceed the time limit, the reason is multiple stars. In the
+     * back tracking method below (isMatch3), once new star is found and
+     * matched, the back track pointer will be moved forward, thus the program
+     * won't go down the earlier back tracking branches.
+     *
+     * DFS solution.
+     */
+    @tags.Greedy
+    @tags.String
+    @tags.Backtracking
+    @tags.DynamicProgramming
+    @tags.Recursion
+    @tags.DFS
+    @tags.Company.Facebook
+    @tags.Company.Google
+    public boolean isMatch2(String s, String p) {
+        if (s == null || p == null) {
+            return true;
+        }
+
+        // optimization to merge continuous stars
+        StringBuilder sb = new StringBuilder();
+        for (int i = 0; i < p.length(); i++) {
+            sb.append(p.charAt(i));
+            if (p.charAt(i) == '*') {
+                while (i + 1 < p.length() && p.charAt(i + 1) == '*') {
+                    i++;
+                }
+            }
+        }
+        p = sb.toString();
+
+        return isMatch(s, 0, p, 0);
+    }
+
+    private boolean isMatch(String s, int si, String p, int pi) {
+        if (si == s.length()) {
+            for (int i = pi; i < p.length(); i++) {
+                if (p.charAt(i) != '*') {
+                    return false;
+                }
+            }
+            return true;
+        } else if (pi == p.length()) {
+            return false;
+        }
+
+        char schar = s.charAt(si);
+        char pchar = p.charAt(pi);
+
+        if (pchar == '*') {
+            return isMatch(s, si + 1, p, pi) || isMatch(s, si, p, pi + 1);
+        } else {
+            if (pchar == '?' || pchar == schar) {
+                return isMatch(s, si + 1, p, pi + 1);
+            }
+            return false;
+        }
+    }
+
+    /**
+     * Wildcard Matching.
+     *
+     * All time the best, hard to understand.
+     */
+    @tags.Greedy
+    @tags.String
+    @tags.Backtracking
+    @tags.DynamicProgramming
+    @tags.Recursion
+    @tags.DFS
+    @tags.Company.Facebook
+    @tags.Company.Google
+    public boolean isMatch3(String s, String p) {
+        if (s == null || p == null)
+            return false;
+
+        int is = 0, ip = 0; // search ptrs
+        int ls = -1; // latest search ptr, next one to knock
+        int lStar = -1; // latest star ptr
+
+        while (true) {
+            if (is == s.length()) {// end of s, check the rest of p
+                for (int i = ip; i < p.length(); ++i) {
+                    if (p.charAt(i) != '*')
+                        return false;
+                }
+                return true;
+            } else {
+                if (ip < p.length()) {
+                    if (s.charAt(is) == p.charAt(ip) || p.charAt(ip) == '?') {
+                        // single match
+                        is++;
+                        ip++;
+                        continue;
+                    } else if (p.charAt(ip) == '*') {
+                        // star, search next character in p
+                        ls = is;
+                        lStar = ip;
+                        ip = lStar + 1;
+                        continue;
+                    }
+                }
+
+                // mismatch, check roll back
+                if (ls >= 0) {
+                    // roll back in the star position
+                    ip = lStar + 1;
+                    ls++;
+                    is = ls;
+                } else {// hard mismatch
+                    return false;
+                }
+            }
+        }
+    }
+
+    /**
+     * Regular Expression Matching
+     *
+     * Implement regular expression matching with support for '.' and '*'.
+     *
+     * '.' Matches any single character. '*' Matches zero or more of the
+     * preceding element.
+     *
+     * The matching should cover the entire input string (not partial).
+     *
+     * The function prototype should be: bool isMatch(const char *s, const char
+     * *p)
+     *
+     * Example: isMatch("aa","a") ¡ú false isMatch("aa","aa") ¡ú true
+     * isMatch("aaa","aa") ¡ú false isMatch("aa", "a*") ¡ú true isMatch("aa",
+     * ".*") ¡ú true isMatch("ab", ".*") ¡ú true isMatch("aab", "c*a*b") ¡ú true
+     *
+     * @param s:
+     *            A string
+     * @param p:
+     *            A string includes "." and "*"
+     * @return: A boolean
+     */
+    @tags.String
+    @tags.Backtracking
+    @tags.DynamicProgramming
+    @tags.Company.Facebook
+    @tags.Company.Google
+    /** DFS solution */
+    public boolean isMatchRegular(String s, String p) {
+        if (p.length() == 0) {
+            return s.length() == 0;
+        }
+
+        if (p.length() == 1 || p.charAt(1) != '*') {
+            if (s.length() == 0) {
+                return false;
+            }
+            if (p.charAt(0) != '.' && p.charAt(0) != s.charAt(0)) {
+                return false;
+            } else {
+                return isMatchRegular(s.substring(1), p.substring(1));
+            }
+        } else {
+            if (isMatchRegular(s, p.substring(2))) {
+                return true;
+            } else {
+                int i = 1;
+                while (i <= s.length() && (p.charAt(0) == '.'
+                        || s.charAt(i - 1) == p.charAt(0))) {
+                    if (isMatchRegular(s.substring(i), p.substring(2))) {
+                        return true;
+                    }
+                    i++;
+                }
+                return false;
+            }
+        }
+    }
+
+    /**
+     * Regular Expression Matching.
+     *
+     * Non-recursive non-DP solution, copied logic from isMatch2.
+     *
+     * @param s
+     * @param p
+     * @return
+     */
+    @tags.String
+    @tags.Backtracking
+    @tags.DynamicProgramming
+    @tags.Company.Facebook
+    @tags.Company.Google
+    /** iterative solution, awesome */
+    public boolean isMatchRegular2(String s, String p) {
+        if (s == null || p == null) {
+            return false;
+        }
+
+        int is = 0, ip = 0;
+        int ls = -1, lStar = -1;
+
+        while (true) {
+            if (is == s.length()) {
+                for (int i = ip; i < p.length(); i += 2) {
+                    if (p.charAt(i) != '*') {
+                        return false;
+                    }
+                }
+                return true;
+            }
+
+            if (ip < p.length()) {
+                char s1 = s.charAt(is);
+                char p1 = p.charAt(ip);
+                char p2 = 'x';
+                if (ip + 1 < p.length()) {
+                    p2 = p.charAt(ip + 1);
+                }
+
+                if (p2 != '*') {
+                    if (p1 == s1 || p1 == '.') {
+                        ip++;
+                        is++;
+                        continue;
+                    }
+                } else {
+                    if (p1 == '.') { // ".*" == "*" in wildcard matching
+                        ls = is;
+                        lStar = ip;
+                        ip += 2;
+                        continue;
+                    } else { // repeat preceding letter
+                        if (s1 == p1) {
+                            int scnt = 0;
+                            int pcnt = 0;
+                            ip += 2;
+                            while (ip < p.length() && p.charAt(ip) == s1) {
+                                ip++;
+                                pcnt++;
+                            }
+                            do {
+                                is++;
+                                scnt++;
+                            } while (is < s.length() && s.charAt(is) == s1);
+                            if (pcnt <= scnt) {
+                                continue;
+                            }
+                        } else {
+                            ip += 2;
+                            continue;
+                        }
+                    }
+                }
+            }
+
+            // hard no match, roll back to last *
+            if (lStar != -1) {
+                ls++;
+                is = ls;
+                ip = lStar + 2;
+            } else {
+                return false;
+            }
+        }
+    }
+
+    /**
+     * k Sum
+     *
+     * Given n distinct positive integers, integer k (k <= n) and a number
+     * target. Find k numbers where sum is target. Calculate how many solutions
+     * there are?
+     *
+     * Example Given [1,2,3,4], k = 2, target = 5. There are 2 solutions: [1,4]
+     * and [2,3]. Return 2.
+     *
+     * @param A:
+     *            an integer array.
+     * @param k:
+     *            a positive integer (k <= length(A))
+     * @param target:
+     *            a integer
+     * @return an integer
+     */
+    @tags.DynamicProgramming
+    @tags.Site.LintCode
+    public int kSum(int A[], int k, int target) {
+        if (A == null || A.length == 0 || k == 0 || target == 0) {
+            return 0;
+        }
+
+        int[][][] dp = new int[A.length + 1][k + 1][target + 1];
+        for (int i = 0; i <= A.length; i++) {
+            dp[i][0][0] = 1;
+        }
+
+        for (int i = 1; i <= A.length; i++) {
+            for (int j = 1; j <= k; j++) {
+                for (int t = 1; t <= target; t++) {
+                    dp[i][j][t] = dp[i - 1][j][t];
+                    if (A[i - 1] <= t) {
+                        dp[i][j][t] += dp[i - 1][j - 1][t - A[i - 1]];
+                    }
+                }
+            }
+        }
+
+        return dp[A.length][k][target];
+    }
+
     // ------------------------ Main Function and Tests ------------------------
 
     public void test() {
         int[] nums = { 5, 4, 1, 2, 3 };
         longestIncreasingSubsequence2(nums);
+
         String s1 = "aabcc", s2 = "dbbca", s3 = "aadbbcbcac";
-        isInterleave(s1, s2, s3);
+        assert (isInterleave(s1, s2, s3));
+
+        System.out.println(numDecodings("650"));
+
+        String s = "abbabaaabbabbaababbabbbbbabbbabbbabaaaaababababbbabababaabbababaabbbbbbaaaabababbbaabbbbaabbbbababababbaabbaababaabbbababababbbbaaabbbbbabaaaabbababbbbaababaabbababbbbbababbbabaaaaaaaabbbbbaabaaababaaaabb",
+                p = "**aa*****ba*a*bb**aa*ab****a*aaaaaa***a*aaaa**bbabb*b*b**aaaaaaaaa*a********ba*bbb***a*ba*bb*bb**a*b*bb";
+        s = "bbbba";
+        p = "?*a*a";
+        p = "b*a";
+        System.out.println("Wildcard matching: " + isMatch2(s, p));
+        System.out.println("Regular expression: " + isMatchRegular2(s, p));
     }
 
     public static void main(String[] args) {

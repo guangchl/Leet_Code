@@ -3810,178 +3810,6 @@ public class Problems {
     }
 
     /**
-	 * Wildcard Matching
-	 * 
-	 * Implement wildcard pattern matching with support for '?' and '*'.
-	 * 
-	 * '?' Matches any single character. '*' Matches any sequence of characters
-	 * (including the empty sequence).
-	 * 
-	 * The matching should cover the entire input string (not partial).
-	 * 
-	 * The function prototype should be: bool isMatch(const char *s, const char
-	 * *p)
-	 *
-     * Some examples:
-     * isMatch("aa","a") ¡ú false
-     * isMatch("aa","aa") ¡ú true
-     * isMatch("aaa","aa") ¡ú false
-     * isMatch("aa", "*") ¡ú true
-     * isMatch("aa", "a*") ¡ú true
-     * isMatch("ab", "?*") ¡ú true
-     * isMatch("aab", "c*a*b") ¡ú false
-     */
-	public boolean isMatch(String s, String p) {
-		int is = 0, ip = 0; // search ptrs
-		int js = -1; // latest search ptr
-		int jp = -1; // latest star ptr
-
-		while (true) {
-			if (is == s.length()) {// end of s, check the rest of p
-				for (int i = ip; i < p.length(); ++i) {
-					if (p.charAt(i) != '*')
-						return false;
-				}
-				return true;
-			} else {
-				if (ip < p.length()) {
-					if (s.charAt(is) == p.charAt(ip) || p.charAt(ip) == '?') {// single
-																				// match
-						is++;
-						ip++;
-						continue;
-					} else if (p.charAt(ip) == '*') {// star, search next
-														// character in p
-						js = is;
-						jp = ip;
-						ip = jp + 1;
-						continue;
-					}
-				}
-				// mismatch, check roll back
-				if (js >= 0) {// roll back in the star position
-					ip = jp + 1;
-					js++;
-					is = js;
-				} else {// hard mismatch
-					return false;
-				}
-			}
-		}
-	}
-	
-	/** Solution from internet */
-	public boolean isMatch2(String s, String p) {
-		if (s == null || p == null)
-			return false;
-
-		// calculate count for non-wildcard char
-		int count = 0;
-		for (Character c : p.toCharArray()) {
-			if (c != '*')
-				++count;
-		}
-		// the count should not be larger than that of s
-		if (count > s.length())
-			return false;
-
-		boolean[] matches = new boolean[s.length() + 1];
-		matches[0] = true;
-		int pid = 0, firstMatch = 0;
-		while (pid < p.length()) {
-			// skip duplicate '*'
-			if (pid > 0 && p.charAt(pid) == '*' && p.charAt(pid - 1) == '*') {
-				++pid;
-				continue;
-			}
-
-			// if '*', fill up the rest of row
-			if (p.charAt(pid) == '*') {
-				// fill up the rest of row with true, up to the first match in
-				// previous row
-				for (int i = firstMatch + 1; i <= s.length(); ++i)
-					matches[i] = true;
-			} else {
-				// fill up backwards:
-				// - set to true if match current char and previous diagnal also
-				// match
-				// - otherwise, set to false
-				int match = -1;
-				for (int i = s.length(); i > firstMatch; --i) {
-					matches[i] = (p.charAt(pid) == s.charAt(i - 1) || p
-							.charAt(pid) == '?') && matches[i - 1];
-					if (matches[i])
-						match = i;
-				}
-				if (match < 0)
-					return false;
-				firstMatch = match;
-			}
-
-			++pid;
-		}
-
-		return matches[s.length()];
-	}
-    
-    /** This is my solution */
-    public boolean isMatch3(String s, String p) {
-    	int slen = s.length();
-        int plen = p.length();
-        
-        if (slen == 0 && plen == 0) {
-            return true;
-        } else if (slen == 0) {
-            for (int i = 0; i < plen; i++) {
-                if (p.charAt(i) != '*')
-                    return false;
-            }
-            return true;
-        } else if (plen == 0) {
-            return false;
-        }
-        
-        // match[i][j] indicates s from 0 to i matches p from 0 to j
-        boolean[][] match = new boolean[slen][plen];
-        
-        // when p from 0 to end
-        if (p.charAt(0) == '*' || p.charAt(0) == '?' || p.charAt(0) == s.charAt(0)) {
-            match[0][0] = true;
-            for (int i = 1; i < plen; i++) {
-                if (p.charAt(i) == '*') {
-                    match[0][i] = true;
-                } else {
-                    break;
-                }
-            }
-        }
-        
-        // when s from 1 to end
-        if (p.charAt(0) == '*') {
-        	for (int i = 1; i < slen; i++)
-                match[i][0] = true;
-        }
-
-        for (int i = 1; i < slen; i++) {
-            for (int j = 1; j < plen; j++) {
-            	System.out.println();
-                switch (p.charAt(j)) {
-                	case '?':
-                		match[i][j] = match[i - 1][j - 1];
-                		break;
-                	case '*':
-                		match[i][j] = match[i - 1][j] || match[i][j - 1];
-                		break;
-                	default:
-                		match[i][j] = match[i - 1][j - 1] && s.charAt(i) == p.charAt(j);
-                }
-            }
-        }
-        
-        return match[slen - 1][plen - 1];
-    }
-    
-    /**
      * Insertion Sort List
      * 
      * Sort a linked list using insertion sort.
@@ -4496,32 +4324,6 @@ public class Problems {
         }
 
         return result;
-    }
-    
-    /**
-     * Decode Ways
-     */
-    public int numDecodings(String s) {
-        int len = s.length();
-        if (len == 0) return 0;
-        
-        int[] dp = new int[len + 1];
-        dp[0] = 1;
-        dp[1] = (s.charAt(0) == '0') ? 0 : 1;
-        
-        for (int i = 2; i <= len; i++) {
-            int n = s.charAt(i - 1) - '0';
-            if (n > 0) {
-                dp[i] = dp[i - 1];
-            }
-            
-            n += (s.charAt(i - 2) - '0') * 10;
-            if (n <= 26 && n >= 10) {
-                dp[i] += dp[i - 2];
-            }
-        }
-        
-        return dp[len];
     }
     
     /**
@@ -5248,39 +5050,6 @@ public class Problems {
     }
 	
 	/**
-	 * Regular Expression Matching
-	 */
-	public boolean isMatchRegular(String s, String p) {
-		if (p.length() == 0) {
-			return s.length() == 0;
-		}
-		
-		if (p.length() == 1 || p.charAt(1) != '*') {
-			if (s.length() == 0) {
-				return false;
-			}
-			if (p.charAt(0) != '.' && p.charAt(0) != s.charAt(0)) {
-				return false;
-			} else {
-				return isMatchRegular(s.substring(1), p.substring(1));
-			}
-		} else {
-			if (isMatchRegular(s, p.substring(2))) {
-				return true;
-			} else {
-				int i = 1;
-				while (i <= s.length() && (p.charAt(0) == '.' || s.charAt(i - 1) == p.charAt(0))) {
-					if (isMatchRegular(s.substring(i), p.substring(2))) {
-						return true;
-					}
-					i++;
-				}
-				return false;
-			}
-		}
-	}
-	
-	/**
 	 * Reverse Words in a String
 	 */
 	public String reverseWords(String s) {
@@ -5322,7 +5091,6 @@ public class Problems {
 		//char[][] board = {{'.','8','7','6','5','4','3','2','1'},{'2','.','.','.','.','.','.','.','.'},{'3','.','.','.','.','.','.','.','.'},{'4','.','.','.','.','.','.','.','.'},{'5','.','.','.','.','.','.','.','.'},{'6','.','.','.','.','.','.','.','.'},{'7','.','.','.','.','.','.','.','.'},{'8','.','.','.','.','.','.','.','.'},{'9','.','.','.','.','.','.','.','.'}};
 		//System.out.println("mississippi\nissip");
 		//System.out.println(kmp("mississippi", "issip"));
-		System.out.println(numDecodings("650"));
 		Interval i1 = new Interval(3, 5);
 		Interval i2 = new Interval(12, 15);
 		Interval newInterval = new Interval(6, 6);
