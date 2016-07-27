@@ -1036,8 +1036,31 @@ public class DynamicProgramming {
     @tags.Backpack
     @tags.Site.LintCode
     public int MinAdjustmentCost(ArrayList<Integer> A, int target) {
-        // write your code here
-        return 0;
+        if (A == null || target < 0) {
+            return 0;
+        }
+
+        int[][] dp = new int[A.size() + 1][101];
+        for (int i = A.size() - 1; i >= 0; i--) {
+            for (int j = 1; j < 101; j++) {
+                dp[i][j] = Integer.MAX_VALUE;
+                for (int k = 1; k < 101; k++) {
+                    if (Math.abs(j - k) <= target) {
+                        dp[i][j] = Math.min(dp[i][j], dp[i + 1][k]);
+                    }
+                }
+                dp[i][j] += Math.abs(A.get(i) - j);
+            }
+        }
+
+        int min = Integer.MAX_VALUE;
+        for (int i = 1; i < 101; i++) {
+            if (dp[0][i] < min) {
+                min = dp[0][i];
+            }
+        }
+
+        return min;
     }
 
     /**
