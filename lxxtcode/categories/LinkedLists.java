@@ -3,6 +3,7 @@ package categories;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.HashMap;
+import java.util.List;
 import java.util.PriorityQueue;
 
 public class LinkedLists {
@@ -342,10 +343,277 @@ public class LinkedLists {
         return root;
     }
 
-    // ------------------------------ OLD ------------------------------------
+    /**
+     * Copy List with Random Pointer
+     *
+     * A linked list is given such that each node contains an additional random
+     * pointer which could point to any node in the list or null. Return a deep
+     * copy of the list.
+     *
+     * @param head:
+     *            The head of linked list with a random pointer.
+     * @return: A new head of a deep copy of the list.
+     */
+    @tags.LinkedList
+    @tags.HashTable
+    @tags.Company.Uber
+    public RandomListNode copyRandomList(RandomListNode head) {
+        RandomListNode dummy = new RandomListNode(0);
+        dummy.next = head;
+
+        // copy nodes and append copy after each original node
+        while (head != null) {
+            RandomListNode next = head.next;
+            head.next = new RandomListNode(head.label);
+            head.next.next = next;
+            head = next;
+        }
+
+        // copy random pointer
+        head = dummy.next;
+        while (head != null) {
+            if (head.random != null) {
+                head.next.random = head.random.next;
+            }
+            head = head.next.next;
+        }
+
+        // separate the 2 lists
+        RandomListNode pre = dummy;
+        head = dummy.next;
+        while (head != null) {
+            pre.next = head.next;
+            pre = pre.next;
+            head.next = pre.next;
+            head = head.next;
+        }
+        pre.next = null;
+
+        return dummy.next;
+    }
 
     /**
-     * 1. Reverse Linked List II
+     * Merge k Sorted Lists
+     *
+     * Merge k sorted linked lists and return it as one sorted list. Analyze and
+     * describe its complexity.
+     *
+     * @param lists:
+     *            a list of ListNode
+     * @return: The head of one sorted list.
+     */
+    @tags.DivideAndConquer
+    @tags.LinkedList
+    @tags.PriorityQueue
+    @tags.Heap
+    @tags.Company.Airbnb
+    @tags.Company.Facebook
+    @tags.Company.Google
+    @tags.Company.LinkedIn
+    @tags.Company.Twitter
+    @tags.Company.Uber
+    public ListNode mergeKLists(List<ListNode> lists) {
+        if (lists == null || lists.size() == 0) {
+            return null;
+        }
+
+        // construct min heap
+        PriorityQueue<ListNode> pq = new PriorityQueue<ListNode>(lists.size(),
+                new Comparator<ListNode>() {
+                    @Override
+                    public int compare(ListNode n1, ListNode n2) {
+                        return n1.val - n2.val;
+                    }
+                });
+
+        // insert head node of each list
+        for (ListNode list : lists) {
+            if (list != null) {
+                pq.offer(list);
+            }
+        }
+
+        // merge
+        ListNode dummy = new ListNode(0);
+        ListNode prev = dummy;
+        while (!pq.isEmpty()) {
+            prev.next = pq.poll();
+            prev = prev.next;
+            if (prev.next != null) {
+                pq.offer(prev.next);
+            }
+        }
+
+        return dummy.next;
+    }
+
+    /**
+     * Reorder List
+     *
+     * Given a singly linked list L: L0¡úL1¡ú¡­¡úLn-1¡úLn, reorder it to:
+     * L0¡úLn¡úL1¡úLn-1¡úL2¡úLn-2¡ú¡­
+     *
+     * You must do this in-place without altering the nodes' values.
+     *
+     * For example, Given {1,2,3,4}, reorder it to {1,4,2,3}.
+     *
+     * @param head:
+     *            The head of linked list.
+     * @return: void
+     */
+    @tags.LinkedList
+    public void reorderList(ListNode head) {
+        if (head == null || head.next == null || head.next.next == null)
+            return;
+
+        // find the second half
+        ListNode slow = head;
+        ListNode fast = head.next;
+        while (fast != null && fast.next != null) {
+            slow = slow.next;
+            fast = fast.next.next;
+        }
+
+        // break the list, reverse the second half list
+        ListNode list = slow.next;
+        slow.next = null;
+        list = reverse(list);
+
+        // merge the two list
+        ListNode current = head;
+        while (list != null) {
+            ListNode temp = list;
+            list = list.next;
+            temp.next = current.next;
+            current.next = temp;
+            current = temp.next;
+        }
+    }
+
+    /**
+     * Sort List
+     *
+     * Sort a linked list in O(n log n) time using constant space complexity.
+     *
+     * Important: Space O(n) solution: copy all nodes to array to avoid cost of
+     * findMiddle!!!
+     */
+    @tags.LinkedList
+    /** Quick sort */
+    public ListNode sortListQuick(ListNode head) {
+        if (head == null)
+            return null;
+
+        // partition
+        ListNode less = new ListNode(0);
+        ListNode lessTail = less;
+        ListNode equal = head;
+        ListNode equalTail = equal;
+        ListNode greater = new ListNode(0);
+        ListNode greaterTail = greater;
+        head = head.next;
+        while (head != null) {
+            if (head.val == equalTail.val) {
+                equalTail.next = head;
+                equalTail = head;
+            } else if (head.val < equalTail.val) {
+                lessTail.next = head;
+                lessTail = head;
+            } else {
+                greaterTail.next = head;
+                greaterTail = head;
+            }
+            head = head.next;
+        }
+        lessTail.next = null;
+        equalTail.next = null;
+        greaterTail.next = null;
+
+        // sort
+        less = sortListQuick(less.next);
+        greater = sortListQuick(greater.next);
+
+        // merge
+        return merge(less, equal, greater);
+    }
+
+    private ListNode merge(ListNode less, ListNode equal, ListNode greater) {
+        ListNode dummy = new ListNode(0);
+        ListNode prev = dummy;
+
+        // append less
+        prev.next = less;
+        while (prev.next != null) {
+            prev = prev.next;
+        }
+
+        // append equal
+        prev.next = equal;
+        while (prev.next != null) {
+            prev = prev.next;
+        }
+
+        // append greater
+        prev.next = greater;
+
+        return dummy.next;
+    }
+
+    /**
+     * Sort List - Merge sort
+     */
+    public ListNode sortListMerge(ListNode head) {
+        if (head == null || head.next == null) {
+            return head;
+        }
+
+        // divide
+        ListNode tail = findMiddle(head);
+        ListNode head2 = tail.next;
+        tail.next = null;
+
+        // conquer
+        head = sortListMerge(head);
+        head2 = sortListMerge(head2);
+        return merge(head, head2);
+    }
+
+    private ListNode findMiddle(ListNode head) {
+        ListNode slow = head;
+        ListNode fast = head.next;
+
+        while (fast != null && fast.next != null) {
+            slow = slow.next;
+            fast = fast.next.next;
+        }
+
+        return slow;
+    }
+
+    private ListNode merge(ListNode head1, ListNode head2) {
+        ListNode dummy = new ListNode(0);
+        ListNode prev = dummy;
+
+        while (head1 != null && head2 != null) {
+
+            if (head1.val < head2.val) {
+                prev.next = head1;
+                prev = head1;
+                head1 = head1.next;
+            } else {
+                prev.next = head2;
+                prev = head2;
+                head2 = head2.next;
+            }
+        }
+
+        prev.next = (head1 == null) ? head2 : head1;
+
+        return dummy.next;
+    }
+
+    /**
+     * Reverse Linked List II
      *
      * Reverse a linked list from position m to n. Do it in-place and in
      * one-pass.
@@ -354,44 +622,103 @@ public class LinkedLists {
      * 1->4->3->2->5->NULL.
      *
      * Note: m, n satisfy the following condition: 1 ¡Ü m ¡Ü n ¡Ü length of list.
+     *
+     * @param ListNode
+     *            head is the head of the linked list
+     * @oaram m and n
+     * @return: The head of the reversed ListNode
      */
+    @tags.LinkedList
     public ListNode reverseBetween(ListNode head, int m, int n) {
-        if (head == null || m >= n || m < 0) {
+        ListNode dummy = new ListNode(0);
+        dummy.next = head;
+
+        ListNode leftTail = dummy;
+        while (--m > 0 && leftTail != null) {
+            leftTail = leftTail.next;
+            n--;
+        }
+
+        if (leftTail == null || leftTail.next == null) {
             return head;
         }
 
-        ListNode dummy = new ListNode(0);
-        dummy.next = head;
-        head = dummy;
-
-        // find the node before reverse part
-        n -= m;
-        while (m-- > 1 && head != null) {
-            head = head.next;
+        ListNode midTail = leftTail.next;
+        while (--n > 0 && midTail.next != null) {
+            ListNode next = leftTail.next;
+            leftTail.next = midTail.next;
+            midTail.next = midTail.next.next;
+            leftTail.next.next = next;
         }
-
-        // list is shorter than or equals to m
-        if (head == null || head.next == null) {
-            return dummy.next;
-        }
-
-        // reverse
-        ListNode tail = head.next;
-        ListNode prev = tail;
-        ListNode current = prev.next;
-        while (current != null && n-- > 0) {
-            ListNode next = current.next;
-            current.next = prev;
-            prev = current;
-            current = next;
-        }
-
-        // reconnect
-        head.next = prev;
-        tail.next = current;
 
         return dummy.next;
     }
+
+    /**
+     * Linked List Cycle
+     *
+     * Given a linked list, determine if it has a cycle in it.
+     *
+     * Space Complexity: O(1)
+     *
+     * @param head:
+     *            The first node of linked list.
+     * @return: True if it has a cycle, or false
+     */
+    @tags.TwoPointers
+    @tags.LinkedList
+    public boolean hasCycle(ListNode head) {
+        ListNode slow = head, fast = head;
+        do {
+            if (fast == null || fast.next == null) {
+                return false;
+            }
+            slow = slow.next;
+            fast = fast.next.next;
+        } while (slow != fast);
+        return true;
+    }
+
+    /**
+     * Linked List Cycle II
+     *
+     * Given a linked list, return the node where the cycle begins. If there is
+     * no cycle, return null.
+     *
+     * Space Complexity: O(1)
+     *
+     * @param head:
+     *            The first node of linked list.
+     * @return: The node where the cycle begins. if there is no cycle, return
+     *          null
+     */
+    @tags.TwoPointers
+    @tags.LinkedList
+    public ListNode detectCycle(ListNode head) {
+        ListNode dummy = new ListNode(0);
+        dummy.next = head;
+        ListNode fast = dummy, slow = dummy;
+
+        // fast double speed to slow
+        do {
+            if (fast == null || fast.next == null) {
+                return null;
+            }
+            slow = slow.next;
+            fast = fast.next.next;
+        } while (fast != slow);
+
+        // same pace
+        slow = dummy;
+        while (fast != slow) {
+            fast = fast.next;
+            slow = slow.next;
+        }
+
+        return fast;
+    }
+
+    // ------------------------------ OLD ------------------------------------
 
     /**
      * 2. Swap Nodes in Pairs
@@ -482,72 +809,6 @@ public class LinkedLists {
     }
 
     /**
-     * 4. Linked List Cycle
-     *
-     * Given a linked list, determine if it has a cycle in it.
-     *
-     * Space Complexity: O(1)
-     */
-    public boolean hasCycle(ListNode head) {
-        if (head == null || head.next == null) {
-            return false;
-        }
-
-        // set two runners
-        ListNode slow = head;
-        ListNode fast = head;
-
-        // fast runner move 2 steps at one time while slow runner move 1 step,
-        // if traverse to a null, there must be no loop, use do while to make
-        // sure we can move at least once
-        do {
-            slow = slow.next;
-            fast = fast.next.next;
-        } while (fast != null && fast.next != null && slow != fast);
-
-        return fast == slow;
-    }
-
-    /**
-     * 5. Linked List Cycle II
-     *
-     * Given a linked list, return the node where the cycle begins. If there is
-     * no cycle, return null.
-     *
-     * Space Complexity: O(1)
-     */
-    public ListNode detectCycle(ListNode head) {
-        if (head == null || head.next == null) {
-            return null;
-        }
-
-        // set two runners
-        ListNode slow = head;
-        ListNode fast = head;
-
-        // first time meet: fast runner move 2 steps at one time while slow
-        // runner move 1 step,
-        do {
-            slow = slow.next;
-            fast = fast.next.next;
-        } while (fast != null && fast.next != null && slow != fast);
-
-        // if stopped by null, indicating no loop
-        if (slow != fast) {
-            return null;
-        }
-
-        // one runner start from the head, both runner move 1 step each time
-        fast = head;
-        while (fast != slow) {
-            fast = fast.next;
-            slow = slow.next;
-        }
-
-        return fast;
-    }
-
-    /**
      * 7. Merge Two Sorted Lists
      *
      * Merge two sorted linked lists and return it as a new list. The new list
@@ -594,90 +855,6 @@ public class LinkedLists {
         }
 
         return head;
-    }
-
-    /**
-     * 8. Merge k Sorted Lists
-     */
-    public ListNode mergeKLists(ArrayList<ListNode> lists) {
-        if (lists == null || lists.size() == 0) {
-            return null;
-        }
-
-        // construct dummy node
-        ListNode dummy = new ListNode(0);
-        ListNode current = dummy;
-
-        // construct MinHeap
-        PriorityQueue<ListNode> pq = new PriorityQueue<ListNode>(lists.size(),
-                new Comparator<ListNode>() {
-                    @Override
-                    public int compare(ListNode node1, ListNode node2) {
-                        if (node1.val < node2.val) {
-                            return -1;
-                        } else if (node1.val > node2.val) {
-                            return 1;
-                        }
-
-                        return 0;
-                    }
-                });
-
-        // add all head node to heap
-        for (ListNode node : lists) {
-            if (node != null) { // this is ridiculous
-                pq.offer(node);
-            }
-        }
-
-        // merge
-        while (!pq.isEmpty()) {
-            current.next = pq.poll();
-            current = current.next;
-            if (current.next != null) {
-                pq.offer(current.next);
-            }
-        }
-
-        return dummy.next;
-    }
-
-    /**
-     * 12. Reorder List
-     * 
-     * Given a singly linked list L: L0¡úL1¡ú¡­¡úLn-1¡úLn, reorder it to:
-     * L0¡úLn¡úL1¡úLn-1¡úL2¡úLn-2¡ú¡­
-     * 
-     * You must do this in-place without altering the nodes' values.
-     * 
-     * For example, Given {1,2,3,4}, reorder it to {1,4,2,3}.
-     */
-    public void reorderList(ListNode head) {
-        if (head == null || head.next == null || head.next.next == null)
-            return;
-
-        // find the second half
-        ListNode slow = head;
-        ListNode fast = head.next;
-        while (fast != null && fast.next != null) {
-            slow = slow.next;
-            fast = fast.next.next;
-        }
-
-        // break the list, reverse the second half list
-        ListNode list = slow.next;
-        slow.next = null;
-        list = reverse(list);
-
-        // merge the two list
-        ListNode current = head;
-        while (list != null) {
-            ListNode temp = list;
-            list = list.next;
-            temp.next = current.next;
-            current.next = temp;
-            current = temp.next;
-        }
     }
 
     /**
@@ -763,106 +940,6 @@ public class LinkedLists {
         }
 
         return dummy.next;
-    }
-
-    /**
-     * 15. Sort List
-     * 
-     * Sort a linked list in O(n log n) time using constant space complexity.
-     * 
-     * Important: Space O(n) solution: copy all nodes to array to avoid cost of
-     * findMiddle!!!
-     */
-    public ListNode sortList(ListNode head) {
-        if (head == null || head.next == null) {
-            return head;
-        }
-
-        // divide
-        ListNode tail = findMiddle(head);
-        ListNode head2 = tail.next;
-        tail.next = null;
-
-        // conquer
-        head = sortList(head);
-        head2 = sortList(head2);
-        return merge(head, head2);
-    }
-
-    private ListNode findMiddle(ListNode head) {
-        ListNode slow = head;
-        ListNode fast = head.next;
-
-        while (fast != null && fast.next != null) {
-            slow = slow.next;
-            fast = fast.next.next;
-        }
-
-        return slow;
-    }
-
-    private ListNode merge(ListNode head1, ListNode head2) {
-        ListNode dummy = new ListNode(0);
-        ListNode prev = dummy;
-
-        while (head1 != null && head2 != null) {
-
-            if (head1.val < head2.val) {
-                prev.next = head1;
-                prev = head1;
-                head1 = head1.next;
-            } else {
-                prev.next = head2;
-                prev = head2;
-                head2 = head2.next;
-            }
-        }
-
-        prev.next = (head1 == null) ? head2 : head1;
-
-        return dummy.next;
-    }
-
-    /**
-     * 16. Copy List with Random Pointer
-     */
-    public RandomListNode copyRandomList(RandomListNode head) {
-        if (head == null) {
-            return null;
-        }
-
-        // copy the main list and append each copy to its original node
-        // list length is doubled
-        RandomListNode current = head;
-        while (current != null) {
-            RandomListNode node = new RandomListNode(current.label);
-            node.next = current.next;
-            current.next = node;
-            node.random = current.random;
-            current = node.next;
-        }
-
-        // update the random
-        current = head;
-        while (current != null) {
-            current = current.next;
-            current.random = (current.random == null) ? null
-                    : current.random.next;
-            current = current.next;
-        }
-
-        // separate the two lists
-        RandomListNode newHead = head.next;
-        current = newHead;
-        while (current.next != null) {
-            head.next = current.next;
-            head = head.next;
-            current.next = head.next;
-            current = current.next;
-        }
-        head.next = null;
-
-        return newHead;
     }
 
     /**

@@ -10,7 +10,6 @@ import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.LinkedList;
 import java.util.Map;
-import java.util.PriorityQueue;
 import java.util.Queue;
 import java.util.Set;
 import java.util.Stack;
@@ -3920,62 +3919,7 @@ public class Problems {
         
         return max;
     }
-    
-    /**
-     * Reorder List
-     * 
-     * Given a singly linked list L: L0¡úL1¡ú¡­¡úLn-1¡úLn,
-     * reorder it to: L0¡úLn¡úL1¡úLn-1¡úL2¡úLn-2¡ú¡­
-     * 
-     * You must do this in-place without altering the nodes' values.
-     * 
-     * For example,
-     * Given {1,2,3,4}, reorder it to {1,4,2,3}.
-     */
-    public void reorderList(ListNode head) {
-        if (head == null || head.next == null || head.next.next == null)
-            return;
-        
-        // find the second half
-        ListNode slow = head;
-        ListNode fast = head.next;
-        while (fast != null && fast.next != null) {
-            slow = slow.next;
-            fast = fast.next.next;
-        }
-        
-        // break the list, reverse the second half list
-        ListNode list = slow.next;
-        slow.next = null;
-        list = reverseSingleLinkedList(list);
-        
-        // merge the two list
-        ListNode current = head;
-        while (list != null) {
-            ListNode temp = list;
-            list = list.next;
-            temp.next = current.next;
-            current.next = temp;
-            current = temp.next;
-        }
-    }
-    
-    public ListNode reverseSingleLinkedList(ListNode head) {
-        if (head == null) return null;
-        
-        ListNode current = head.next;
-        head.next = null;
-        
-        while (current != null) {
-            ListNode next = current.next;
-            current.next = head;
-            head = current;
-            current = next;
-        }
-        
-        return head;
-    }
-    
+ 
     /**
 	 * Word Search
 	 * 
@@ -4422,92 +4366,7 @@ public class Problems {
         
         return result.toString();
     }
-    
-    /**
-     * Copy List with Random Pointer
-     */
-    public RandomListNode copyRandomList(RandomListNode head) {
-        if (head == null) {
-            return null;
-        }
-        
-        // copy the main list to double the length
-        RandomListNode current = head;
-        while (current != null) {
-            RandomListNode node = new RandomListNode(current.label);
-            node.next = current.next;
-            current.next = node;
-            node.random = current.random;
-            current = node.next;
-        }
-        
-        // update the random
-        current = head;
-        while (current != null) {
-            current = current.next;
-            current.random = (current.random == null) ? null : current.random.next;
-            current = current.next;
-        }
 
-        // separate the two lists
-        RandomListNode newHead = head.next;
-        current = newHead;
-        while (current.next != null) {
-            head.next = current.next;
-            head = head.next;
-            current.next = head.next;
-            current = current.next;
-        }
-        head.next = null;
-        
-        return newHead;
-    }
-    
-    /**
-     * Merge k Sorted Lists
-     */
-    public ListNode mergeKLists(ArrayList<ListNode> lists) {
-        if (lists == null || lists.size() == 0) {
-            return null;
-        }
-
-        // construct dummy node
-        ListNode dummy = new ListNode(0);
-        ListNode current = dummy;
-        
-        // construct MinHeap
-        PriorityQueue<ListNode> pq = new PriorityQueue<ListNode>(lists.size(), 
-                new Comparator<ListNode>() {
-                    @Override
-                    public int compare(ListNode node1, ListNode node2) {
-                        if (node1.val < node2.val) {
-                            return -1;
-                        } else if (node1.val > node2.val) {
-                            return 1;
-                        }
-                        
-                        return 0;
-                    }
-                });
-        
-        // add all head node to heap
-        for (ListNode node : lists) {
-            if (node != null) { // this is ridiculous
-                pq.offer(node);
-            }
-        }
-        
-        while (!pq.isEmpty()) {
-            current.next = pq.poll();
-            current = current.next;
-            if (current.next != null) {
-                pq.offer(current.next);
-            }
-        }
-        
-        return dummy.next;
-    }
-    
     /**
      * Sort List
      * 
