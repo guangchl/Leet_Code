@@ -583,7 +583,7 @@ public class BinaryTreeAndDivideConquer {
      * @return: The lowest common ancestor of A and B
      */
     @tags.BinaryTree
-    @tags.Site.LintCode
+    @tags.Source.LintCode
     public ParentTreeNode lowestCommonAncestorII(ParentTreeNode root,
                                                  ParentTreeNode A,
                                                  ParentTreeNode B) {
@@ -809,7 +809,7 @@ public class BinaryTreeAndDivideConquer {
      * @return: The root of the new binary search tree.
      */
     @tags.BinarySearchTree
-    @tags.Site.LintCode
+    @tags.Source.LintCode
     public TreeNode insertNode(TreeNode root, TreeNode node) {
         if (root == null) {
             return node;
@@ -1048,7 +1048,7 @@ public class BinaryTreeAndDivideConquer {
      * @return: The root of the binary search tree after removal.
      */
     @tags.BinarySearchTree
-    @tags.Site.LintCode
+    @tags.Source.LintCode
     public TreeNode removeNode(TreeNode root, int value) {
         TreeNode dummy = new TreeNode(0);
         dummy.right = root;
@@ -1117,7 +1117,7 @@ public class BinaryTreeAndDivideConquer {
      */
     @tags.DFS
     @tags.BinaryTree
-    @tags.Site.LeetCode
+    @tags.Source.LeetCode
     public List<List<Integer>> findLeaves(TreeNode root) {
         // TODO: locked problem from LeetCode
         return null;

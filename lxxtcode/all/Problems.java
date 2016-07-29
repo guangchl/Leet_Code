@@ -358,44 +358,6 @@ public class Problems {
 	}
 
 	/**
-	 * Linked List Cycle II
-	 * 
-	 * Given a linked list, return the node where the cycle begins. If there is
-	 * no cycle, return null.
-	 * 
-	 * Follow up: Can you solve it without using extra space?
-	 */
-	public ListNode detectCycle(ListNode head) {
-		// set two runners
-		ListNode slow = head;
-		ListNode fast = head;
-
-		// first time meet: fast runner move 2 steps at one time while slow
-		// runner move 1 step,
-		while (fast != null && fast.next != null) {
-			slow = slow.next;
-			fast = fast.next.next;
-			if (slow == fast) {
-				break;
-			}
-		}
-
-		// if stopped by null, indicating no loop
-		if (fast == null || fast.next == null) {
-			return null;
-		}
-
-		// one runner start from the head, both runner move 1 step each time
-		fast = head;
-		while (fast != slow) {
-			fast = fast.next;
-			slow = slow.next;
-		}
-
-		return fast;
-	}
-
-	/**
 	 * Populating Next Right Pointers in Each Node
 	 * 
 	 * Populate each next pointer to point to its next right node. If there is
@@ -649,55 +611,6 @@ public class Problems {
 	}
 
 	/**
-	 * Merge Two Sorted Lists
-	 * 
-	 * Merge two sorted linked lists and return it as a new list. The new list
-	 * should be made by splicing together the nodes of the first two lists.
-	 */
-	public ListNode mergeTwoLists(ListNode l1, ListNode l2) {
-		// if one of the list is empty, return the other one
-		if (l1 == null) {
-			return l2;
-		} else if (l2 == null) {
-			return l1;
-		}
-
-		// find the head node
-		ListNode head;
-		if (l1.val < l2.val) {
-			head = l1;
-			l1 = l1.next;
-		} else {
-			head = l2;
-			l2 = l2.next;
-		}
-
-		// set a pointer pointing to the last element in merged list
-		ListNode current = head;
-
-		// merge the two lists until one of them gets empty
-		while (l1 != null && l2 != null) {
-			if (l1.val < l2.val) {
-				current.next = l1;
-				l1 = l1.next;
-			} else {
-				current.next = l2;
-				l2 = l2.next;
-			}
-			current = current.next;
-		}
-
-		// add the remaining elements to the merged list
-		if (l1 != null) {
-			current.next = l1;
-		} else {
-			current.next = l2;
-		}
-
-		return head;
-	}
-
-	/**
 	 * Merge Sorted Array
 	 * 
 	 * Given two sorted integer arrays A and B, merge B into A as one sorted
@@ -732,45 +645,6 @@ public class Problems {
 				A[i] = B[i];
 			}
 		}
-	}
-
-	/**
-	 * Swap Nodes in Pairs
-	 * 
-	 * Given a linked list, swap every two adjacent nodes and return its head.
-	 * 
-	 * For example, Given 1->2->3->4, you should return the list as 2->1->4->3.
-	 * 
-	 * Your algorithm should use only constant space. You may not modify the
-	 * values in the list, only nodes itself can be changed.
-	 */
-	public ListNode swapPairs(ListNode head) {
-		ListNode prev, first, second, next;
-		if (head != null && head.next != null) {
-			first = head;
-			second = first.next;
-			next = second.next;
-
-			head = second;
-			second.next = first;
-			first.next = next;
-			prev = first;
-		} else {
-			return head;
-		}
-
-		while (prev.next != null && prev.next.next != null) {
-			first = prev.next;
-			second = first.next;
-			next = second.next;
-
-			prev.next = second;
-			second.next = first;
-			first.next = next;
-			prev = first;
-		}
-
-		return head;
 	}
 
 	/**
@@ -2970,54 +2844,7 @@ public class Problems {
 	        }
 	    }
 	}
-	
-	/**
-	 * Add Two Numbers
-	 * 
-	 * You are given two linked lists representing two non-negative numbers. The
-	 * digits are stored in reverse order and each of their nodes contain a
-	 * single digit. Add the two numbers and return it as a linked list.
-	 * 
-	 * Input: (2 -> 4 -> 3) + (5 -> 6 -> 4) Output: 7 -> 0 -> 8
-	 */
-	public ListNode addTwoNumbers(ListNode l1, ListNode l2) {
-		ListNode l = new ListNode(0); // dummy head node
-        int sum = 0, carry = 0;
-        ListNode current = l;
-        
-        while (l1 != null && l2 != null) {
-            sum = l1.val + l2.val + carry;
-            carry = sum / 10;
-            current.next = new ListNode(sum % 10);
-            current = current.next;
-            l1 = l1.next;
-            l2 = l2.next;
-        }
-        
-        // done with both l1 and l2
-        if (l1 == null && l2 == null) {
-            if (carry != 0) current.next = new ListNode(carry);
-            return l.next;
-        } else  if (l1 != null) { // l1 still need to be added
-            current.next = l1;
-        } else if (l2 != null) { // l2 still need to be added
-            current.next = l2;
-        }
-        current = current.next;
-        
-        while (carry != 0 && current.next != null) {
-            sum = current.val + carry;
-            carry = sum / 10;
-            current.val = sum % 10;
-            current = current.next;
-        }
-        sum = current.val + carry;
-        carry = sum / 10;
-        current.val = sum % 10;
-        if (carry != 0) current.next = new ListNode(carry);
-        return l.next;
-    }
-	
+
 	/**
 	 * N-Queens
 	 * 
@@ -3808,51 +3635,7 @@ public class Problems {
         return result;
     }
 
-    /**
-     * Insertion Sort List
-     * 
-     * Sort a linked list using insertion sort.
-     */
-    public ListNode insertionSortList(ListNode head) {
-        if (head == null) return null;
-        
-        // dummy head
-        ListNode dummy = new ListNode(Integer.MIN_VALUE);
-        dummy.next = head;
-        head = dummy;
-
-        // start from the one next to original head
-        ListNode prev = dummy.next;
-        ListNode current = prev.next;
-        while (current != null) {
-            // insert if current is not in order
-            if (current.val < prev.val) {
-                // move head to last node which smaller than current
-                while (head.next.val < current.val) {
-                    head = head.next;
-                }
-                
-                // delete current from original position
-                prev.next = current.next;
-                
-                // add current to head.next
-                current.next = head.next;
-                head.next = current;
-                head = dummy;
-                
-                // update prev and current
-                current = prev.next;
-            } else {
-                // update prev and current
-                prev = current;
-                current = prev.next;
-            }
-        }
-        
-        return dummy.next;
-    }
-    
-    /**
+	/**
 	 * Max Points on a Line
 	 * 
 	 * Given n points on a 2D plane, find the maximum number of points that lie
@@ -4365,61 +4148,6 @@ public class Problems {
         }
         
         return result.toString();
-    }
-
-    /**
-     * Sort List
-     * 
-     * Sort a linked list in O(n log n) time using constant space complexity.
-     */
-    public ListNode sortList(ListNode head) {
-        if (head == null || head.next == null) {
-            return head;
-        }
-        
-        // divide
-        ListNode tail = findMiddle(head);
-        ListNode head2 = tail.next;
-        tail.next = null;
-        
-        // conquer
-        head = sortList(head);
-        head2 = sortList(head2);
-        return merge(head, head2);
-    }
-    
-    private ListNode findMiddle(ListNode head) {
-        ListNode slow = head;
-        ListNode fast = head.next;
-        
-        while (fast != null && fast.next != null) {
-            slow = slow.next;
-            fast = fast.next.next;
-        }
-        
-        return slow;
-    }
-    
-    private ListNode merge(ListNode head1, ListNode head2) {
-        ListNode dummy = new ListNode(0);
-        ListNode prev = dummy;
-        
-        while (head1 != null && head2 != null) {
-            
-            if (head1.val < head2.val) {
-                prev.next = head1;
-                prev = head1;
-                head1 = head1.next;
-            } else {
-                prev.next = head2;
-                prev = head2;
-                head2 = head2.next;
-            }
-        }
-        
-        prev.next = (head1 == null) ? head2 : head1;
-        
-        return dummy.next;
     }
 
     /**

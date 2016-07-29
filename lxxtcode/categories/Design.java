@@ -13,7 +13,7 @@ public class Design {
      * call to next().
      */
     @tags.Design
-    @tags.Site.LeetCode
+    @tags.Source.LeetCode
     class PeekingIterator implements Iterator<Integer> {
         Integer buf = null;
         Iterator<Integer> iterator;

@@ -1,10 +1,13 @@
 package categories;
 
+import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.PriorityQueue;
+import java.util.Set;
 
 public class LinkedLists {
 
@@ -83,10 +86,16 @@ public class LinkedLists {
      * Reverse Linked List.
      *
      * Reverse a single linked list - iterative.
+     *
+     * Example For linked list 1->2->3, the reversed linked list is 3->2->1
+     *
+     * @param head:
+     *            The head of linked list.
+     * @return: The new head of reversed linked list.
      */
     @tags.LinkedList
-    @tags.Site.LeetCode
-    @tags.Site.LintCode
+    @tags.Source.LeetCode
+    @tags.Source.LintCode
     @tags.Company.Facebook
     @tags.Company.Uber
     public ListNode reverse(ListNode head) {
@@ -109,8 +118,8 @@ public class LinkedLists {
      */
     @tags.LinkedList
     @tags.Recursion
-    @tags.Site.LeetCode
-    @tags.Site.LintCode
+    @tags.Source.LeetCode
+    @tags.Source.LintCode
     @tags.Company.Facebook
     @tags.Company.Uber
     public ListNode reverseList(ListNode head) {
@@ -219,6 +228,9 @@ public class LinkedLists {
      * For example: Given 1->1->2, return 1->2. Given 1->1->2->3->3, return
      * 1->2->3.
      *
+     * Challenge: (hard) How would you solve this problem if a temporary buffer
+     * is not allowed? In this case, you don't need to keep the order of nodes.
+     *
      * @param ListNode
      *            head is the head of the linked list
      * @return: ListNode head of linked list
@@ -272,6 +284,38 @@ public class LinkedLists {
         }
 
         return dummy.next;
+    }
+
+    /**
+     * Remove Duplicates from Unsorted List
+     *
+     * Write code to remove duplicates from an unsorted linked list.
+     *
+     * Example : Given 1->3->2->1->4. Return 1->3->2->4
+     *
+     * @param head:
+     *            The first node of linked list.
+     * @return: head node
+     */
+    @tags.LinkedList
+    public ListNode removeDuplicates(ListNode head) {
+        if (head == null) {
+            return head;
+        }
+
+        ListNode prev = head;
+        Set<Integer> set = new HashSet<>();
+        set.add(head.val);
+        while (prev.next != null) {
+            if (!set.contains(prev.next.val)) {
+                prev = prev.next;
+                set.add(prev.val);
+            } else {
+                prev.next = prev.next.next;
+            }
+        }
+
+        return head;
     }
 
     /**
@@ -496,7 +540,7 @@ public class LinkedLists {
      * Sort a linked list in O(n log n) time using constant space complexity.
      *
      * Important: Space O(n) solution: copy all nodes to array to avoid cost of
-     * findMiddle!!!
+     * findMiddle!!! Collections.sort dumps list elements to an array first.
      */
     @tags.LinkedList
     /** Quick sort */
@@ -718,10 +762,61 @@ public class LinkedLists {
         return fast;
     }
 
-    // ------------------------------ OLD ------------------------------------
+    /**
+     * Middle of Linked List
+     *
+     * Find the middle node of a linked list.
+     *
+     * Example: Given 1->2->3, return the node with value 2. Given 1->2, return
+     * the node with value 1.
+     *
+     * @param head:
+     *            the head of linked list.
+     * @return: a middle node of the linked list
+     */
+    @tags.LinkedList
+    public ListNode middleNode(ListNode head) {
+        if (head == null || head.next == null)
+            return head;
+        ListNode fast = head.next, slow = head;
+        while (fast != null && fast.next != null) {
+            slow = slow.next;
+            fast = fast.next.next;
+        }
+        return slow;
+    }
 
     /**
-     * 2. Swap Nodes in Pairs
+     * Remove Linked List Elements
+     *
+     * Remove all elements from a linked list of integers that have value val.
+     *
+     * Example: Given 1->2->3->3->4->5->3, val = 3, you should return the list
+     * as 1->2->4->5
+     *
+     * @param head
+     *            a ListNode
+     * @param val
+     *            an integer
+     * @return a ListNode
+     */
+    @tags.LinkedList
+    public ListNode removeElements(ListNode head, int val) {
+        ListNode dummy = new ListNode(0);
+        dummy.next = head;
+        head = dummy;
+        while (head.next != null) {
+            if (head.next.val == val) {
+                head.next = head.next.next;
+            } else {
+                head = head.next;
+            }
+        }
+        return dummy.next;
+    }
+
+    /**
+     * Swap Nodes in Pairs
      *
      * Given a linked list, swap every two adjacent nodes and return its head.
      *
@@ -729,35 +824,301 @@ public class LinkedLists {
      *
      * Your algorithm should use only constant space. You may not modify the
      * values in the list, only nodes itself can be changed.
+     *
+     * @param head
+     *            a ListNode
+     * @return a ListNode
      */
+    @tags.LinkedList
     public ListNode swapPairs(ListNode head) {
-        ListNode prev, first, second, next;
-        if (head != null && head.next != null) {
-            first = head;
-            second = first.next;
-            next = second.next;
+        ListNode dummy = new ListNode(0);
+        dummy.next = head;
+        head = dummy;
+        while (head.next != null && head.next.next != null) {
+            ListNode next = head.next;
+            head.next = next.next;
+            head = head.next;
+            next.next = head.next;
+            head.next = next;
+            head = head.next;
+        }
+        return dummy.next;
+    }
 
-            head = second;
-            second.next = first;
-            first.next = next;
-            prev = first;
-        } else {
-            return head;
+    /**
+     * Delete Node in the Middle of Singly Linked List. (Leetcode title: Delete
+     * Node in a Linked List.)
+     *
+     * Example Given 1->2->3->4, and node 3. return 1->2->4
+     *
+     * @param node:
+     *            the node in the list should be deleted
+     * @return: nothing
+     */
+    @tags.LinkedList
+    @tags.Source.CrackingTheCodingInterview
+    public void deleteNode(ListNode node) {
+        if (node == null || node.next == null) {
+            throw new NullPointerException("Input node is null or tail.");
+        }
+        node.val = node.next.val;
+        node.next = node.next.next;
+    }
+
+    /**
+     * Insertion Sort List
+     *
+     * Sort a linked list using insertion sort.
+     *
+     * Example Given 1->3->2->0->null, return 0->1->2->3->null.
+     *
+     * @param head:
+     *            The first node of linked list.
+     * @return: The head of linked list.
+     */
+    @tags.LinkedList
+    @tags.Sort
+    public ListNode insertionSortList(ListNode head) {
+        ListNode dummy = new ListNode(0);
+        while (head != null) {
+            ListNode prev = dummy;
+            while (prev.next != null && prev.next.val < head.val) {
+                prev = prev.next;
+            }
+
+            ListNode insert = head;
+            head = head.next;
+            insert.next = prev.next;
+            prev.next = insert;
+        }
+        return dummy.next;
+    }
+
+    /**
+     * Add Two Numbers
+     *
+     * You are given two linked lists representing two non-negative numbers. The
+     * digits are stored in reverse order and each of their nodes contain a
+     * single digit. Add the two numbers and return it as a linked list.
+     *
+     * Given 7->1->6 + 5->9->2. That is, 617 + 295. Return 2->1->9. That is 912.
+     * Given 3->1->5 and 5->9->2, return 8->0->8. Input: (2 -> 4 -> 3) + (5 -> 6
+     * -> 4) Output: 7 -> 0 -> 8.
+     *
+     * @param l1:
+     *            the first list
+     * @param l2:
+     *            the second list
+     * @return: the sum list of l1 and l2
+     */
+    @tags.LinkedList
+    @tags.Math
+    @tags.Source.CrackingTheCodingInterview
+    /** Adding node by node */
+    public ListNode addTwoNumbers(ListNode l1, ListNode l2) {
+        ListNode l = new ListNode(0); // dummy head node
+        int sum = 0, carry = 0;
+        ListNode current = l;
+
+        while (l1 != null && l2 != null) {
+            sum = l1.val + l2.val + carry;
+            carry = sum / 10;
+            current.next = new ListNode(sum % 10);
+            current = current.next;
+            l1 = l1.next;
+            l2 = l2.next;
         }
 
-        while (prev.next != null && prev.next.next != null) {
-            first = prev.next;
-            second = first.next;
-            next = second.next;
+        // done with both l1 and l2
+        if (l1 == null && l2 == null) {
+            if (carry != 0)
+                current.next = new ListNode(carry);
+            return l.next;
+        } else if (l1 != null) { // l1 still need to be added
+            current.next = l1;
+        } else if (l2 != null) { // l2 still need to be added
+            current.next = l2;
+        }
+        current = current.next;
 
-            prev.next = second;
-            second.next = first;
-            first.next = next;
-            prev = first;
+        while (carry != 0 && current.next != null) {
+            sum = current.val + carry;
+            carry = sum / 10;
+            current.val = sum % 10;
+            current = current.next;
+        }
+        sum = current.val + carry;
+        carry = sum / 10;
+        current.val = sum % 10;
+        if (carry != 0)
+            current.next = new ListNode(carry);
+        return l.next;
+    }
+
+    /** Add Two Numbers - BigInteger Solution */
+    public ListNode addLists(ListNode l1, ListNode l2) {
+        ListNode dummy = new ListNode(0);
+        ListNode prev = dummy;
+
+        BigInteger n1 = readNumber(l1), n2 = readNumber(l2);
+        String n = n1.add(n2).toString();
+
+        for (int i = n.length() - 1; i >= 0; i--) {
+            ListNode digit = new ListNode(n.charAt(i) - '0');
+            prev.next = digit;
+            prev = digit;
         }
 
+        return dummy.next;
+    }
+
+    private BigInteger readNumber(ListNode node) {
+        BigInteger num = BigInteger.ZERO;
+        for (BigInteger time = BigInteger.valueOf(1); node != null;) {
+            num = num.add(BigInteger.valueOf(node.val).multiply(time));
+            time = time.multiply(BigInteger.TEN);
+            node = node.next;
+        }
+        return num;
+    }
+
+    /**
+     * Nth to Last Node in List
+     *
+     * Find the nth to last element of a singly linked list. The minimum number
+     * of nodes in list is n.
+     *
+     * Example: Given a List 3->2->1->5->null and n = 2, return node whose value
+     * is 1.
+     *
+     * @param head:
+     *            The first node of linked list.
+     * @param n:
+     *            An integer.
+     * @return: Nth to last node of a singly linked list.
+     */
+    @tags.LinkedList
+    @tags.Source.CrackingTheCodingInterview
+    public ListNode nthToLast(ListNode head, int n) {
+        ListNode current = head;
+        while (n-- > 0) {
+            current = current.next;
+        }
+        while (current != null) {
+            current = current.next;
+            head = head.next;
+        }
         return head;
     }
+
+    /**
+     * Merge Two Sorted Lists
+     *
+     * Merge two sorted (ascending) linked lists and return it as a new sorted
+     * list. The new sorted list should be made by splicing together the nodes
+     * of the two lists and sorted in ascending order.
+     *
+     * Example: Given 1->3->8->11->15->null, 2->null , return
+     * 1->2->3->8->11->15->null.
+     *
+     * @param ListNode
+     *            l1 is the head of the linked list
+     * @param ListNode
+     *            l2 is the head of the linked list
+     * @return: ListNode head of linked list
+     */
+    @tags.LinkedList
+    @tags.Company.LinkedIn
+    public ListNode mergeTwoLists(ListNode l1, ListNode l2) {
+        ListNode dummy = new ListNode(0);
+        ListNode prev = dummy;
+
+        // merge
+        while (l1 != null && l2 != null) {
+            if (l1.val <= l2.val) {
+                prev.next = l1;
+                l1 = l1.next;
+            } else {
+                prev.next = l2;
+                l2 = l2.next;
+            }
+            prev = prev.next;
+        }
+
+        // append the remaining list
+        if (l1 != null) {
+            prev.next = l1;
+        }
+        if (l2 != null) {
+            prev.next = l2;
+        }
+
+        return dummy.next;
+    }
+
+    /**
+     * Swap Two Nodes in Linked List
+     *
+     * Given a linked list and two values v1 and v2. Swap the two nodes in the
+     * linked list with values v1 and v2. It's guaranteed there is no duplicate
+     * values in the linked list. If v1 or v2 does not exist in the given linked
+     * list, do nothing.
+     *
+     * Notice: You should swap the two nodes with values v1 and v2. Do not
+     * directly swap the values of the two nodes.
+     *
+     * Example: Given 1->2->3->4->null and v1 = 2, v2 = 4. Return
+     * 1->4->3->2->null.
+     *
+     * @param head
+     *            a ListNode
+     * @oaram v1 an integer
+     * @param v2
+     *            an integer
+     * @return a new head of singly-linked list
+     */
+    @tags.LinkedList
+    public ListNode swapNodes(ListNode head, int v1, int v2) {
+        ListNode dummy = new ListNode(0);
+        dummy.next = head;
+        head = dummy;
+
+        ListNode pre1 = null;
+        ListNode pre2 = null;
+        while (head.next != null && (pre1 == null || pre2 == null)) {
+            if (pre1 == null && head.next.val == v1) {
+                pre1 = head;
+            } else if (pre2 == null && head.next.val == v2) {
+                pre2 = head;
+            }
+            head = head.next;
+        }
+
+        if (pre1 != null && pre2 != null) {
+            ListNode nv1 = pre1.next;
+            ListNode nv2 = pre2.next;
+            ListNode after1 = nv1.next;
+            ListNode after2 = nv2.next;
+            if (nv1 == after2) {
+                pre2.next = nv1;
+                nv2.next = after1;
+                nv1.next = nv2;
+            } else if (nv2 == after1) {
+                pre1.next = nv2;
+                nv1.next = after2;
+                nv2.next = nv1;
+            } else {
+                nv1.next = after2;
+                nv2.next = after1;
+                pre1.next = nv2;
+                pre2.next = nv1;
+            }
+        }
+
+        return dummy.next;
+    }
+
+    // ------------------------------ OLD ------------------------------------
 
     /**
      * 3. Reverse Nodes in k-Group
@@ -809,55 +1170,6 @@ public class LinkedLists {
     }
 
     /**
-     * 7. Merge Two Sorted Lists
-     *
-     * Merge two sorted linked lists and return it as a new list. The new list
-     * should be made by splicing together the nodes of the first two lists.
-     */
-    public ListNode mergeTwoLists(ListNode l1, ListNode l2) {
-        // if one of the list is empty, return the other one
-        if (l1 == null) {
-            return l2;
-        } else if (l2 == null) {
-            return l1;
-        }
-
-        // find the head node
-        ListNode head;
-        if (l1.val < l2.val) {
-            head = l1;
-            l1 = l1.next;
-        } else {
-            head = l2;
-            l2 = l2.next;
-        }
-
-        // set a pointer pointing to the last element in merged list
-        ListNode current = head;
-
-        // merge the two lists until one of them gets empty
-        while (l1 != null && l2 != null) {
-            if (l1.val < l2.val) {
-                current.next = l1;
-                l1 = l1.next;
-            } else {
-                current.next = l2;
-                l2 = l2.next;
-            }
-            current = current.next;
-        }
-
-        // add the remaining elements to the merged list
-        if (l1 != null) {
-            current.next = l1;
-        } else {
-            current.next = l2;
-        }
-
-        return head;
-    }
-
-    /**
      * 13. Rotate List
      *
      * Given a list, rotate the list to the right by k places, where k is
@@ -895,51 +1207,6 @@ public class LinkedLists {
         slow.next = null;
 
         return head;
-    }
-
-    /**
-     * 14. Insertion Sort List
-     * 
-     * Sort a linked list using insertion sort.
-     */
-    public ListNode insertionSortList(ListNode head) {
-        if (head == null)
-            return null;
-
-        // dummy head
-        ListNode dummy = new ListNode(Integer.MIN_VALUE);
-        dummy.next = head;
-        head = dummy;
-
-        // start from the one next to original head
-        ListNode prev = dummy.next;
-        ListNode current = prev.next;
-        while (current != null) {
-            // insert if current is not in order
-            if (current.val < prev.val) {
-                // move head to last node which smaller than current
-                while (head.next.val < current.val) {
-                    head = head.next;
-                }
-
-                // delete current from original position
-                prev.next = current.next;
-
-                // add current to head.next
-                current.next = head.next;
-                head.next = current;
-                head = dummy;
-
-                // update prev and current
-                current = prev.next;
-            } else {
-                // update prev and current
-                prev = current;
-                current = prev.next;
-            }
-        }
-
-        return dummy.next;
     }
 
     /**

@@ -332,7 +332,7 @@ public class DynamicProgramming {
      */
     @tags.BinarySearch
     @tags.DynamicProgramming
-    @tags.Site.LintCode
+    @tags.Source.LintCode
     public int longestIncreasingSubsequence(int[] nums) {
         if (nums == null || nums.length == 0) {
             return 0;
@@ -422,7 +422,7 @@ public class DynamicProgramming {
      * @return
      */
     @tags.DynamicProgramming
-    @tags.Site.LeetCode
+    @tags.Source.LeetCode
     public int coinChange(int[] coins, int amount) {
         if (coins == null || coins.length == 0) {
             return -1;
@@ -672,7 +672,7 @@ public class DynamicProgramming {
      * @return: the length of the longest common substring.
      */
     @tags.String
-    @tags.Site.LintCode
+    @tags.Source.LintCode
     public int longestCommonSubstring(String A, String B) {
         int maxlen = 0;
         int alen = A.length();
@@ -704,7 +704,7 @@ public class DynamicProgramming {
      */
     @tags.String
     @tags.DynamicProgramming
-    @tags.Site.LintCode
+    @tags.Source.LintCode
     public int longestCommonSubstringDP(String A, String B) {
         if (A == null || A.length() == 0 || B == null || B.length() == 0) {
             return 0;
@@ -748,7 +748,7 @@ public class DynamicProgramming {
      * @return: The length of longest common subsequence of A and B.
      */
     @tags.DynamicProgramming
-    @tags.Site.LintCode
+    @tags.Source.LintCode
     public int longestCommonSubsequence(String A, String B) {
         if (A == null || A.length() == 0 || B == null || B.length() == 0) {
             return 0;
@@ -893,7 +893,7 @@ public class DynamicProgramming {
      */
     @tags.DynamicProgramming
     @tags.Backpack
-    @tags.Site.LintCode
+    @tags.Source.LintCode
     public int backPack(int m, int[] A) {
         if (m <= 0 || A == null || A.length == 0) {
             return 0;
@@ -939,7 +939,7 @@ public class DynamicProgramming {
      */
     @tags.DynamicProgramming
     @tags.Backpack
-    @tags.Site.LintCode
+    @tags.Source.LintCode
     public int backPackII(int m, int[] A, int V[]) {
         if (m <= 0 || A == null || A.length == 0 || V == null
                 || A.length != V.length) {
@@ -1034,7 +1034,7 @@ public class DynamicProgramming {
      */
     @tags.DynamicProgramming
     @tags.Backpack
-    @tags.Site.LintCode
+    @tags.Source.LintCode
     public int MinAdjustmentCost(ArrayList<Integer> A, int target) {
         if (A == null || target < 0) {
             return 0;
@@ -1412,7 +1412,7 @@ public class DynamicProgramming {
      * @return an integer
      */
     @tags.DynamicProgramming
-    @tags.Site.LintCode
+    @tags.Source.LintCode
     public int kSum(int A[], int k, int target) {
         if (A == null || A.length == 0 || k == 0 || target == 0) {
             return 0;
