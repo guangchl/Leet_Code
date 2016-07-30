@@ -3,11 +3,11 @@ package categories;
 import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.Comparator;
-import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.PriorityQueue;
 import java.util.Set;
+import java.util.Stack;
 
 public class LinkedLists {
 
@@ -45,14 +45,14 @@ public class LinkedLists {
         }
     }
 
-    /** Definition for undirected graph. */
-    class UndirectedGraphNode {
-        int label;
-        ArrayList<UndirectedGraphNode> neighbors;
+    /** Definition for Doubly-ListNode. */
+    public class DoublyListNode {
+        int val;
+        DoublyListNode next, prev;
 
-        UndirectedGraphNode(int x) {
-            label = x;
-            neighbors = new ArrayList<UndirectedGraphNode>();
+        DoublyListNode(int val) {
+            this.val = val;
+            this.next = this.prev = null;
         }
     }
 
@@ -132,6 +132,30 @@ public class LinkedLists {
         head.next = null;
 
         return newHead;
+    }
+
+    /**
+     * Middle of Linked List
+     *
+     * Find the middle node of a linked list.
+     *
+     * Example: Given 1->2->3, return the node with value 2. Given 1->2, return
+     * the node with value 1.
+     *
+     * @param head:
+     *            the head of linked list.
+     * @return: a middle node of the linked list
+     */
+    @tags.LinkedList
+    public ListNode middleNode(ListNode head) {
+        if (head == null || head.next == null)
+            return head;
+        ListNode fast = head.next, slow = head;
+        while (fast != null && fast.next != null) {
+            slow = slow.next;
+            fast = fast.next.next;
+        }
+        return slow;
     }
 
     // ******************************* PROBLEMS *******************************
@@ -612,7 +636,7 @@ public class LinkedLists {
         }
 
         // divide
-        ListNode tail = findMiddle(head);
+        ListNode tail = middleNode(head);
         ListNode head2 = tail.next;
         tail.next = null;
 
@@ -620,18 +644,6 @@ public class LinkedLists {
         head = sortListMerge(head);
         head2 = sortListMerge(head2);
         return merge(head, head2);
-    }
-
-    private ListNode findMiddle(ListNode head) {
-        ListNode slow = head;
-        ListNode fast = head.next;
-
-        while (fast != null && fast.next != null) {
-            slow = slow.next;
-            fast = fast.next.next;
-        }
-
-        return slow;
     }
 
     private ListNode merge(ListNode head1, ListNode head2) {
@@ -760,30 +772,6 @@ public class LinkedLists {
         }
 
         return fast;
-    }
-
-    /**
-     * Middle of Linked List
-     *
-     * Find the middle node of a linked list.
-     *
-     * Example: Given 1->2->3, return the node with value 2. Given 1->2, return
-     * the node with value 1.
-     *
-     * @param head:
-     *            the head of linked list.
-     * @return: a middle node of the linked list
-     */
-    @tags.LinkedList
-    public ListNode middleNode(ListNode head) {
-        if (head == null || head.next == null)
-            return head;
-        ListNode fast = head.next, slow = head;
-        while (fast != null && fast.next != null) {
-            slow = slow.next;
-            fast = fast.next.next;
-        }
-        return slow;
     }
 
     /**
@@ -960,7 +948,7 @@ public class LinkedLists {
         ListNode dummy = new ListNode(0);
         ListNode prev = dummy;
 
-        BigInteger n1 = readNumber(l1), n2 = readNumber(l2);
+        BigInteger n1 = readNumberReverse(l1), n2 = readNumberReverse(l2);
         String n = n1.add(n2).toString();
 
         for (int i = n.length() - 1; i >= 0; i--) {
@@ -972,12 +960,55 @@ public class LinkedLists {
         return dummy.next;
     }
 
-    private BigInteger readNumber(ListNode node) {
+    private BigInteger readNumberReverse(ListNode node) {
         BigInteger num = BigInteger.ZERO;
-        for (BigInteger time = BigInteger.valueOf(1); node != null;) {
+        for (BigInteger time = BigInteger.ONE; node != null;) {
             num = num.add(BigInteger.valueOf(node.val).multiply(time));
             time = time.multiply(BigInteger.TEN);
             node = node.next;
+        }
+        return num;
+    }
+
+    /**
+     * Add Two Numbers II
+     *
+     * You have two numbers represented by a linked list, where each node
+     * contains a single digit. The digits are stored in forward order, such
+     * that the 1's digit is at the head of the list. Write a function that adds
+     * the two numbers and returns the sum as a linked list.
+     *
+     * Example Given 6->1->7 + 2->9->5. That is, 617 + 295. Return 9->1->2. That
+     * is, 912.
+     *
+     * @param l1:
+     *            the first list
+     * @param l2:
+     *            the second list
+     * @return: the sum list of l1 and l2
+     */
+    @tags.LinkedList
+    @tags.Math
+    public ListNode addListsII(ListNode l1, ListNode l2) {
+        ListNode dummy = new ListNode(0);
+        ListNode prev = dummy;
+
+        BigInteger n1 = readNumberForward(l1), n2 = readNumberForward(l2);
+        String num = n1.add(n2).toString();
+
+        for (int i = 0; i < num.length(); i++) {
+            prev.next = new ListNode(num.charAt(i) - '0');
+            prev = prev.next;
+        }
+        return dummy.next;
+    }
+
+    private BigInteger readNumberForward(ListNode list) {
+        BigInteger num = BigInteger.ZERO;
+        while (list != null) {
+            BigInteger digit = BigInteger.valueOf(list.val);
+            num = num.multiply(BigInteger.TEN).add(digit);
+            list = list.next;
         }
         return num;
     }
@@ -1083,156 +1114,257 @@ public class LinkedLists {
         dummy.next = head;
         head = dummy;
 
-        ListNode pre1 = null;
-        ListNode pre2 = null;
-        while (head.next != null && (pre1 == null || pre2 == null)) {
-            if (pre1 == null && head.next.val == v1) {
-                pre1 = head;
-            } else if (pre2 == null && head.next.val == v2) {
-                pre2 = head;
+        ListNode prev1 = null;
+        ListNode prev2 = null;
+        while (head.next != null && (prev1 == null || prev2 == null)) {
+            if (prev1 == null && head.next.val == v1) {
+                prev1 = head;
+            } else if (prev2 == null && head.next.val == v2) {
+                prev2 = head;
             }
             head = head.next;
         }
 
-        if (pre1 != null && pre2 != null) {
-            ListNode nv1 = pre1.next;
-            ListNode nv2 = pre2.next;
+        if (prev1 != null && prev2 != null) {
+            ListNode nv1 = prev1.next;
+            ListNode nv2 = prev2.next;
             ListNode after1 = nv1.next;
             ListNode after2 = nv2.next;
             if (nv1 == after2) {
-                pre2.next = nv1;
+                prev2.next = nv1;
                 nv2.next = after1;
                 nv1.next = nv2;
             } else if (nv2 == after1) {
-                pre1.next = nv2;
+                prev1.next = nv2;
                 nv1.next = after2;
                 nv2.next = nv1;
             } else {
                 nv1.next = after2;
                 nv2.next = after1;
-                pre1.next = nv2;
-                pre2.next = nv1;
+                prev1.next = nv2;
+                prev2.next = nv1;
             }
         }
 
         return dummy.next;
     }
 
-    // ------------------------------ OLD ------------------------------------
-
     /**
-     * 3. Reverse Nodes in k-Group
+     * Palindrome Linked List
+     *
+     *Implement a function to check if a linked list is a palindrome.
+     *
+     *Example: Given 1->2->1, return true
+     *
+     * @param head a ListNode
+     * @return a boolean
      */
-    public ListNode reverseKGroup(ListNode head, int k) {
-        ListNode dummy = new ListNode(0);
-        dummy.next = head;
-        ListNode prev = dummy;
-
-        ListNode current = prev.next;
-        while (current != null) {
-            int count = k - 1;
-            while (count > 0 && current != null) {
-                current = current.next;
-                count--;
-            }
-
-            if (count == 0 && current != null) {
-                // break;
-                ListNode next = current.next;
-                current.next = null;
-                ListNode tail = reverseToTail(prev.next);
-                // reconnect
-                prev.next = current;
-                tail.next = next;
-                // update
-                prev = tail;
-                current = next;
-            } else {
-                return dummy.next;
-            }
+    @tags.LinkedList
+    @tags.TwoPointers
+    public boolean isPalindrome(ListNode head) {
+        if (head == null || head.next == null) {
+            return true;
         }
 
-        return dummy.next;
-    }
+        // split the list at the middle and reverse the second half
+        ListNode left = head;
+        ListNode middle = middleNode(head);
+        ListNode right = middle.next;
+        middle.next = null;
+        right = reverse(right);
 
-    public ListNode reverseToTail(ListNode head) {
-        ListNode tail = head;
-        ListNode current = head.next;
-        head.next = null;
-
-        while (current != null) {
-            ListNode next = current.next;
-            current.next = head;
-            head = current;
-            current = next;
+        // check palindrome match
+        ListNode lNode = left;
+        ListNode rNode = right;
+        while (lNode != null && rNode != null) {
+            if (lNode.val != rNode.val) {
+                return false;
+            }
+            lNode = lNode.next;
+            rNode = rNode.next;
         }
-        return tail;
+
+        // restore the list
+        right = reverse(right);
+        middle.next = right;
+
+        return true;
     }
 
     /**
-     * 13. Rotate List
+     * Convert Binary Search Tree to Doubly Linked List.
+     *
+     * Convert a binary search tree to doubly linked list with in-order
+     * traversal.
+     *
+     * Example: Given a binary search tree:
+     *        4
+     *       / \
+     *      2   5
+     *     / \
+     *    1   3
+     * return 1<->2<->3<->4<->5.
+     *
+     * @param root: The root of tree
+     * @return: the head of doubly list node
+     */
+    @tags.LinkedList
+    public DoublyListNode bstToDoublyList(TreeNode root) {
+        if (root == null) {
+            return null;
+        }
+
+        DoublyListNode left = bstToDoublyList(root.left);
+        DoublyListNode middle = new DoublyListNode(root.val);
+        DoublyListNode right = bstToDoublyList(root.right);
+
+        // connect the left
+        DoublyListNode head = left;
+        if (left != null) {
+            while (left.next != null) {
+                left = left.next;
+            }
+            left.next = middle;
+            middle.prev = left;
+        } else {
+            head = middle;
+        }
+
+        // connect the right
+        if (right != null) {
+            middle.next = right;
+            right.prev = middle;
+        }
+
+        return head;
+    }
+
+    /** Iterative solution */
+    @tags.LinkedList
+    public DoublyListNode bstToDoublyListIter(TreeNode root) {
+        if (root == null) {
+            return null;
+        }
+
+        DoublyListNode dummy = new DoublyListNode(0);
+        DoublyListNode prev = dummy;
+        Stack<TreeNode> stack = new Stack<>();
+        TreeNode current = root;
+        while (current != null || !stack.isEmpty()) {
+            while (current != null) {
+                stack.push(current);
+                current = current.left;
+            }
+
+            TreeNode node = stack.pop();
+
+            // connect the new node
+            prev.next = new DoublyListNode(node.val);
+            prev.next.prev = prev;
+            prev = prev.next;
+
+            if (node.right != null) {
+                current = node.right;
+            }
+        }
+
+        dummy.next.prev = null;
+        return dummy.next;
+    }
+
+    /**
+     * Rotate List
      *
      * Given a list, rotate the list to the right by k places, where k is
      * non-negative.
      *
      * For example: Given 1->2->3->4->5->NULL and k = 2, return
      * 4->5->1->2->3->NULL.
+     *
+     * @param head: the List
+     * @param k: rotate to the right k places
+     * @return: the list after rotation
      */
-    public ListNode rotateRight(ListNode head, int n) {
-        if (head == null)
+    @tags.LinkedList
+    @tags.BasicImplementation
+    public ListNode rotateRight(ListNode head, int k) {
+        if (head == null) {
             return null;
+        }
 
-        ListNode slow = head;
-        ListNode fast = head;
+        // get list length
+        int len = 0;
+        ListNode current = head;
+        while (current != null) {
+            current = current.next;
+            len++;
+        }
 
-        while (n-- > 0) {
-            if (fast.next == null) {
-                fast = head;
-            } else {
-                fast = fast.next;
+        // split at the node which will be the new tail after rotation
+        int position = len - k % len;
+        if (position != len) {
+            current = head;
+            while (--position > 0) {
+                current = current.next;
             }
+
+            ListNode rotate = current.next;
+            current.next = null;
+
+            current = rotate;
+            while (current.next != null) {
+                current = current.next;
+            }
+            current.next = head;
+            head = rotate;
         }
-
-        // n = k * length
-        if (fast == head)
-            return head;
-
-        while (fast.next != null) {
-            slow = slow.next;
-            fast = fast.next;
-        }
-
-        fast.next = head;
-        head = slow.next;
-        slow.next = null;
 
         return head;
     }
 
     /**
-     * Clone Graph
+     * Reverse Nodes in k-Group
      *
-     * If use iterative solution, copy node first, then copy connection use map
+     * Given a linked list, reverse the nodes of a linked list k at a time and
+     * return its modified list. If the number of nodes is not a multiple of k
+     * then left-out nodes in the end should remain as it is. You may not alter
+     * the values in the nodes, only nodes itself may be changed. Only constant
+     * memory is allowed.
+     *
+     * Example: Given this linked list: 1->2->3->4->5. For k = 2, you should
+     * return: 2->1->4->3->5. For k = 3, you should return: 3->2->1->4->5.
+     *
+     * @param head
+     *            a ListNode
+     * @param k
+     *            an integer
+     * @return a ListNode
      */
-    public UndirectedGraphNode cloneGraph(UndirectedGraphNode node) {
-        HashMap<UndirectedGraphNode, UndirectedGraphNode> map = new HashMap<UndirectedGraphNode, UndirectedGraphNode>();
-        return cloneNode(node, map);
-    }
+    @tags.LinkedList
+    @tags.Company.Facebook
+    public ListNode reverseKGroup(ListNode head, int k) {
+        ListNode dummy = new ListNode(0);
+        dummy.next = head;
+        ListNode prev = dummy;
 
-    private UndirectedGraphNode cloneNode(UndirectedGraphNode node,
-            HashMap<UndirectedGraphNode, UndirectedGraphNode> map) {
-        if (node == null)
-            return null;
-        if (map.containsKey(node)) { // have copied before
-            return map.get(node);
-        } else { // hasn't been copied
-            UndirectedGraphNode copy = new UndirectedGraphNode(node.label);
-            map.put(node, copy); // put the new copy into map
-            // add copies of children
-            for (UndirectedGraphNode n : node.neighbors) {
-                copy.neighbors.add(cloneNode(n, map));
+        while (true) {
+            // find next head
+            int count = k;
+            ListNode current = prev;
+            while (count-- > 0) {
+                if (current.next == null) {
+                    return dummy.next;
+                }
+                current = current.next;
             }
-            return copy;
+            ListNode newHead = current.next;
+            current.next = null;
+
+            // reverse
+            prev.next = reverse(prev.next);
+            head.next = newHead;
+            prev = head;
+            head = newHead;
         }
     }
 
