@@ -584,70 +584,6 @@ public class Problems {
     }
 
 	/**
-	 * Maximum Subarray
-	 * 
-	 * Find the contiguous subarray within an array (containing at least one
-	 * number) which has the largest sum.
-	 * 
-	 * For example, given the array [-2,1,-3,4,-1,2,1,-5,4], the contiguous
-	 * subarray [4,-1,2,1] has the largest sum = 6.
-	 * 
-	 * If you have figured out the O(n) solution, try coding another solution
-	 * using the divide and conquer approach, which is more subtle.
-	 */
-	public int maxSubArray(int[] A) {
-		int max = A[0];
-		int endingMax = A[0];
-
-		for (int i = 1; i < A.length; i++) {
-			// calculate the possible max value ends at i
-			endingMax = Math.max(A[i], endingMax + A[i]);
-
-			// compare the max with the new possible max ends at i
-			max = Math.max(endingMax, max);
-		}
-
-		return max;
-	}
-
-	/**
-	 * Merge Sorted Array
-	 * 
-	 * Given two sorted integer arrays A and B, merge B into A as one sorted
-	 * array.
-	 * 
-	 * Note: You may assume that A has enough space to hold additional elements
-	 * from B. The number of elements initialized in A and B are m and n
-	 * respectively.
-	 */
-	public void mergeTwoArrays(int A[], int m, int B[], int n) {
-		// index to insert number
-		int index = m + n - 1;
-
-		// move the largest one of remaining elements to the end of A, before
-		// last moved one
-		m--;
-		n--;
-		while (n >= 0 && m >= 0) {
-			if (A[m] > B[n]) {
-				A[index] = A[m];
-				m--;
-			} else {
-				A[index] = B[n];
-				n--;
-			}
-			index--;
-		}
-
-		// if n is not empty, copy remaining elements to the beginning of A
-		if (n >= 0) {
-			for (int i = 0; i <= n; i++) {
-				A[i] = B[i];
-			}
-		}
-	}
-
-	/**
 	 * Convert Sorted Array to Binary Search Tree
 	 * 
 	 * Given an array where elements are sorted in ascending order, convert it
@@ -1164,41 +1100,7 @@ public class Problems {
         
         return maxArea;
 	}
-	
-	/**
-	 * Sort Colors
-	 * 
-	 * Given an array with n objects colored red, white or blue, sort them so
-	 * that objects of the same color are adjacent, with the colors in the order
-	 * red, white and blue.
-	 * 
-	 * Here, we will use the integers 0, 1, and 2 to represent the color red,
-	 * white, and blue respectively.
-	 * 
-	 * Note: You are not suppose to use the library's sort function for this
-	 * problem.
-	 */
-	public void sortColors(int[] A) {
-		int start = 0; // index to put 0
-        int end = A.length - 1; // index to put 2
-        
-        // traverse the array, move all 0 to beginning, all 1 to end
-        for (int i = 0; i <= end;) {
-            if (A[i] == 0) {
-                A[i] = A[start];
-                A[start] = 0;
-                start++;
-                i++;
-            } else if (A[i] == 2) {
-                A[i] = A[end];
-                A[end] = 2;
-                end--;
-            } else {
-                i++;
-            }
-        }
-	}
-	
+
 	/**
 	 * Path Sum
 	 * 
