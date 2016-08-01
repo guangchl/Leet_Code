@@ -9,9 +9,16 @@ import java.util.Map;
 import java.util.Set;
 import java.util.Stack;
 
+/**
+ * Arrays and Numbers.
+ *
+ * @author Guangcheng Lu
+ */
 public class ArrayAndNumbers {
 
-    // ------------------------------- PROBLEMS --------------------------------
+    // ---------------------------------------------------------------------- //
+    // ------------------------------- PROBLEMS ----------------------------- //
+    // ---------------------------------------------------------------------- //
 
     /**
      * Intersection of Two Arrays
@@ -117,114 +124,6 @@ public class ArrayAndNumbers {
     }
 
     /**
-     * Subarray Sum
-     *
-     * Given an integer array, find a subarray where the sum of numbers is zero.
-     * Your code should return the index of the first number and the index of
-     * the last number.
-     *
-     * Notice: There is at least one subarray that it's sum equals to zero.
-     *
-     * Example Given [-3, 1, 2, -3, 4], return [0, 2] or [1, 3].
-     *
-     * @param nums:
-     *            A list of integers
-     * @return: A list of integers includes the index of the first number and
-     *          the index of the last number
-     */
-    @tags.Array
-    @tags.HashTable
-    @tags.Subarray
-    public ArrayList<Integer> subarraySum(int[] nums) {
-        ArrayList<Integer> result = new ArrayList<>();
-        if (nums == null || nums.length == 0) {
-            return result;
-        }
-
-        // key = sum from start, value = current index
-        Map<Integer, Integer> map = new HashMap<>();
-        int sum = 0, index = -1;
-        map.put(sum, index);
-
-        // once same sum found again, subarray in the middle is the result
-        for (int i = 0; i < nums.length; i++) {
-            sum += nums[i];
-            if (map.containsKey(sum)) {
-                result.add(map.get(sum) + 1);
-                result.add(i);
-                return result;
-            }
-            map.put(sum, i);
-        }
-
-        return result;
-    }
-
-    /**
-     * Subarray Sum Closest
-     *
-     * Given an integer array, find a subarray with sum closest to zero. Return
-     * the indexes of the first number and last number.
-     *
-     * Example: Given [-3, 1, 1, -3, 5], return [0, 2], [1, 3], [1, 1], [2, 2]
-     * or [0, 4].
-     *
-     * Time complexity: O(nlogn).
-     *
-     * @param nums:
-     *            A list of integers
-     * @return: A list of integers includes the index of the first number and
-     *          the index of the last number
-     */
-    @tags.Array
-    @tags.Subarray
-    @tags.Sort
-    public int[] subarraySumClosest(int[] nums) {
-        int[] range = new int[2];
-        if (nums == null || nums.length == 0) {
-            return range;
-        }
-
-        int sum = 0, index = -1;
-        int[] sums = new int[nums.length + 1]; // sums[i] = prefix sum at i
-        sums[nums.length] = sum;
-        Map<Integer, Integer> map = new HashMap<>(); // prefix sum to index map
-        map.put(sum, index);
-
-        // find prefix sum for each index
-        for (int i = 0; i < nums.length; i++) {
-            sum += nums[i];
-            sums[i] = sum;
-
-            if (map.containsKey(sum)) {
-                range[0] = map.get(sum) + 1;
-                range[1] = i;
-                return range;
-            }
-            map.put(sum, i);
-        }
-
-        Arrays.sort(sums);
-
-        // find the 2 closest prefix sum, put the 2 index in result
-        int diff = Math.abs(sums[0] - sums[1]);
-        range[0] = map.get(sums[0]);
-        range[1] = map.get(sums[1]);
-        for (int i = 1; i < sums.length; i++) {
-            int newDiff = sums[i] - sums[i - 1];
-            if (newDiff < diff) {
-                diff = newDiff;
-                range[0] = map.get(sums[i]);
-                range[1] = map.get(sums[i - 1]);
-            }
-        }
-
-        Arrays.sort(range);
-        range[0] += 1;
-        return range;
-    }
-
-    /**
      * Merge Sorted Array
      *
      * Given two sorted integer arrays A and B, merge B into A as one sorted
@@ -264,135 +163,37 @@ public class ArrayAndNumbers {
     }
 
     /**
-     * Maximum Subarray
+     * Merge Two Sorted Arrays
      *
-     * Given an array of integers, find a contiguous subarray which has the
-     * largest sum.
+     * Merge two given sorted integer array A and B into a new sorted integer
+     * array.
      *
-     * Notice: The subarray should contain at least one number.
+     * Example: A=[1,2,3,4] B=[2,4,5,6] return [1,2,2,3,4,4,5,6]
      *
-     * Example: Given the array [-2,2,-3,4,-1,2,1,-5,3], the contiguous subarray
-     * [4,-1,2,1] has the largest sum = 6.
+     * How can you optimize your algorithm if one array is very large and the
+     * other is very small?
      *
-     * If you have figured out the O(n) solution, try coding another solution
-     * using the divide and conquer approach, which is more subtle.
-     *
-     * @param nums:
-     *            A list of integers
-     * @return: A integer indicate the sum of max subarray
+     * @param A
+     *            and B: sorted integer array A and B.
+     * @return: A new sorted integer array
      */
     @tags.Array
-    @tags.Subarray
-    @tags.DynamicProgramming
-    @tags.DivideAndConquer
-    @tags.Greedy
-    @tags.Enumeration
-    @tags.Company.LinkedIn
-    @tags.Source.LintCode
-    public int maxSubArray(int[] nums) {
-        if (nums == null || nums.length == 0) {
-            return 0;
-        }
+    @tags.SortedArray
+    public int[] mergeSortedArray(int[] A, int[] B) {
+        int m = A.length;
+        int n = B.length;
+        int[] result = new int[m + n];
 
-        int max = nums[0];
-        int maxEndHere = nums[0];
-        for (int i = 1; i < nums.length; i++) {
-            maxEndHere = (maxEndHere <= 0) ? nums[i] : maxEndHere + nums[i];
-            if (maxEndHere > max) {
-                max = maxEndHere;
-            }
-        }
-
-        return max;
-    }
-
-    /**
-     * Two Sum
-     *
-     * Given an array of integers, find two numbers such that they add up to a
-     * specific target number.
-     *
-     * The function twoSum should return indices of the two numbers such that
-     * they add up to the target, where index1 must be less than index2. Please
-     * note that your returned answers (both index1 and index2) are not
-     * zero-based.
-     *
-     * You may assume that each input would have exactly one solution.
-     *
-     * Example: Input: numbers={2, 7, 11, 15}, target=9 Output: [1, 2].
-     *
-     * @param numbers
-     *            An array of Integer
-     * @param target
-     *            target = numbers[index1] + numbers[index2]
-     * @return : [index1 + 1, index2 + 1] (index1 < index2)
-     */
-    @tags.Array
-    @tags.TwoPointers
-    @tags.Sort
-    @tags.HashTable
-    @tags.Company.Airbnb
-    @tags.Company.Facebook
-    public int[] twoSum(int[] numbers, int target) {
-        int[] result = new int[2];
-        if (numbers == null || numbers.length < 2) {
-            return result;
-        }
-
-        Map<Integer, Integer> map = new HashMap<>();
-        for (int i = 0; i < numbers.length; i++) {
-            int theOther = target - numbers[i];
-            if (map.containsKey(theOther)) {
-                result[0] = map.get(theOther);
-                result[1] = i + 1;
-                return result;
-            }
-            map.put(numbers[i], i + 1);
-        }
-        return result;
-    }
-
-    /**
-     * Two Sum Closest
-     *
-     * Given an array nums of n integers, find two integers in nums such that
-     * the sum is closest to a given number, target. Return the difference
-     * between the sum of the two integers and the target.
-     *
-     * Example: Given array nums = [-1, 2, 1, -4], and target = 4. The minimum
-     * difference is 1. (4 - (2 + 1) = 1).
-     *
-     * @param nums
-     *            an integer array
-     * @param target
-     *            an integer
-     * @return the difference between the sum and the target
-     */
-    @tags.TwoPointers
-    @tags.Sort
-    public int twoSumCloset(int[] nums, int target) {
-        if (nums == null || nums.length < 2) {
-            return -1;
-        }
-
-        Arrays.sort(nums);
-
-        int minDiff = Integer.MAX_VALUE;
-        for (int i = 0, j = nums.length - 1; i < j;) {
-            int diff = nums[i] + nums[j] - target;
-            if (diff == 0) {
-                return 0;
+        int i = 0, j = 0;
+        while (i < m || j < n) {
+            if (j == n || (i < m && A[i] <= B[j])) {
+                result[i + j] = A[i++];
             } else {
-                if (diff > 0) {
-                    j--;
-                } else {
-                    i++;
-                }
-                minDiff = Math.min(Math.abs(diff), minDiff);
+                result[i + j] = B[j++];
             }
         }
 
-        return minDiff;
+        return result;
     }
 
     /**
@@ -432,6 +233,107 @@ public class ArrayAndNumbers {
                 nums[i] = nums[right];
                 nums[right--] = 2;
                 i--;
+            }
+        }
+    }
+
+    /**
+     * Sort Colors II
+     *
+     * Given an array of n objects with k different colors (numbered from 1 to
+     * k), sort them so that objects of the same color are adjacent, with the
+     * colors in the order 1, 2, ... k.
+     *
+     * You are not suppose to use the library's sort function for this problem.
+     *
+     * Example: Given colors=[3, 2, 2, 1, 4], k=4, your code should sort colors
+     * in-place to [1, 2, 2, 3, 4].
+     *
+     * Challenge: A rather straight forward solution is a two-pass algorithm
+     * using counting sort. That will cost O(k) extra memory. Can you do it
+     * without using extra memory?
+     *
+     * This is a decent question with freaking stupid challenge instruction.
+     * Best solution is the so called rather straight forward one, counting
+     * sort. A close second is using the Arrays.sort. The worst solution is the
+     * suggested no extra space one. What's the point? Of course, I understand
+     * it always depends.
+     *
+     * @param colors:
+     *            A list of integer
+     * @param k:
+     *            An integer
+     * @return: void
+     */
+    @tags.Array
+    @tags.TwoPointers
+    @tags.Sort
+    public void sortColors2(int[] colors, int k) {
+        if (colors == null || colors.length < 2) {
+            return;
+        }
+
+        // find the min and max colors
+        int min = k, max = 1;
+        for (Integer color : colors) {
+            if (color > max) {
+                max = color;
+            } else if (color < min) {
+                min = color;
+            }
+        }
+
+        // each outer loop move min and max to the left and right
+        int left = 0, right = colors.length - 1;
+        while (left < right) {
+            int current = left;
+            while (current <= right) {
+                if (colors[current] == max) {
+                    colors[current] = colors[right];
+                    colors[right--] = max;
+                } else if (colors[current] == min) {
+                    colors[current] = colors[left];
+                    colors[left++] = min;
+                    current++;
+                } else {
+                    current++;
+                }
+            }
+            min++;
+            max--;
+        }
+    }
+
+    /**
+     * Sort Letters by Case.
+     *
+     * Given a string which contains only letters. Sort it by lower case first
+     * and upper case second.
+     *
+     * Notice: It's NOT necessary to keep the original order of lower-case
+     * letters and upper case letters.
+     *
+     * Example: For "abAcD", a reasonable answer is "acbAD"
+     *
+     * @param chars:
+     *            The letter array you should sort by Case
+     * @return: void
+     */
+    @tags.Array
+    @tags.String
+    @tags.Sort
+    @tags.TwoPointers
+    @tags.Source.LintCode
+    public void sortLetters(char[] chars) {
+        int len = chars.length;
+        for (int left = 0, right = len - 1; left < right;) {
+            if (chars[left] >= 'a' && chars[left] <= 'z') {
+                left++;
+            } else {
+                char temp = chars[left];
+                chars[left] = chars[right];
+                chars[right] = temp;
+                right--;
             }
         }
     }
@@ -542,7 +444,485 @@ public class ArrayAndNumbers {
         }
     }
 
-    // ---------------------------------- OLD ----------------------------------
+    // ---------------------------------------------------------------------- //
+    // ------------------------------ Subarray ------------------------------ //
+    // ---------------------------------------------------------------------- //
+
+    /**
+     * Subarray Sum
+     *
+     * Given an integer array, find a subarray where the sum of numbers is zero.
+     * Your code should return the index of the first number and the index of
+     * the last number.
+     *
+     * Notice: There is at least one subarray that it's sum equals to zero.
+     *
+     * Example Given [-3, 1, 2, -3, 4], return [0, 2] or [1, 3].
+     *
+     * @param nums:
+     *            A list of integers
+     * @return: A list of integers includes the index of the first number and
+     *          the index of the last number
+     */
+    @tags.Array
+    @tags.HashTable
+    @tags.Subarray
+    public ArrayList<Integer> subarraySum(int[] nums) {
+        ArrayList<Integer> result = new ArrayList<>();
+        if (nums == null || nums.length == 0) {
+            return result;
+        }
+
+        // key = sum from start, value = current index
+        Map<Integer, Integer> map = new HashMap<>();
+        int sum = 0, index = -1;
+        map.put(sum, index);
+
+        // once same sum found again, subarray in the middle is the result
+        for (int i = 0; i < nums.length; i++) {
+            sum += nums[i];
+            if (map.containsKey(sum)) {
+                result.add(map.get(sum) + 1);
+                result.add(i);
+                return result;
+            }
+            map.put(sum, i);
+        }
+
+        return result;
+    }
+
+    /**
+     * Subarray Sum Closest
+     *
+     * Given an integer array, find a subarray with sum closest to zero. Return
+     * the indexes of the first number and last number.
+     *
+     * Example: Given [-3, 1, 1, -3, 5], return [0, 2], [1, 3], [1, 1], [2, 2]
+     * or [0, 4].
+     *
+     * Time complexity: O(nlogn).
+     *
+     * @param nums:
+     *            A list of integers
+     * @return: A list of integers includes the index of the first number and
+     *          the index of the last number
+     */
+    @tags.Array
+    @tags.Subarray
+    @tags.Sort
+    public int[] subarraySumClosest(int[] nums) {
+        int[] range = new int[2];
+        if (nums == null || nums.length == 0) {
+            return range;
+        }
+
+        int sum = 0, index = -1;
+        int[] sums = new int[nums.length + 1]; // sums[i] = prefix sum at i
+        sums[nums.length] = sum;
+        Map<Integer, Integer> map = new HashMap<>(); // prefix sum to index map
+        map.put(sum, index);
+
+        // find prefix sum for each index
+        for (int i = 0; i < nums.length; i++) {
+            sum += nums[i];
+            sums[i] = sum;
+
+            if (map.containsKey(sum)) {
+                range[0] = map.get(sum) + 1;
+                range[1] = i;
+                return range;
+            }
+            map.put(sum, i);
+        }
+
+        Arrays.sort(sums);
+
+        // find the 2 closest prefix sum, put the 2 index in result
+        int diff = Math.abs(sums[0] - sums[1]);
+        range[0] = map.get(sums[0]);
+        range[1] = map.get(sums[1]);
+        for (int i = 1; i < sums.length; i++) {
+            int newDiff = sums[i] - sums[i - 1];
+            if (newDiff < diff) {
+                diff = newDiff;
+                range[0] = map.get(sums[i]);
+                range[1] = map.get(sums[i - 1]);
+            }
+        }
+
+        Arrays.sort(range);
+        range[0] += 1;
+        return range;
+    }
+
+    /**
+     * Maximum Subarray
+     *
+     * Given an array of integers, find a contiguous subarray which has the
+     * largest sum.
+     *
+     * Notice: The subarray should contain at least one number.
+     *
+     * Example: Given the array [-2,2,-3,4,-1,2,1,-5,3], the contiguous subarray
+     * [4,-1,2,1] has the largest sum = 6.
+     *
+     * If you have figured out the O(n) solution, try coding another solution
+     * using the divide and conquer approach, which is more subtle.
+     *
+     * @param nums:
+     *            A list of integers
+     * @return: A integer indicate the sum of max subarray
+     */
+    @tags.Array
+    @tags.Subarray
+    @tags.DynamicProgramming
+    @tags.DivideAndConquer
+    @tags.Greedy
+    @tags.Enumeration
+    @tags.Company.LinkedIn
+    @tags.Source.LintCode
+    public int maxSubArray(int[] nums) {
+        if (nums == null || nums.length == 0) {
+            return 0;
+        }
+
+        int max = nums[0];
+        int maxEndHere = nums[0];
+        for (int i = 1; i < nums.length; i++) {
+            maxEndHere = (maxEndHere <= 0) ? nums[i] : maxEndHere + nums[i];
+            if (maxEndHere > max) {
+                max = maxEndHere;
+            }
+        }
+
+        return max;
+    }
+
+    /**
+     * Maximum Subarray II.
+     *
+     * Given an array of integers, find two non-overlapping subarrays which have
+     * the largest sum. The number in each subarray should be contiguous. Return
+     * the largest sum.
+     *
+     * Notice: The subarray should contain at least one number
+     *
+     * Example: For given [1, 3, -1, 2, -1, 2], the two subarrays are [1, 3] and
+     * [2, -1, 2] or [1, 3, -1, 2] and [2], they both have the largest sum 7.
+     *
+     * Challenge: Can you do it in time complexity O(n) ?
+     *
+     * @param nums:
+     *            A list of integers
+     * @return: An integer denotes the sum of max two non-overlapping subarrays
+     */
+    @tags.Array
+    @tags.Subarray
+    @tags.Greedy
+    @tags.Enumeration
+    @tags.ForwardBackwardTraversal
+    @tags.Source.LintCode
+    public int maxTwoSubArrays(ArrayList<Integer> nums) {
+        if (nums == null || nums.size() < 2) {
+            return 0;
+        }
+
+        int len = nums.size();
+        int[] forwardMax = new int[len];
+        int maxToHere = nums.get(0);
+        forwardMax[0] = nums.get(0);
+        for (int i = 1; i < len; i++) {
+            maxToHere = Math.max(nums.get(i), maxToHere + nums.get(i));
+            forwardMax[i] = Math.max(forwardMax[i - 1], maxToHere);
+        }
+
+        int[] backwardMax = new int[len];
+        maxToHere = nums.get(len - 1);
+        backwardMax[len - 1] = nums.get(len - 1);
+        for (int i = len - 2; i >= 0; i--) {
+            maxToHere = Math.max(nums.get(i), maxToHere + nums.get(i));
+            backwardMax[i] = Math.max(backwardMax[i + 1], maxToHere);
+        }
+
+        int max = forwardMax[0] + backwardMax[1];
+        for (int i = 1; i < len - 1; i++) {
+            max = Math.max(max, forwardMax[i] + backwardMax[i + 1]);
+        }
+
+        return max;
+    }
+
+    /**
+     * Maximum Subarray III.
+     *
+     * Given an array of integers and a number k, find k non-overlapping
+     * subarrays which have the largest sum. The number in each subarray should
+     * be contiguous. Return the largest sum.
+     *
+     * Notice: The subarray should contain at least one number
+     *
+     * Example: Given [-1,4,-2,3,-2,3], k=2, return 8
+     *
+     * @param nums:
+     *            A list of integers
+     * @param k:
+     *            An integer denote to find k non-overlapping subarrays
+     * @return: An integer denote the sum of max k non-overlapping subarrays
+     */
+    @tags.Array
+    @tags.Subarray
+    @tags.DynamicProgramming
+    @tags.Source.LintCode
+    public int maxSubArray(int[] nums, int k) {
+        int n = nums.length;
+        int[][] maxToHere = new int[n + 1][k + 1];
+        int[][] maxGlobal = new int[n + 1][k + 1];
+
+        for (int i = 1; i <= n; i++) {
+            for (int j = 1; j <= i && j <= k; j++) {
+                if (i == j) {
+                    maxToHere[i][j] = maxGlobal[i - 1][j - 1] + nums[i - 1];
+                    maxGlobal[i][j] = maxToHere[i][j];
+                } else {
+                    maxToHere[i][j] = Math.max(maxGlobal[i - 1][j - 1],
+                            maxToHere[i - 1][j]) + nums[i - 1];
+                    maxGlobal[i][j] = Math.max(maxToHere[i][j],
+                            maxGlobal[i - 1][j]);
+                }
+            }
+        }
+        return maxGlobal[n][k];
+    }
+
+    /**
+     * Maximum Subarray Difference.
+     *
+     * Given an array with integers. Find two non-overlapping subarrays A and B,
+     * which |SUM(A) - SUM(B)| is the largest. Return the largest difference.
+     *
+     * Notice: The subarray should contain at least one number.
+     *
+     * Example: For [1, 2, -3, 1], return 6.
+     *
+     * Challenge: O(n) time and O(n) space.
+     *
+     * @param nums:
+     *            A list of integers
+     * @return: An integer indicate the value of maximum difference between two
+     *          Subarrays
+     */
+    @tags.Array
+    @tags.Subarray
+    @tags.Greedy
+    @tags.Enumeration
+    @tags.ForwardBackwardTraversal
+    @tags.Source.LintCode
+    public int maxDiffSubArrays(int[] nums) {
+        int len = nums.length;
+        int[] forwardMax = new int[len];
+        int[] forwardMin = new int[len];
+        int maxToHere = nums[0];
+        int minToHere = nums[0];
+        forwardMax[0] = nums[0];
+        forwardMin[0] = nums[0];
+        for (int i = 1; i < len; i++) {
+            maxToHere = Math.max(nums[i], nums[i] + maxToHere);
+            forwardMax[i] = Math.max(forwardMax[i - 1], maxToHere);
+            minToHere = Math.min(nums[i], nums[i] + minToHere);
+            forwardMin[i] = Math.min(forwardMin[i - 1], minToHere);
+        }
+
+        int[] backwardMax = new int[len];
+        int[] backwardMin = new int[len];
+        maxToHere = nums[len - 1];
+        minToHere = nums[len - 1];
+        backwardMax[len - 1] = nums[len - 1];
+        backwardMin[len - 1] = nums[len - 1];
+        for (int i = len - 2; i >= 0; i--) {
+            maxToHere = Math.max(nums[i], nums[i] + maxToHere);
+            backwardMax[i] = Math.max(backwardMax[i + 1], maxToHere);
+            minToHere = Math.min(nums[i], nums[i] + minToHere);
+            backwardMin[i] = Math.min(backwardMin[i + 1], minToHere);
+        }
+
+        int diff = 0;
+        for (int i = 0; i < len - 1; i++) {
+            diff = Math.max(diff, Math.abs(forwardMax[i] - backwardMin[i + 1]));
+            diff = Math.max(diff, Math.abs(forwardMin[i] - backwardMax[i + 1]));
+        }
+
+        return diff;
+    }
+
+    /**
+     * Minimum Subarray
+     *
+     * Given an array of integers, find the subarray with smallest sum. Return
+     * the sum of the subarray.
+     *
+     * The subarray should contain one integer at least.
+     *
+     * Example For [1, -1, -2, 1], return -3.
+     *
+     * @param nums:
+     *            a list of integers
+     * @return: A integer indicate the sum of minimum subarray
+     */
+    @tags.Array
+    @tags.Subarray
+    @tags.DynamicProgramming
+    @tags.Greedy
+    @tags.Source.LintCode
+    public int minSubArray(ArrayList<Integer> nums) {
+        if (nums == null || nums.size() == 0) {
+            return -1;
+        }
+        int min = nums.get(0);
+        int minToHere = nums.get(0);
+
+        for (int i = 1; i < nums.size(); i++) {
+            minToHere = (minToHere < 0) ? minToHere + nums.get(i) : nums.get(i);
+            if (minToHere < min) {
+                min = minToHere;
+            }
+        }
+
+        return min;
+    }
+
+    /**
+     * Maximum Product Subarray
+     *
+     * Find the contiguous subarray within an array (containing at least one
+     * number) which has the largest product.
+     *
+     * Example: For example, given the array [2,3,-2,4], the contiguous subarray
+     * [2,3] has the largest product = 6.
+     *
+     * @param nums:
+     *            an array of integers
+     * @return: an integer
+     */
+    @tags.Array
+    @tags.Subarray
+    @tags.DynamicProgramming
+    @tags.Company.LinkedIn
+    public int maxProduct(int[] nums) {
+        if (nums == null || nums.length == 0) {
+            return 0;
+        }
+
+        int max = nums[0];
+        int maxToHere = nums[0];
+        int minToHere = nums[0];
+
+        for (int i = 1; i < nums.length; i++) {
+            int[] minMax = new int[3];
+            minMax[0] = nums[i];
+            minMax[1] = maxToHere * nums[i];
+            minMax[2] = minToHere * nums[i];
+            Arrays.sort(minMax);
+            maxToHere = minMax[2];
+            minToHere = minMax[0];
+            max = Math.max(max, maxToHere);
+        }
+
+        return max;
+    }
+
+    // ---------------------------------------------------------------------- //
+    // ------------------------------ Two Sum ------------------------------- //
+    // ---------------------------------------------------------------------- //
+
+    /**
+     * Two Sum
+     *
+     * Given an array of integers, find two numbers such that they add up to a
+     * specific target number.
+     *
+     * The function twoSum should return indices of the two numbers such that
+     * they add up to the target, where index1 must be less than index2. Please
+     * note that your returned answers (both index1 and index2) are not
+     * zero-based.
+     *
+     * You may assume that each input would have exactly one solution.
+     *
+     * Example: Input: numbers={2, 7, 11, 15}, target=9 Output: [1, 2].
+     *
+     * @param numbers
+     *            An array of Integer
+     * @param target
+     *            target = numbers[index1] + numbers[index2]
+     * @return : [index1 + 1, index2 + 1] (index1 < index2)
+     */
+    @tags.Array
+    @tags.TwoPointers
+    @tags.Sort
+    @tags.HashTable
+    @tags.Company.Airbnb
+    @tags.Company.Facebook
+    public int[] twoSum(int[] numbers, int target) {
+        int[] result = new int[2];
+        if (numbers == null || numbers.length < 2) {
+            return result;
+        }
+
+        Map<Integer, Integer> map = new HashMap<>();
+        for (int i = 0; i < numbers.length; i++) {
+            int theOther = target - numbers[i];
+            if (map.containsKey(theOther)) {
+                result[0] = map.get(theOther);
+                result[1] = i + 1;
+                return result;
+            }
+            map.put(numbers[i], i + 1);
+        }
+        return result;
+    }
+
+    /**
+     * Two Sum Closest
+     *
+     * Given an array nums of n integers, find two integers in nums such that
+     * the sum is closest to a given number, target. Return the difference
+     * between the sum of the two integers and the target.
+     *
+     * Example: Given array nums = [-1, 2, 1, -4], and target = 4. The minimum
+     * difference is 1. (4 - (2 + 1) = 1).
+     *
+     * @param nums
+     *            an integer array
+     * @param target
+     *            an integer
+     * @return the difference between the sum and the target
+     */
+    @tags.TwoPointers
+    @tags.Sort
+    public int twoSumCloset(int[] nums, int target) {
+        if (nums == null || nums.length < 2) {
+            return -1;
+        }
+
+        Arrays.sort(nums);
+
+        int minDiff = Integer.MAX_VALUE;
+        for (int i = 0, j = nums.length - 1; i < j;) {
+            int diff = nums[i] + nums[j] - target;
+            if (diff == 0) {
+                return 0;
+            } else {
+                if (diff > 0) {
+                    j--;
+                } else {
+                    i++;
+                }
+                minDiff = Math.min(Math.abs(diff), minDiff);
+            }
+        }
+
+        return minDiff;
+    }
 
     /**
      * 3Sum
@@ -552,49 +932,52 @@ public class ArrayAndNumbers {
      * of zero.
      *
      * Note: Elements in a triplet (a,b,c) must be in non-descending order. (ie,
-     * a ¡Ü b ¡Ü c) The solution set must not contain duplicate triplets. For
-     * example, given array S = {-1 0 1 2 -1 -4},
+     * a ¡Ü b ¡Ü c) The solution set must not contain duplicate triplets.
      *
-     * A solution set is: (-1, 0, 1) (-1, -1, 2)
+     * For example, given array S = {-1 0 1 2 -1 -4}, A solution set is: (-1, 0,
+     * 1) (-1, -1, 2)
+     *
+     * @param numbers
+     *            : Give an array numbers of n integer
+     * @return : Find all unique triplets in the array which gives the sum of
+     *         zero.
      */
-    public ArrayList<ArrayList<Integer>> threeSum(int[] num) {
-        ArrayList<ArrayList<Integer>> result = new ArrayList<ArrayList<Integer>>();
-        Arrays.sort(num);
+    @tags.Array
+    @tags.Sort
+    @tags.TwoPointers
+    @tags.Company.Facebook
+    public ArrayList<ArrayList<Integer>> threeSum(int[] numbers) {
+        ArrayList<ArrayList<Integer>> result = new ArrayList<>();
 
-        int len = num.length;
-        for (int i = 0; i < len; i++) {
-            int first = num[i];
-            if (i > 0 && first == num[i - 1])
+        Arrays.sort(numbers);
+
+        for (int i = 0; i < numbers.length - 2; i++) {
+            if (i != 0 && numbers[i] == numbers[i - 1]) {
                 continue;
+            }
 
-            int start = i + 1;
-            int end = len - 1;
-
-            while (start < end) {
-                int sum = first + num[start] + num[end];
-                if (sum == 0) {
-                    // add result
-                    ArrayList<Integer> three = new ArrayList<Integer>();
-                    three.add(first);
-                    three.add(num[start]);
-                    three.add(num[end]);
-                    result.add(three);
-
-                    // shrink range and skip duplicate
-                    start++;
-                    end--;
-                    while (start < end && num[start] == num[start - 1])
-                        start++;
-                    while (start < end && num[end] == num[end + 1])
-                        end--;
-                } else if (sum > 0) {
-                    end--;
-                    while (start < end && num[end] == num[end + 1])
-                        end--;
+            int j = i + 1, k = numbers.length - 1;
+            int target = -numbers[i];
+            while (j < k) {
+                int twoSum = numbers[j] + numbers[k];
+                if (twoSum == target) {
+                    ArrayList<Integer> list = new ArrayList<>();
+                    list.add(numbers[i]);
+                    list.add(numbers[j]);
+                    list.add(numbers[k]);
+                    result.add(list);
+                    j++;
+                    k--;
+                    while (j < k && numbers[j] == numbers[j - 1]) {
+                        j++;
+                    }
+                    while (numbers[k] == numbers[k + 1]) {
+                        k--;
+                    }
+                } else if (twoSum < target) {
+                    j++;
                 } else {
-                    start++;
-                    while (start < end && num[start] == num[start - 1])
-                        start++;
+                    k--;
                 }
             }
         }
@@ -609,10 +992,18 @@ public class ArrayAndNumbers {
      * sum is closest to a given number, target. Return the sum of the three
      * integers. You may assume that each input would have exactly one solution.
      *
-     * For example, given array S = {-1 2 1 -4}, and target = 1.
+     * For example, given array S = {-1 2 1 -4}, and target = 1. The sum that is
+     * closest to the target is 2. (-1 + 2 + 1 = 2).
      *
-     * The sum that is closest to the target is 2. (-1 + 2 + 1 = 2).
+     * @param numbers:
+     *            Give an array numbers of n integer
+     * @param target
+     *            : An integer
+     * @return : return the sum of the three integers, the sum closest target.
      */
+    @tags.Array
+    @tags.Sort
+    @tags.TwoPointers
     public int threeSumClosest(int[] num, int target) {
         Arrays.sort(num);
 
@@ -623,19 +1014,19 @@ public class ArrayAndNumbers {
             // second number start from the one next to first one
             // third number start from the last number in the array
             for (int j = i + 1, k = num.length - 1; j < k;) {
-                int temp = num[i] + num[j] + num[k];
+                int threeSum = num[i] + num[j] + num[k];
 
                 // compare temp with target
-                if (temp == target) {
-                    return temp;
+                if (threeSum == target) {
+                    return threeSum;
                 } else {
                     // update sum
-                    if (Math.abs(temp - target) < Math.abs(sum - target)) {
-                        sum = temp;
+                    if (Math.abs(threeSum - target) < Math.abs(sum - target)) {
+                        sum = threeSum;
                     }
 
                     // update j and k
-                    if (temp > target) {
+                    if (threeSum > target) {
                         k--;
                     } else {
                         j++;
@@ -648,7 +1039,7 @@ public class ArrayAndNumbers {
     }
 
     /**
-     * 4Sum
+     * 4Sum - O(n<sup>3</sup>) time.
      *
      * Given an array S of n integers, are there elements a, b, c, and d in S
      * such that a + b + c + d = target? Find all unique quadruplets in the
@@ -660,8 +1051,68 @@ public class ArrayAndNumbers {
      *
      * For example, given array S = {1 0 -1 0 -2 2}, and target = 0. A solution
      * set is: (-1, 0, 0, 1) (-2, -1, 1, 2) (-2, 0, 0, 2)
+     *
+     * @param numbers
+     *            : Give an array numbersbers of n integer
+     * @param target
+     *            : you need to find four elements that's sum of target
+     * @return : Find all unique quadruplets in the array which gives the sum of
+     *         zero.
      */
-    public ArrayList<ArrayList<Integer>> fourSum(int[] num, int target) {
+    @tags.Array
+    @tags.Sort
+    @tags.TwoPointers
+    @tags.HashTable
+    public ArrayList<ArrayList<Integer>> fourSum(int[] numbers, int target) {
+        Arrays.sort(numbers);
+
+        ArrayList<ArrayList<Integer>> result = new ArrayList<>();
+        for (int i = 0; i < numbers.length - 3; i++) {
+            if (i != 0 && numbers[i] == numbers[i - 1]) {
+                continue;
+            }
+
+            for (int j = i + 1; j < numbers.length - 2; j++) {
+                if (j != i + 1 && numbers[j] == numbers[j - 1]) {
+                    continue;
+                }
+
+                int twoSum = numbers[i] + numbers[j];
+                for (int k = j + 1, l = numbers.length - 1; k < l;) {
+                    int fourSum = twoSum + numbers[k] + numbers[l];
+                    if (fourSum == target) {
+                        ArrayList<Integer> list = new ArrayList<>();
+                        list.add(numbers[i]);
+                        list.add(numbers[j]);
+                        list.add(numbers[k]);
+                        list.add(numbers[l]);
+                        result.add(list);
+                        k++;
+                        l--;
+                        while (k < l && numbers[k] == numbers[k - 1]) {
+                            k++;
+                        }
+                        while (numbers[l] == numbers[l + 1]) {
+                            l--;
+                        }
+                    } else if (fourSum > target) {
+                        l--;
+                    } else {
+                        k++;
+                    }
+                }
+            }
+        }
+
+        return result;
+    }
+
+    /** 4Sum - O(n<sup>2</sup>logn<sup>2</sup>) = O(n<sup>2</sup>logn) time. */
+    @tags.Array
+    @tags.Sort
+    @tags.TwoPointers
+    @tags.HashTable
+    public ArrayList<ArrayList<Integer>> fourSum2(int[] num, int target) {
         int len = num.length;
         Map<Integer, ArrayList<ArrayList<Integer>>> map = new HashMap<Integer, ArrayList<ArrayList<Integer>>>();
         Set<ArrayList<Integer>> set = new HashSet<ArrayList<Integer>>();
@@ -716,6 +1167,189 @@ public class ArrayAndNumbers {
                 set);
         return result;
     }
+
+    // ---------------------------------------------------------------------- //
+    // ------------------ Best Time to Buy and Sell Stock ------------------- //
+    // ---------------------------------------------------------------------- //
+
+    /**
+     * Best Time to Buy and Sell Stock
+     *
+     * Say you have an array for which the ith element is the price of a given
+     * stock on day i. If you were only permitted to complete at most one
+     * transaction (ie, buy one and sell one share of the stock), design an
+     * algorithm to find the maximum profit.
+     *
+     * Given array [3,2,3,1,2], return 1.
+     *
+     * @param prices:
+     *            Given an integer array
+     * @return: Maximum profit
+     */
+    @tags.Array
+    @tags.DynamicProgramming
+    @tags.Greedy
+    @tags.Enumeration
+    @tags.Company.Facebook
+    @tags.Company.Uber
+    public int maxProfit(int[] prices) {
+        if (prices == null || prices.length == 0) {
+            return 0;
+        }
+
+        int min = prices[0];
+        int profit = 0;
+
+        for (int i = 1; i < prices.length; i++) {
+            if (prices[i] > min) {
+                profit = Math.max(profit, prices[i] - min);
+            } else if (prices[i] < min) {
+                min = prices[i];
+            }
+        }
+
+        return profit;
+    }
+
+    /**
+     * Best Time to Buy and Sell Stock II
+     *
+     * Say you have an array for which the ith element is the price of a given
+     * stock on day i. Design an algorithm to find the maximum profit. You may
+     * complete as many transactions as you like (ie, buy one and sell one share
+     * of the stock multiple times). However, you may not engage in multiple
+     * transactions at the same time (ie, you must sell the stock before you buy
+     * again).
+     *
+     * Example: Given an example [2,1,2,0,1], return 2.
+     *
+     * @param prices:
+     *            Given an integer array
+     * @return: Maximum profit
+     */
+    @tags.Array
+    @tags.Greedy
+    @tags.Enumeration
+    public int maxProfitII(int[] prices) {
+        if (prices == null || prices.length < 2) {
+            return 0;
+        }
+
+        int profit = 0;
+        for (int i = 1; i < prices.length; i++) {
+            if (prices[i] > prices[i - 1]) {
+                profit += (prices[i] - prices[i - 1]);
+            }
+        }
+
+        return profit;
+    }
+
+    /**
+     * Best Time to Buy and Sell Stock III
+     *
+     * Say you have an array for which the ith element is the price of a given
+     * stock on day i. Design an algorithm to find the maximum profit. You may
+     * complete at most two transactions.
+     *
+     * Note: You may not engage in multiple transactions at the same time (ie,
+     * you must sell the stock before you buy again).
+     *
+     * Example: Given an example [4,4,6,1,1,4,2,5], return 6.
+     *
+     * @param prices:
+     *            Given an integer array
+     * @return: Maximum profit
+     */
+    @tags.Array
+    @tags.ForwardBackwardTraversal
+    @tags.DynamicProgramming
+    @tags.Enumeration
+    public int maxProfitIII(int[] prices) {
+        if (prices == null || prices.length < 2) {
+            return 0;
+        }
+
+        int len = prices.length;
+        int[] forward = new int[len];
+        int min = prices[0];
+        for (int i = 1; i < len; i++) {
+            forward[i] = Math.max(forward[i - 1], prices[i] - min);
+            min = Math.min(min, prices[i]);
+        }
+
+        int[] backward = new int[len];
+        int max = prices[len - 1];
+        for (int i = len - 2; i >= 0; i--) {
+            backward[i] = Math.max(backward[i + 1], max - prices[i]);
+            max = Math.max(max, prices[i]);
+        }
+
+        int maxProfit = 0;
+        for (int i = 0; i < len; i++) {
+            maxProfit = Math.max(maxProfit, forward[i] + backward[i]);
+        }
+
+        return maxProfit;
+    }
+
+    /**
+     * Best Time to Buy and Sell Stock IV
+     *
+     * Say you have an array for which the ith element is the price of a given
+     * stock on day i. Design an algorithm to find the maximum profit. You may
+     * complete at most k transactions.
+     *
+     * Notice: You may not engage in multiple transactions at the same time
+     * (i.e., you must sell the stock before you buy again).
+     *
+     * Example: Given prices = [4,4,6,1,1,4,2,5], and k = 2, return 6.
+     *
+     * @param k:
+     *            An integer
+     * @param prices:
+     *            Given an integer array
+     * @return: Maximum profit
+     */
+    @tags.Array
+    @tags.DynamicProgramming
+    public int maxProfitIV(int k, int[] prices) {
+        if (k == 0) {
+            return 0;
+        }
+        if (k >= prices.length / 2) {
+            int profit = 0;
+            for (int i = 1; i < prices.length; i++) {
+                if (prices[i] > prices[i - 1]) {
+                    profit += prices[i] - prices[i - 1];
+                }
+            }
+            return profit;
+        }
+        int len = prices.length;
+        int[][] mustsell = new int[len][k + 1];
+        int[][] globalbest = new int[len][k + 1];
+
+        mustsell[0][0] = globalbest[0][0] = 0;
+        for (int i = 1; i <= k; i++) {
+            mustsell[0][i] = globalbest[0][i] = 0;
+        }
+
+        for (int i = 1; i < len; i++) {
+            int gainorlose = prices[i] - prices[i - 1];
+            mustsell[i][0] = 0;
+            for (int j = 1; j <= k; j++) {
+                mustsell[i][j] = Math.max(
+                        globalbest[(i - 1)][j - 1] + gainorlose,
+                        mustsell[(i - 1)][j] + gainorlose);
+                globalbest[i][j] = Math.max(globalbest[(i - 1)][j],
+                        mustsell[i][j]);
+            }
+        }
+        return globalbest[(len - 1)][k];
+    }
+
+    // ---------------------------------- OLD ----------------------------------
 
     /**
      * Remove Duplicates from Sorted Array
@@ -888,6 +1522,10 @@ public class ArrayAndNumbers {
 
         return area;
     }
+
+    // ---------------------------------------------------------------------- //
+    // ---------------------------- Tests and Main -------------------------- //
+    // ---------------------------------------------------------------------- //
 
     public void test() {
         int[] A = { 2, 3, 4, 2, 5 };
