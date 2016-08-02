@@ -9,6 +9,9 @@ import java.util.Map;
 import java.util.Set;
 import java.util.Stack;
 
+import org.junit.Test;
+import org.junit.Assert;
+
 /**
  * Arrays and Numbers.
  *
@@ -386,6 +389,69 @@ public class ArrayAndNumbers {
     }
 
     /**
+     * Kth Largest Element.
+     *
+     * Find K-th largest element in an array.
+     *
+     * Notice: You can swap elements in the array
+     *
+     * Example: In array [9,3,2,4,8], the 3rd largest element is 4. In array
+     * [1,2,3,4,5], the 1st largest element is 5, 2nd largest element is 4, 3rd
+     * largest element is 3 and etc.
+     *
+     * Challenge: O(n) time, O(1) extra memory. Geometric series amortized O(n)
+     * time, which is O(n + n/2 + n/4 + ... + 1).
+     *
+     * @param k
+     *            : description of k
+     * @param nums
+     *            : array of nums
+     * @return: description of return
+     */
+    @tags.Array
+    @tags.Sort
+    @tags.QuickSort
+    @tags.Heap
+    @tags.DivideAndConquer
+    public int kthLargestElement(int k, int[] nums) {
+        if (nums == null || nums.length < k) {
+            throw new IllegalArgumentException();
+        }
+        return getKthNumber(nums, 0, nums.length - 1, k);
+    }
+
+    private int getKthNumber(int[] nums, int start, int end, int k) {
+        int pivot = partition(nums, start, end);
+        if (pivot + 1 == k) {
+            return nums[pivot];
+        } else if (pivot + 1 < k) {
+            return getKthNumber(nums, pivot + 1, end, k);
+        } else {
+            return getKthNumber(nums, start, pivot - 1, k);
+        }
+    }
+
+    private int partition(int[] nums, int start, int end) {
+        int pivot = start;
+        while (start < end) {
+            while (start < end && nums[end] <= nums[pivot]) {
+                end--;
+            }
+            while (start < end && nums[start] >= nums[pivot]) {
+                start++;
+            }
+
+            int temp = nums[start];
+            nums[start] = nums[end];
+            nums[end] = temp;
+        }
+        int temp = nums[start];
+        nums[start] = nums[pivot];
+        nums[pivot] = temp;
+        return start;
+    }
+
+    /**
      * Median of two Sorted Arrays
      *
      * There are two sorted arrays A and B of size m and n respectively. Find
@@ -493,6 +559,51 @@ public class ArrayAndNumbers {
     }
 
     /**
+     * Subarray Sum II.
+     *
+     * Given an integer array, find a subarray where the sum of numbers is in a
+     * given interval. Your code should return the number of possible answers.
+     * (The element in the array should be positive)
+     *
+     * Example: Given [1,2,3,4] and interval = [1,3], return 4. The possible
+     * answers are: [0, 0] [0, 1] [1, 1] [2, 2]
+     *
+     * This is O(n<sup>2</sup>) time solution. If all elements are positive,
+     * then sum array will be increasing order, and time complexity will be
+     * O(nlogn) with binary search to find the range.
+     *
+     * @param A
+     *            an integer array
+     * @param start
+     *            an integer
+     * @param end
+     *            an integer
+     * @return the number of possible answer
+     */
+    @tags.Array
+    @tags.Subarray
+    @tags.TwoPointers
+    public int subarraySumII(int[] A, int start, int end) {
+        int[] sums = new int[A.length + 1];
+        sums[1] = A[0];
+        for (int i = 2; i < A.length + 1; i++) {
+            sums[i] = sums[i - 1] + A[i - 1];
+        }
+
+        int result = 0;
+        for (int i = 0; i < A.length; i++) {
+            for (int j = i + 1; j < A.length + 1; j++) {
+                int sum = sums[j] - sums[i];
+                if (sum >= start && sum <= end) {
+                    result++;
+                }
+            }
+        }
+
+        return result;
+    }
+
+    /**
      * Subarray Sum Closest
      *
      * Given an integer array, find a subarray with sum closest to zero. Return
@@ -553,6 +664,161 @@ public class ArrayAndNumbers {
 
         Arrays.sort(range);
         range[0] += 1;
+        return range;
+    }
+
+    /**
+     * Minimum Size Subarray Sum.
+     *
+     * Given an array of n positive integers and a positive integer s, find the
+     * minimal length of a subarray of which the sum ¡Ý s. If there isn't one,
+     * return -1 instead.
+     *
+     * Example: Given the array [2,3,1,2,4,3] and s = 7, the subarray [4,3] has
+     * the minimal length under the problem constraint.
+     *
+     * @param nums:
+     *            an array of integers
+     * @param s:
+     *            an integer
+     * @return: an integer representing the minimum size of subarray
+     */
+    @tags.Array
+    @tags.Subarray
+    @tags.TwoPointers
+    @tags.Company.Facebook
+    public int minimumSize(int[] nums, int s) {
+        if (nums == null || nums.length == 0) {
+            return -1;
+        }
+
+        int start = 0, end = 0, sum = nums[0], minSize = nums.length + 1;
+        while (start <= end && end < nums.length) {
+            if (sum >= s) {
+                minSize = Math.min(end - start + 1, minSize);
+                sum -= nums[start++];
+            } else if (++end < nums.length) {
+                sum += nums[end];
+            }
+        }
+        return (minSize == nums.length + 1) ? -1 : minSize;
+    }
+
+    /**
+     * Continuous Subarray Sum¡£
+     *
+     * Given an integer array, find a continuous subarray where the sum of
+     * numbers is the biggest. Your code should return the index of the first
+     * number and the index of the last number. (If their are duplicate answer,
+     * return anyone).
+     *
+     * Example: Give [-3, 1, 3, -3, 4], return [1,4].
+     *
+     * @param A
+     *            an integer array
+     * @return A list of integers includes the index of the first number and the
+     *         index of the last number
+     */
+    @tags.Array
+    @tags.Subarray
+    @tags.DynamicProgramming
+    public ArrayList<Integer> continuousSubarraySum(int[] A) {
+        ArrayList<Integer> range = new ArrayList<>();
+        int max = A[0], maxEndHere = A[0];
+        int start = 0, end = 0;
+        int newStart = start, newEnd = end;
+        for (int i = 1; i < A.length; i++) {
+            if (maxEndHere > 0) {
+                maxEndHere += A[i];
+            } else {
+                maxEndHere = A[i];
+                newStart = i;
+            }
+            newEnd = i;
+
+            if (maxEndHere > max) {
+                max = maxEndHere;
+                start = newStart;
+                end = newEnd;
+            }
+        }
+
+        range.add(start);
+        range.add(end);
+        return range;
+    }
+
+    /**
+     * Continuous Subarray Sum II.
+     *
+     * Given an circular integer array (the next element of the last element is
+     * the first element), find a continuous subarray in it, where the sum of
+     * numbers is the biggest. Your code should return the index of the first
+     * number and the index of the last number. If duplicate answers exist,
+     * return any of them.
+     *
+     * Example: Give [3, 1, -100, -3, 4], return [4,1].
+     *
+     * @param A
+     *            an integer array
+     * @return A list of integers includes the index of the first number and the
+     *         index of the last number
+     */
+    @tags.Array
+    @tags.Subarray
+    @tags.DynamicProgramming
+    public ArrayList<Integer> continuousSubarraySumII(int[] A) {
+        ArrayList<Integer> range = new ArrayList<>();
+        range.add(0);
+        range.add(0);
+        int max = A[0], maxEndHere = A[0];
+        int start = 0, end = 0;
+        int total = A[0];
+
+        for (int i = 1; i < A.length; i++) {
+            // get total sum
+            total += A[i];
+
+            // get max sum
+            if (maxEndHere > 0) {
+                maxEndHere += A[i];
+            } else {
+                maxEndHere = A[i];
+                start = i;
+            }
+            end = i;
+
+            if (maxEndHere > max) {
+                max = maxEndHere;
+                range.set(0, start);
+                range.set(1, end);
+            }
+        }
+
+        int minEndHere = A[0];
+        start = 0;
+        end = 0;
+
+        for (int i = 1; i < A.length; i++) {
+            if (minEndHere < 0) {
+                minEndHere += A[i];
+            } else {
+                minEndHere = A[i];
+                start = i;
+            }
+            end = i;
+
+            if (start == 0 && end == A.length - 1) {
+                break;
+            }
+
+            if (total - minEndHere > max) {
+                max = total - minEndHere;
+                range.set(0, (end + 1) % A.length);
+                range.set(1, (start - 1 + A.length) % A.length);
+            }
+        }
+
         return range;
     }
 
@@ -882,7 +1148,48 @@ public class ArrayAndNumbers {
     }
 
     /**
-     * Two Sum Closest
+     * Two Sum II.
+     *
+     * Given an array of integers, find how many pairs in the array such that
+     * their sum is bigger than a specific target number. Please return the
+     * number of pairs.
+     *
+     * Example: Given numbers = [2, 7, 11, 15], target = 24. Return 1. (11 + 15
+     * is the only pair)
+     *
+     * Challenge: Do it in O(1) extra space and O(nlogn) time.
+     *
+     * @param nums:
+     *            an array of integer
+     * @param target:
+     *            an integer
+     * @return: an integer
+     */
+    @tags.Array
+    @tags.TwoPointers
+    @tags.Sort
+    public int twoSum2(int[] nums, int target) {
+        if (nums == null || nums.length < 2) {
+            return 0;
+        }
+
+        Arrays.sort(nums);
+        int result = 0;
+        for (int start = 0, end = nums.length - 1; start < end;) {
+            int twoSum = nums[start] + nums[end];
+            if (twoSum <= target) {
+                start++;
+            } else {
+                result += (end - start);
+                end--;
+            }
+        }
+
+        return result;
+    }
+
+    /**
+     * Two Sum Closest.
      *
      * Given an array nums of n integers, find two integers in nums such that
      * the sum is closest to a given number, target. Return the difference
@@ -1036,6 +1343,42 @@ public class ArrayAndNumbers {
         }
 
         return sum;
+    }
+
+    /**
+     * Triangle Count.
+     *
+     * Given an array of integers, how many three numbers can be found in the
+     * array, so that we can build an triangle whose three edges length is the
+     * three numbers that we find?
+     *
+     * Example: Given array S = [3,4,6,7], return 3. They are: [3,4,6] [3,6,7]
+     * [4,6,7]. Given array S = [4,4,4,4], return 4. They are: [4(1),4(2),4(3)]
+     * [4(1),4(2),4(4)] [4(1),4(3),4(4)] [4(2),4(3),4(4)].
+     *
+     * @param S:
+     *            A list of integers
+     * @return: An integer
+     */
+    @tags.Array
+    @tags.TwoPointers
+    @tags.Source.LintCode
+    public int triangleCount(int S[]) {
+        Arrays.sort(S);
+
+        int result = 0;
+        for (int i = 2; i < S.length; i++) {
+            for (int j = 0, k = i - 1; j < k;) {
+                if (S[j] + S[k] > S[i]) {
+                    result += k - j;
+                    k--;
+                } else {
+                    j++;
+                }
+            }
+        }
+
+        return result;
     }
 
     /**
@@ -1349,6 +1692,47 @@ public class ArrayAndNumbers {
         return globalbest[(len - 1)][k];
     }
 
+    /**
+     * Best Time to Buy and Sell Stock with Cooldown.
+     *
+     * Say you have an array for which the ith element is the price of a given
+     * stock on day i. Design an algorithm to find the maximum profit. You may
+     * complete as many transactions as you like (ie, buy one and sell one share
+     * of the stock multiple times) with the following restrictions:
+     *
+     * You may not engage in multiple transactions at the same time (ie, you
+     * must sell the stock before you buy again). After you sell your stock, you
+     * cannot buy stock on next day. (ie, cooldown 1 day)
+     *
+     * Example: prices = [1, 2, 3, 0, 2] maxProfit = 3 transactions = [buy,
+     * sell, cooldown, buy, sell].
+     *
+     * @param prices:
+     *            Given an integer array
+     * @return Maximum profit
+     */
+    @tags.Array
+    @tags.DynamicProgramming
+    @tags.Source.LeetCode
+    public int maxProfitWithCooldown(int[] prices) {
+        if (prices == null || prices.length < 2) {
+            return 0;
+        }
+
+        int len = prices.length;
+        int[] local = new int[len + 1];
+        int[] global = new int[len + 1];
+        local[2] = prices[1] - prices[0];
+        global[2] = Math.max(0, local[2]);
+
+        for (int i = 3; i <= len; i++) {
+            int loseOrGain = prices[i - 1] - prices[i - 2];
+            local[i] = Math.max(global[i - 3], local[i - 1]) + loseOrGain;
+            global[i] = Math.max(local[i], global[i - 1]);
+        }
+        return global[len];
+    }
+
     // ---------------------------------- OLD ----------------------------------
 
     /**
@@ -1524,20 +1908,37 @@ public class ArrayAndNumbers {
     }
 
     // ---------------------------------------------------------------------- //
-    // ---------------------------- Tests and Main -------------------------- //
+    // ------------------------------ Unit Tests ---------------------------- //
     // ---------------------------------------------------------------------- //
 
+    @Test
     public void test() {
-        int[] A = { 2, 3, 4, 2, 5 };
-        System.out.println(findDup(A));
+        int[] findDup = { 2, 3, 4, 2, 5 };
+        System.out.println(findDup(findDup));
 
-        System.out.println(10 / 2);
-        System.out.println(10 >>> 1);
+        continuousSubarraySumTest();
+        continuousSubarraySumIITest();
     }
 
-    public static void main(String[] args) {
-        ArrayAndNumbers an = new ArrayAndNumbers();
-        an.test();
+    private void continuousSubarraySumTest() {
+        int[] nums = { 1, 1, 1, 1, 1, 1, 1, 1, 1, -19, 1, 1, 1, 1, 1, 1, 1, -2,
+                1, 1, 1, 1, 1, 1, 1, 1, -2, 1, -15, 1, 1, 1, 1, 1, 1, 1, 1, 1,
+                1, 1, 1, 1, 1, 1, 1, 1, 1 };
+        continuousSubarraySum(nums);
+    }
+
+    private void continuousSubarraySumIITest() {
+        int[] nums = { 2, -1, -2, -3, -100, 1, 2, 3, 100 };
+        ArrayList<Integer> range = continuousSubarraySumII(nums);
+        Assert.assertTrue(range.get(0) == 5 && range.get(1) == 0);
+
+        int[] nums2 = {29,84,-44,17,-22,40,-5,19,90};
+        range = continuousSubarraySumII(nums2);
+        Assert.assertTrue(range.get(0) == 5 && range.get(1) == 1);
+
+        int[] nums3 = {-5,10,5,-3,1,1,1,-2,3,-4};
+        range = continuousSubarraySumII(nums3);
+        Assert.assertTrue(range.get(0) == 1 && range.get(1) == 8);
     }
 
 }
