@@ -7,8 +7,6 @@ import java.util.List;
 import java.util.Queue;
 import java.util.Stack;
 
-import categories.BinaryTreeAndDivideConquer.TreeNode;
-
 public class BinaryTreeAndDivideConquer {
 
     // **************************** Data Structure ****************************
@@ -1123,6 +1121,52 @@ public class BinaryTreeAndDivideConquer {
         return null;
     }
 
+    /**
+     * Binary Search Tree Iterator
+     *
+     * Design an iterator over a binary search tree with the following rules: 1.
+     * Elements are visited in ascending order (i.e. an in-order traversal). 2.
+     * next() and hasNext() queries run in O(1) time in average.
+     */
+    @tags.BinaryTree
+    @tags.NonRecursion
+    @tags.BinarySearchTree
+    @tags.Company.Facebook
+    @tags.Company.Google
+    @tags.Company.LinkedIn
+    class BSTIterator {
+        TreeNode current;
+        Stack<TreeNode> stack = new Stack<TreeNode>();
+
+        // @param root: The root of binary tree.
+        public BSTIterator(TreeNode root) {
+            this.current = root;
+        }
+
+        // @return: True if there has next node, or false
+        public boolean hasNext() {
+            if (current != null || !stack.isEmpty()) {
+                return true;
+            }
+            return false;
+        }
+
+        // @return: return next node
+        public TreeNode next() {
+            while (current != null) {
+                stack.push(current);
+                current = current.left;
+            }
+
+            TreeNode min = stack.pop();
+            if (min.right != null) {
+                current = min.right;
+            }
+
+            return min;
+        }
+    }
+
     // ------------------------------ OLD ------------------------------------
 
     /**
@@ -1177,52 +1221,4 @@ public class BinaryTreeAndDivideConquer {
         btdc.test();
     }
 
-}
-
-// ---------------------------- Other ----------------------------
-
-/**
- * Binary Search Tree Iterator
- *
- * Design an iterator over a binary search tree with the following rules: 1.
- * Elements are visited in ascending order (i.e. an in-order traversal). 2.
- * next() and hasNext() queries run in O(1) time in average.
- */
-@tags.BinaryTree
-@tags.NonRecursion
-@tags.BinarySearchTree
-@tags.Company.Facebook
-@tags.Company.Google
-@tags.Company.LinkedIn
-class BSTIterator {
-    TreeNode current;
-    Stack<TreeNode> stack = new Stack<TreeNode>();
-
-    // @param root: The root of binary tree.
-    public BSTIterator(TreeNode root) {
-        this.current = root;
-    }
-
-    // @return: True if there has next node, or false
-    public boolean hasNext() {
-        if (current != null || !stack.isEmpty()) {
-            return true;
-        }
-        return false;
-    }
-
-    // @return: return next node
-    public TreeNode next() {
-        while (current != null) {
-            stack.push(current);
-            current = current.left;
-        }
-
-        TreeNode min = stack.pop();
-        if (min.right != null) {
-            current = min.right;
-        }
-
-        return min;
-    }
 }

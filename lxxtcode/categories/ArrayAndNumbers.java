@@ -2,10 +2,12 @@ package categories;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Comparator;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.PriorityQueue;
 import java.util.Set;
 import java.util.Stack;
 
@@ -341,6 +343,10 @@ public class ArrayAndNumbers {
         }
     }
 
+    // ---------------------------------------------------------------------- //
+    // -------------------------- Partition, Top K -------------------------- //
+    // ---------------------------------------------------------------------- //
+
     /**
      * Partition Array
      *
@@ -508,6 +514,166 @@ public class ArrayAndNumbers {
         } else {
             return findKth(A, aStart, B, bStart + k / 2, k - k / 2);
         }
+    }
+
+    /**
+     * Top k Largest Numbers.
+     *
+     * Given an integer array, find the top k largest numbers in it.
+     *
+     * Example: Given [3,10,1000,-99,4,100] and k = 3. Return [1000, 100, 10].
+     *
+     * @param nums
+     *            an integer array
+     * @param k
+     *            an integer
+     * @return the top k largest numbers in array
+     */
+    @tags.PriorityQueue
+    @tags.Heap
+    public int[] topk(int[] nums, int k) {
+        if (nums == null || k < 0) {
+            return new int[0];
+        }
+
+        PriorityQueue<Integer> pq = new PriorityQueue<>(k,
+                new Comparator<Integer>() {
+                    @Override
+                    public int compare(Integer i1, Integer i2) {
+                        return i1 - i2;
+                    }
+                });
+        for (int i = 0; i < nums.length; i++) {
+            pq.offer(nums[i]);
+            if (pq.size() > k) {
+                pq.poll();
+            }
+        }
+
+        int[] result = new int[k];
+        for (int i = result.length - 1; i >= 0; i--) {
+            result[i] = pq.poll();
+        }
+        return result;
+    }
+
+    /**
+     * Top k Largest Numbers II.
+     *
+     * Implement a data structure, provide two interfaces: 1.add(number). Add a
+     * new number in the data structure. 2.topk(). Return the top k largest
+     * numbers in this data structure. k is given when we create the data
+     * structure.
+     */
+    @tags.Heap
+    @tags.PriorityQueue
+    public class TopKClass {
+        private PriorityQueue<Integer> pq;
+        private int k;
+
+        public TopKClass(int k) {
+            this.k = k;
+            pq = new PriorityQueue<>(k, new Comparator<Integer>() {
+                @Override
+                public int compare(Integer i1, Integer i2) {
+                    return i2 - i1;
+                }
+            });
+        }
+
+        public void add(int num) {
+            pq.offer(num);
+        }
+
+        public List<Integer> topk() {
+            List<Integer> result = new ArrayList<>();
+            int kk = k;
+
+            while (kk-- > 0 && !pq.isEmpty()) {
+                result.add(pq.poll());
+            }
+
+            for (Integer i : result) {
+                pq.offer(i);
+            }
+
+            return result;
+        }
+    };
+
+    /**
+     * Top K Frequent Words.
+     *
+     * Given a list of words and an integer k, return the top k frequent words
+     * in the list.
+     *
+     * Notice: You should order the words by the frequency of them in the return
+     * list, the most frequent one comes first. If two words has the same
+     * frequency, the one with lower alphabetical order come first.
+     *
+     * Example: Given [ "yes", "lint", "code", "yes", "code", "baby", "you",
+     * "baby", "chrome", "safari", "lint", "code", "body", "lint", "code" ], for
+     * k = 3, return ["code", "lint", "baby"], for k = 4, return ["code",
+     * "lint", "baby", "yes"].
+     *
+     * Challenge: Do it in O(nlogk) time and O(n) extra space. Extra points if
+     * you can do it in O(n) time with O(k) extra space approximation
+     * algorithms.
+     *
+     * @param words
+     *            an array of string
+     * @param k
+     *            an integer
+     * @return an array of string
+     */
+    @tags.HashTable
+    @tags.PriorityQueue
+    @tags.Heap
+    public String[] topKFrequentWords(String[] words, int k) {
+        Map<String, Integer> wordCount = new HashMap<>();
+        for (String word : words) {
+            if (wordCount.containsKey(word)) {
+                wordCount.put(word, wordCount.get(word) + 1);
+            } else {
+                wordCount.put(word, 1);
+            }
+        }
+
+        class WordCount {
+            String word;
+            int count;
+
+            public WordCount(String word, int count) {
+                this.word = word;
+                this.count = count;
+            }
+        }
+
+        PriorityQueue<WordCount> pq = new PriorityQueue<>(k,
+                new Comparator<WordCount>() {
+                    @Override
+                    public int compare(WordCount wc1, WordCount wc2) {
+                        if (wc1.count != wc2.count) {
+                            return wc1.count - wc2.count;
+                        } else {
+                            return wc2.word.compareTo(wc1.word);
+                        }
+                    }
+                });
+
+        for (String word : wordCount.keySet()) {
+            pq.offer(new WordCount(word, wordCount.get(word)));
+            if (pq.size() > k) {
+                pq.poll();
+            }
+        }
+
+        String[] result = new String[k];
+        for (int i = k - 1; i >= 0; i--) {
+            result[i] = pq.poll().word;
+        }
+
+        return result;
     }
 
     // ---------------------------------------------------------------------- //
@@ -1913,11 +2079,26 @@ public class ArrayAndNumbers {
 
     @Test
     public void test() {
-        int[] findDup = { 2, 3, 4, 2, 5 };
-        System.out.println(findDup(findDup));
+        findDupTest();
+
+        topkTest();
 
         continuousSubarraySumTest();
         continuousSubarraySumIITest();
+    }
+
+    private void findDupTest() {
+        int[] findDup = { 2, 3, 4, 2, 5 };
+        System.out.println(findDup(findDup));
+    }
+
+    private void topkTest() {
+        int[] nums = { 3, 10, 1000, -99, 4, 100 };
+        int k = 3;
+        int[] result = topk(nums, k);
+        Assert.assertEquals(1000, result[0]);
+        Assert.assertEquals(100, result[1]);
+        Assert.assertEquals(10, result[2]);
     }
 
     private void continuousSubarraySumTest() {
@@ -1932,11 +2113,11 @@ public class ArrayAndNumbers {
         ArrayList<Integer> range = continuousSubarraySumII(nums);
         Assert.assertTrue(range.get(0) == 5 && range.get(1) == 0);
 
-        int[] nums2 = {29,84,-44,17,-22,40,-5,19,90};
+        int[] nums2 = { 29, 84, -44, 17, -22, 40, -5, 19, 90 };
         range = continuousSubarraySumII(nums2);
         Assert.assertTrue(range.get(0) == 5 && range.get(1) == 1);
 
-        int[] nums3 = {-5,10,5,-3,1,1,1,-2,3,-4};
+        int[] nums3 = { -5, 10, 5, -3, 1, 1, 1, -2, 3, -4 };
         range = continuousSubarraySumII(nums3);
         Assert.assertTrue(range.get(0) == 1 && range.get(1) == 8);
     }
