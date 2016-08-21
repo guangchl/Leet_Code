@@ -278,7 +278,58 @@ public class BinaryTreeAndDivideConquer {
         return result;
     }
 
-    // ******************************* PROBLEMS *******************************
+    // ---------------------------------------------------------------------- //
+    // ------------------------------ PROBLEMS ------------------------------ //
+    // ---------------------------------------------------------------------- //
+
+    /**
+     * Binary Tree Paths.
+     *
+     * Given a binary tree, return all root-to-leaf paths.
+     *
+     * Example: Given the following binary tree: [1, 2, 3, #, 5]. All
+     * root-to-leaf paths are: [ "1->2->5", "1->3" ]
+     *
+     * @param root
+     *            the root of the binary tree
+     * @return all root-to-leaf paths
+     */
+    @tags.BinaryTree
+    @tags.BinaryTreeTraversal
+    @tags.DFS
+    @tags.Company.Facebook
+    @tags.Company.Google
+    public List<String> binaryTreePaths(TreeNode root) {
+        if (root == null) {
+            return Collections.emptyList();
+        }
+        List<String> result = new ArrayList<>();
+        StringBuilder sb = new StringBuilder();
+        binaryTreePaths(root, result, sb);
+        return result;
+    }
+
+    private void binaryTreePaths(TreeNode node, List<String> result,
+            StringBuilder sb) {
+        int oldLen = sb.length();
+        if (sb.length() != 0) {
+            sb.append("->");
+        }
+        sb.append(node.val);
+
+        if (node.left == null && node.right == null) {
+            result.add(sb.toString());
+        } else {
+            if (node.left != null) {
+                binaryTreePaths(node.left, result, sb);
+            }
+            if (node.right != null) {
+                binaryTreePaths(node.right, result, sb);
+            }
+        }
+
+        sb.delete(oldLen, sb.length());
+    }
 
     /**
      * Maximum Depth of Binary Tree.
@@ -650,21 +701,46 @@ public class BinaryTreeAndDivideConquer {
      * trees have the same structure and every identical position has the same
      * value.
      *
-     * @param a,
-     *            b, the root of binary trees.
+     * @param a,b
+     *            the root of binary trees.
      * @return true if they are identical, or false.
      */
     @tags.BinaryTree
+    @tags.Recursion
     public boolean isIdentical(TreeNode a, TreeNode b) {
         if (a == null && b == null) {
             return true;
+        } else if (a != null && b != null && a.val == b.val) {
+            return isIdentical(a.left, b.left) && isIdentical(a.right, b.right);
         }
+        return false;
+    }
 
-        if (a == null || b == null || a.val != b.val) {
-            return false;
+    /**
+     * Subtree.
+     *
+     * You have two every large binary trees: T1, with millions of nodes, and
+     * T2, with hundreds of nodes. Create an algorithm to decide if T2 is a
+     * subtree of T1.
+     *
+     * Notice: A tree T2 is a subtree of T1 if there exists a node n in T1 such
+     * that the subtree of n is identical to T2. That is, if you cut off the
+     * tree at node n, the two trees would be identical.
+     *
+     * @param T1,
+     *            T2: The roots of binary tree.
+     * @return: True if T2 is a subtree of T1, or false.
+     */
+    @tags.BinaryTree
+    @tags.Recursion
+    public boolean isSubtree(TreeNode T1, TreeNode T2) {
+        if (isIdentical(T1, T2)) {
+            return true;
         }
-
-        return isIdentical(a.left, b.left) && isIdentical(a.right, b.right);
+        if (T1 != null) {
+            return isSubtree(T1.left, T2) || isSubtree(T1.right, T2);
+        }
+        return false;
     }
 
     /**

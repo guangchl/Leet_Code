@@ -538,7 +538,7 @@ public class BinarySearch {
     }
 
     /**
-     * Find Peek Element.
+     * Find Peak Element.
      *
      * There is an integer array which has the following features:
      *
@@ -549,6 +549,9 @@ public class BinarySearch {
      * the index of the peak.
      *
      * Notice: The array may contains multiple peeks, find any of them.
+     *
+     * @param A: An integers array.
+     * @return: return any of peek positions.
      */
     public int findPeak(int[] A) {
         int start = 0, end = A.length - 1;

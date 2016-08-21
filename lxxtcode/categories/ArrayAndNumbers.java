@@ -676,6 +676,89 @@ public class ArrayAndNumbers {
         return result;
     }
 
+    /**
+     * Wiggle Sort.
+     *
+     * Given an unsorted array nums, reorder it in-place such that nums[0] <=
+     * nums[1] >= nums[2] <= nums[3]....
+     *
+     * Notice: Please complete the problem in-place.
+     *
+     * @param nums
+     *            a list of integer
+     * @return void
+     */
+    @tags.Array
+    @tags.Sort
+    @tags.QuickSort
+    @tags.Company.Google
+    public void wiggleSort(int[] nums) {
+        if (nums != null) {
+            Arrays.sort(nums);
+            for (int i = 1; i + 1 < nums.length; i += 2) {
+                int tmp = nums[i];
+                nums[i] = nums[i + 1];
+                nums[i + 1] = tmp;
+            }
+        }
+    }
+
+    /**
+     * Wiggle Sort - better O(n) solution.
+     */
+    @tags.Array
+    @tags.Sort
+    @tags.QuickSort
+    @tags.Company.Google
+    public void wiggleSort2(int[] nums) {
+        for (int i = 1; i < nums.length; i++) {
+            if ((i % 2 == 1 && (nums[i] < nums[i - 1])
+                    || (i % 2 == 0) && (nums[i] > nums[i - 1]))) {
+                int temp = nums[i];
+                nums[i] = nums[i - 1];
+                nums[i - 1] = temp;
+            }
+        }
+    }
+
+    /**
+     * Wiggle Sort II.
+     *
+     * Given an unsorted array nums, reorder it such that nums[0] < nums[1] >
+     * nums[2] < nums[3]....
+     *
+     * Notice: You may assume all input has valid answer.
+     *
+     * Example: Given nums = [1, 5, 1, 1, 6, 4], one possible answer is [1, 4,
+     * 1, 5, 1, 6]. Given nums = [1, 3, 2, 2, 3, 1], one possible answer is [2,
+     * 3, 1, 3, 1, 2].
+     *
+     * Challenge: Can you do it in O(n) time and/or in-place with O(1) extra
+     * space?
+     *
+     * This is O(nlogn) solution. O(n) time solution use partition to find
+     * median, O(1) space requires index rewiring. Numbers in the middle are the
+     * problem. They should be separated at the beginning and end of the array.
+     *
+     * @param nums
+     *            a list of integer
+     * @return void
+     */
+    @tags.Array
+    @tags.QuickSort
+    public void wiggleSortII(int[] nums) {
+        Arrays.sort(nums);
+        int[] temp = new int[nums.length];
+        int s = (nums.length + 1) >> 1, t = nums.length;
+        for (int i = 0; i < nums.length; i++) {
+            temp[i] = (i & 1) == 0 ? nums[--s] : nums[--t];
+        }
+
+        for (int i = 0; i < nums.length; i++) {
+            nums[i] = temp[i];
+        }
+    }
+
     // ---------------------------------------------------------------------- //
     // ------------------------------ Subarray ------------------------------ //
     // ---------------------------------------------------------------------- //

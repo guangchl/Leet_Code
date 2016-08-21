@@ -1,7 +1,14 @@
 package categories;
 
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.Comparator;
+import java.util.List;
 import java.util.Set;
+
+import org.junit.Assert;
+import org.junit.Test;
 
 public class DynamicProgramming {
 
@@ -624,25 +631,111 @@ public class DynamicProgramming {
     }
 
     /**
-     * Palindrome Partitioning II
+     * Palindrome Partitioning.
      *
      * Given a string s, partition s such that every substring of the partition
-     * is a palindrome.
+     * is a palindrome. Return all possible palindrome partitioning of s.
      *
-     * Return the minimum cuts needed for a palindrome partitioning of s.
+     * Example: Given s = "aab", return: [ ["aa","b"], ["a","a","b"] ].
      *
-     * For example, given s = "aab", Return 1 since the palindrome partitioning
-     * ["aa","b"] could be produced using 1 cut.
+     * @param s:
+     *            A string
+     * @return: A list of lists of string
      */
+    @tags.Backtracking
+    @tags.DFS
+    public List<List<String>> partition(String s) {
+        int n = s.length();
+        boolean[][] isPal = new boolean[n][n];
+        for (int i = n - 1; i >= 0; i--) {
+            for (int j = i; j < n; j++) {
+                if (i == j) {
+                    isPal[i][j] = true;
+                } else if (j - i == 1) {
+                    isPal[i][j] = s.charAt(i) == s.charAt(j);
+                } else {
+                    isPal[i][j] = isPal[i + 1][j - 1]
+                            && s.charAt(i) == s.charAt(j);
+                }
+            }
+        }
+
+        List<List<String>> result = new ArrayList<>();
+        List<String> path = new ArrayList<>();
+        partition(isPal, s, path, 0, result);
+        return result;
+    }
+
+    private void partition(boolean[][] isPal, String s, List<String> path,
+            int pos, List<List<String>> result) {
+        if (pos == s.length()) {
+            result.add(new ArrayList<>(path));
+        }
+        for (int i = pos; i < s.length(); i++) {
+            if (isPal[pos][i]) {
+                path.add(s.substring(pos, i + 1));
+                partition(isPal, s, path, i + 1, result);
+                path.remove(path.size() - 1);
+            }
+        }
+    }
+
+    /**
+     * Palindrome Partitioning II.
+     *
+     * Given a string s, cut s into some substrings such that every substring is
+     * a palindrome. Return the minimum cuts needed for a palindrome
+     * partitioning of s.
+     *
+     * Example: Given s = "aab", Return 1 since the palindrome partitioning
+     * ["aa", "b"] could be produced using 1 cut.
+     *
+     * @param s
+     *            a string
+     * @return an integer
+     */
+    @tags.DynamicProgramming
     public int minCut(String s) {
-        // TODO get used to defining dp array in backward order
+        int n = s.length();
+        int[] minCut = new int[n + 1];
+        for (int i = 0; i < n; i++) {
+            minCut[i] = n;
+        }
+        boolean[][] isPal = new boolean[n][n];
+
+        for (int i = n - 1; i >= 0; i--) {
+            for (int j = n - 1; j >= i; j--) {
+                // find palindrome
+                if (i == j) {
+                    isPal[i][j] = true;
+                } else if (j - i == 1) {
+                    isPal[i][j] = s.charAt(i) == s.charAt(j);
+                } else {
+                    isPal[i][j] = isPal[i + 1][j - 1]
+                            && s.charAt(i) == s.charAt(j);
+                }
+
+                // evaluate minCut
+                if (isPal[i][j]) {
+                    minCut[i] = Math.min(minCut[i], 1 + minCut[j + 1]);
+                }
+            }
+        }
+
+        return minCut[0] - 1;
+    }
+
+    /**
+     * Palindrome Partitioning II - better solution.
+     */
+    @tags.DynamicProgramming
+    public int minCut2(String s) {
         int len = s.length();
         boolean[][] isPal = new boolean[len][len];
         int[] dp = new int[len + 1];
 
-        for (int i = 0; i <= len; i++) {
+        for (int i = 0; i <= len; i++)
             dp[i] = len - 1 - i;
-        }
 
         for (int i = len - 2; i >= 0; i--) {
             for (int j = i; j < len; j++) {
@@ -654,6 +747,62 @@ public class DynamicProgramming {
             }
         }
         return dp[0];
+    }
+
+    /**
+     * Longest Palindromic Substring.
+     *
+     * Given a string S, find the longest palindromic substring in S. You may
+     * assume that the maximum length of S is 1000, and there exists one unique
+     * longest palindromic substring.
+     *
+     * Example: Given the string = "abcdzdcab", return "cdzdc".
+     *
+     * Challenge: O(n2) time is acceptable. Can you do it in O(n) time.
+     *
+     * There is an O(n) solution with Manacher¡¯s Algorithm.
+     *
+     * @param s
+     *            input string
+     * @return the longest palindromic substring
+     */
+    @tags.String
+    public String longestPalindrome(String s) {
+        int maxLen = 0;
+        String pal = "";
+        for (int i = 0; i < s.length() - maxLen / 2; i++) {
+            // left middle of even number characters
+            int left = i, right = i + 1;
+            int len = 0;
+            while (left >= 0 && right < s.length()
+                    && s.charAt(left) == s.charAt(right)) {
+                len += 2;
+                left--;
+                right++;
+            }
+            if (len > maxLen) {
+                maxLen = len;
+                pal = s.substring(++left, right);
+            }
+
+            // middle of odd number characters
+            left = i - 1;
+            right = i + 1;
+            len = 1;
+            while (left >= 0 && right < s.length()
+                    && s.charAt(left) == s.charAt(right)) {
+                len += 2;
+                left--;
+                right++;
+            }
+
+            if (len > maxLen) {
+                maxLen = len;
+                pal = s.substring(++left, right);
+            }
+        }
+
+        return pal;
     }
 
     /**
@@ -694,13 +843,7 @@ public class DynamicProgramming {
     }
 
     /**
-     * Longest Common Substring.
-     *
-     * DP solution, O(m * n).
-     *
-     * @param A,
-     *            B: Two string.
-     * @return: the length of the longest common substring.
+     * Longest Common Substring - DP solution, O(m * n).
      */
     @tags.String
     @tags.DynamicProgramming
@@ -1437,9 +1580,57 @@ public class DynamicProgramming {
         return dp[A.length][k][target];
     }
 
-    // ------------------------ Main Function and Tests ------------------------
+    /**
+     * k Sum II.
+     *
+     * Given n unique integers, number k (1<=k<=n) and target. Find all possible
+     * k integers where their sum is target.
+     *
+     * Example: Given [1,2,3,4], k = 2, target = 5. Return: [ [1,4], [2,3] ].
+     *
+     * @param A:
+     *            an integer array.
+     * @param k:
+     *            a positive integer (k <= length(A))
+     * @param target:
+     *            a integer
+     * @return a list of lists of integer
+     */
+    @tags.DFS
+    @tags.Backtracking
+    @tags.Source.LintCode
+    public ArrayList<ArrayList<Integer>> kSumII(int[] A, int k, int target) {
+        if (A == null || A.length == 0) {
+            return new ArrayList<>();
+        }
 
-    public void test() {
+        ArrayList<ArrayList<Integer>> result = new ArrayList<>();
+        ArrayList<Integer> path = new ArrayList<>();
+        kSumII(A, 0, k, target, result, path);
+        return result;
+    }
+
+    private void kSumII(int[] A, int pos, int k, int target,
+            ArrayList<ArrayList<Integer>> result, ArrayList<Integer> path) {
+        if (target == 0 && k == 0) {
+            result.add(new ArrayList<>(path));
+            return;
+        } else if (k == 0 || pos == A.length) {
+            return;
+        }
+
+        path.add(A[pos]);
+        kSumII(A, pos + 1, k - 1, target - A[pos], result, path);
+        path.remove(path.size() - 1);
+        kSumII(A, pos + 1, k, target, result, path);
+    }
+
+    // ---------------------------------------------------------------------- //
+    // ----------------------------- UNIT TESTS ----------------------------- //
+    // ---------------------------------------------------------------------- //
+
+    @Test
+    public void tests() {
         int[] nums = { 5, 4, 1, 2, 3 };
         longestIncreasingSubsequence2(nums);
 
@@ -1455,10 +1646,26 @@ public class DynamicProgramming {
         p = "b*a";
         System.out.println("Wildcard matching: " + isMatch2(s, p));
         System.out.println("Regular expression: " + isMatchRegular2(s, p));
+
+        partitionTests();
     }
 
-    public static void main(String[] args) {
-        DynamicProgramming dp = new DynamicProgramming();
-        dp.test();
+    private void partitionTests() {
+        String s = "abbab";
+        List<List<String>> expected = new ArrayList<>();
+        expected.add(Arrays.asList("abba", "b"));
+        expected.add(Arrays.asList("a", "b", "bab"));
+        expected.add(Arrays.asList("a", "bb", "a", "b"));
+        expected.add(Arrays.asList("a", "b", "b", "a", "b"));
+
+        List<List<String>> result = partition(s);
+        Collections.sort(result, new Comparator<List<String>>() {
+            @Override
+            public int compare(List<String> o1, List<String> o2) {
+                return o1.size() - o2.size();
+            }
+        });
+
+        Assert.assertEquals(expected, result);
     }
 }

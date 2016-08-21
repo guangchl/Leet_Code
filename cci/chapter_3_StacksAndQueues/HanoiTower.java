@@ -54,7 +54,6 @@ public class HanoiTower {
 		
 		ht.printTowers();
 		System.out.println("Time cost in milliseconds: " + (endTime-startTime));
-		// TODO Auto-generated method stub
 
 	}
 

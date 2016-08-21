@@ -1,6 +1,18 @@
 package tags;
 
 public @interface Company {
+    public @interface Yelp {
+
+    }
+
+    public @interface Snapchat {
+
+    }
+
+    public @interface Amazon {
+
+    }
+
     @interface Airbnb {
     }
 
