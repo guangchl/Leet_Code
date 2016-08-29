@@ -202,6 +202,237 @@ public class ArrayAndNumbers {
     }
 
     /**
+     * Product of Array Exclude Itself.
+     *
+     * Given an integers array A. Define B[i] = A[0] * ... * A[i-1] * A[i+1] *
+     * ... * A[n-1], calculate B WITHOUT divide operation.
+     *
+     * Example: For A = [1, 2, 3], return [6, 3, 2].
+     *
+     * @param A:
+     *            Given an integers array A
+     * @return: A Long array B and B[i]= A[0] * ... * A[i-1] * A[i+1] * ... *
+     *          A[n-1]
+     */
+    @tags.Array
+    @tags.ForwardBackwardTraversal
+    @tags.Source.LintCode
+    @tags.Company.Amazon
+    @tags.Company.Apple
+    @tags.Company.Facebook
+    @tags.Company.LinkedIn
+    @tags.Company.Microsoft
+    public ArrayList<Long> productExcludeItself(ArrayList<Integer> A) {
+        if (A == null || A.size() == 0) {
+            return new ArrayList<>();
+        }
+
+        int n = A.size();
+
+        long[] forward = new long[n];
+        forward[0] = A.get(0);
+        for (int i = 1; i < n; i++) {
+            forward[i] = forward[i - 1] * A.get(i);
+        }
+
+        long[] backward = new long[n];
+        backward[n - 1] = A.get(n - 1);
+        for (int i = n - 2; i >= 0; i--) {
+            backward[i] = backward[i + 1] * A.get(i);
+        }
+        
+        ArrayList<Long> result = new ArrayList<>();
+        for (int i = 0; i < n; i++) {
+            long left = 1, right = 1;
+            if (i != 0) {
+                left = forward[i - 1];
+            }
+            if (i != n - 1) {
+                right = backward[i + 1];
+            }
+            result.add(left * right);
+        }
+        return result;
+    }
+
+    /**
+     * First Missing Positive.
+     *
+     * Given an unsorted integer array, find the first missing positive integer.
+     *
+     * Example: Given [1,2,0] return 3, and [3,4,-1,1] return 2.
+     *
+     * Challenge: Your algorithm should run in O(n) time and uses constant
+     * space.
+     *
+     * @param A:
+     *            an array of integers
+     * @return: an integer
+     */
+    @tags.Array
+    public int firstMissingPositive(int[] A) {
+        int n = A.length;
+        for (int i = 0; i < n;) {
+            int num = A[i];
+            if (num > 0 && num <= n && num != i + 1 && num != A[num - 1]) {
+                A[i] = A[num - 1];
+                A[num - 1] = num;
+            } else {
+                i++;
+            }
+        }
+        for (int i = 0; i < n; i++) {
+            if (A[i] != i + 1) {
+                return i + 1;
+            }
+        }
+        return n + 1;
+    }
+
+    /**
+     * Find the Missing Number (Missing Number).
+     *
+     * Given an array contains N numbers of 0 .. N, find which number doesn't
+     * exist in the array.
+     *
+     * Example: Given N = 3 and the array [0, 1, 3], return 2.
+     *
+     * Challenge: Do it in-place with O(1) extra memory and O(n) time.
+     *
+     * @param nums:
+     *            an array of integers
+     * @return: an integer
+     */
+    @tags.Array
+    @tags.Math
+    @tags.BitManipulation
+    @tags.Greedy
+    @tags.Company.Bloomberg
+    @tags.Company.Microsoft
+    public int findMissing(int[] nums) {
+        int sum = 0, len = nums.length;
+        for (int i = 0; i < len; i++) {
+            sum += nums[i];
+        }
+        return len * (len + 1) / 2 - sum;
+    }
+
+    // ---------------------------------------------------------------------- //
+    // ----------------------------- TWO POINTERS --------------------------- //
+    // ---------------------------------------------------------------------- //
+
+    /**
+     * Remove Element.
+     *
+     * Given an array and a value, remove all occurrences of that value in place
+     * and return the new length. The order of elements can be changed, and the
+     * elements after the new length don't matter.
+     *
+     * Example: Given an array [0,4,4,0,0,2,4,4], value=4. return 4 and front
+     * four elements of the array is [0,0,0,2].
+     *
+     * @param A:
+     *            A list of integers
+     * @param elem:
+     *            An integer
+     * @return: The new length after remove
+     */
+    @tags.Array
+    @tags.TwoPointers
+    public int removeElement(int[] A, int elem) {
+        int i = 0, j = A.length - 1;
+        while (i <= j) {
+            if (A[i] == elem) {
+                A[i] = A[j];
+                j--;
+            } else {
+                i++;
+            }
+        }
+        return j + 1;
+    }
+
+    /**
+     * Remove Duplicates from Sorted Array.
+     *
+     * Given a sorted array, remove the duplicates in place such that each
+     * element appear only once and return the new length.
+     *
+     * Do not allocate extra space for another array, you must do this in place
+     * with constant memory.
+     *
+     * Example: Given input array A = [1,1,2], Your function should return
+     * length = 2, and A is now [1,2].
+     *
+     * @param A
+     * @return new length
+     */
+    @tags.Array
+    @tags.TwoPointers
+    @tags.Company.Bloomberg
+    @tags.Company.Facebook
+    @tags.Company.Microsoft
+    public int removeDuplicates(int[] A) {
+        if (A == null || A.length == 0) {
+            return 0;
+        }
+
+        int last = 0;
+
+        for (int i = 1; i < A.length; i++) {
+            if (A[i] != A[last]) {
+                A[++last] = A[i];
+            }
+        }
+
+        return last + 1;
+    }
+
+    /**
+     * Remove Duplicates from Sorted Array II
+     *
+     * Follow up for "Remove Duplicates": What if duplicates are allowed at most
+     * twice?
+     *
+     * For example, Given sorted array A = [1,1,1,2,2,3], your function should
+     * return length = 5, and A is now [1,1,2,2,3].
+     *
+     * @param A: a array of integers
+     * @return : return an integer
+     */
+    @tags.Array
+    @tags.TwoPointers
+    @tags.Company.Facebook
+    public int removeDuplicatesII(int[] nums) {
+        if (nums == null || nums.length == 0) {
+            return 0;
+        }
+
+        int n = nums.length, count = 1, last = -1;
+        for (int i = 1; i < n; i++) {
+            if (nums[i] == nums[i - 1]) {
+                count++;
+            } else {
+                // deal with previous batch
+                nums[++last] = nums[i - 1];
+                if (count != 1) {
+                    nums[++last] = nums[i - 1];
+                }
+
+                // start new count
+                count = 1;
+            }
+        }
+
+        // last batch
+        nums[++last] = nums[n - 1];
+        if (count != 1) {
+            nums[++last] = nums[n - 1];
+        }
+        return last + 1;
+    }
+
+    /**
      * Sort Colors
      *
      * Given an array with n objects colored red, white or blue, sort them so
@@ -356,11 +587,12 @@ public class ArrayAndNumbers {
      * index, i.e the first index i nums[i] >= k.
      *
      * You should do really partition in array nums instead of just counting the
-     * numbers of integers smaller than k.
-     *
-     * If all elements in nums are smaller than k, then return nums.length
+     * numbers of integers smaller than k. If all elements in nums are smaller
+     * than k, then return nums.length.
      *
      * Example: If nums = [3,2,2,1] and k=2, a valid answer is 1.
+     *
+     * Challenge: Can you partition the array in-place and in O(n)?
      *
      * @param nums:
      *            The integer array you should partition
@@ -375,23 +607,18 @@ public class ArrayAndNumbers {
             return 0;
         }
 
-        int left = 0, right = nums.length - 1;
-        while (left < right) {
-            if (nums[left] < k) {
-                left++;
+        int start = 0, end = nums.length - 1;
+        while (start <= end) {
+            if (nums[start] >= k) {
+                int tmp = nums[start];
+                nums[start] = nums[end];
+                nums[end] = tmp;
+                end--;
             } else {
-                int temp = nums[right];
-                nums[right] = nums[left];
-                nums[left] = temp;
-                right--;
+                start++;
             }
         }
-
-        if (nums[left] < k) {
-            return left + 1;
-        } else {
-            return left;
-        }
+        return start;
     }
 
     /**
@@ -853,7 +1080,7 @@ public class ArrayAndNumbers {
     }
 
     /**
-     * Subarray Sum Closest
+     * Subarray Sum Closest - O(nlogn) time.
      *
      * Given an integer array, find a subarray with sum closest to zero. Return
      * the indexes of the first number and last number.
@@ -861,7 +1088,7 @@ public class ArrayAndNumbers {
      * Example: Given [-3, 1, 1, -3, 5], return [0, 2], [1, 3], [1, 1], [2, 2]
      * or [0, 4].
      *
-     * Time complexity: O(nlogn).
+     * Challenge: O(nlogn) time.
      *
      * @param nums:
      *            A list of integers
@@ -877,42 +1104,42 @@ public class ArrayAndNumbers {
             return range;
         }
 
-        int sum = 0, index = -1;
-        int[] sums = new int[nums.length + 1]; // sums[i] = prefix sum at i
-        sums[nums.length] = sum;
+        int[] sums = new int[nums.length + 1]; // prefix sum
+        sums[0] = nums[0];
         Map<Integer, Integer> map = new HashMap<>(); // prefix sum to index map
-        map.put(sum, index);
+        map.put(sums[0], 0);
+        map.put(0, -1);
 
-        // find prefix sum for each index
-        for (int i = 0; i < nums.length; i++) {
-            sum += nums[i];
-            sums[i] = sum;
+        // find the prefix sums for each index
+        for (int i = 1; i < nums.length; i++) {
+            sums[i] = sums[i - 1] + nums[i];
 
-            if (map.containsKey(sum)) {
-                range[0] = map.get(sum) + 1;
+            // find the 0 sum
+            if (map.containsKey(sums[i])) {
+                range[0] = map.get(sums[i]) + 1;
                 range[1] = i;
                 return range;
             }
-            map.put(sum, i);
+
+            map.put(sums[i], i);
         }
 
         Arrays.sort(sums);
 
-        // find the 2 closest prefix sum, put the 2 index in result
-        int diff = Math.abs(sums[0] - sums[1]);
-        range[0] = map.get(sums[0]);
-        range[1] = map.get(sums[1]);
-        for (int i = 1; i < sums.length; i++) {
-            int newDiff = sums[i] - sums[i - 1];
-            if (newDiff < diff) {
-                diff = newDiff;
+        // compare each prefix sum and get the closest
+        int minDiff = sums[1] - sums[0];
+        range[0] = map.get(sums[1]);
+        range[1] = map.get(sums[0]);
+        for (int i = 2; i < sums.length; i++) {
+            if (sums[i] - sums[i - 1] < minDiff) {
+                minDiff = sums[i] - sums[i - 1];
                 range[0] = map.get(sums[i]);
                 range[1] = map.get(sums[i - 1]);
             }
         }
 
         Arrays.sort(range);
-        range[0] += 1;
+        range[0]++;
         return range;
     }
 
@@ -1351,7 +1578,7 @@ public class ArrayAndNumbers {
     // ---------------------------------------------------------------------- //
 
     /**
-     * Two Sum
+     * Two Sum - O(n).
      *
      * Given an array of integers, find two numbers such that they add up to a
      * specific target number.
@@ -1375,8 +1602,18 @@ public class ArrayAndNumbers {
     @tags.TwoPointers
     @tags.Sort
     @tags.HashTable
+    @tags.Company.Adobe
     @tags.Company.Airbnb
+    @tags.Company.Amazon
+    @tags.Company.Apple
+    @tags.Company.Bloomberg
+    @tags.Company.Dropbox
     @tags.Company.Facebook
+    @tags.Company.LinkedIn
+    @tags.Company.Microsoft
+    @tags.Company.Uber
+    @tags.Company.Yahoo
+    @tags.Company.Yelp
     public int[] twoSum(int[] numbers, int target) {
         int[] result = new int[2];
         if (numbers == null || numbers.length < 2) {
@@ -1481,7 +1718,7 @@ public class ArrayAndNumbers {
     }
 
     /**
-     * 3Sum
+     * 3Sum.
      *
      * Given an array S of n integers, are there elements a, b, c in S such that
      * a + b + c = 0? Find all unique triplets in the array which gives the sum
@@ -1501,44 +1738,89 @@ public class ArrayAndNumbers {
     @tags.Array
     @tags.Sort
     @tags.TwoPointers
+    @tags.Company.Adobe
+    @tags.Company.Amazon
+    @tags.Company.Bloomberg
     @tags.Company.Facebook
+    @tags.Company.Microsoft
     public ArrayList<ArrayList<Integer>> threeSum(int[] numbers) {
-        ArrayList<ArrayList<Integer>> result = new ArrayList<>();
-
         Arrays.sort(numbers);
-
-        for (int i = 0; i < numbers.length - 2; i++) {
+        int n = numbers.length;
+        ArrayList<ArrayList<Integer>> result = new ArrayList<>();
+        
+        for (int i = 0; i < n - 2; i++) {
             if (i != 0 && numbers[i] == numbers[i - 1]) {
                 continue;
             }
 
-            int j = i + 1, k = numbers.length - 1;
             int target = -numbers[i];
-            while (j < k) {
-                int twoSum = numbers[j] + numbers[k];
-                if (twoSum == target) {
-                    ArrayList<Integer> list = new ArrayList<>();
-                    list.add(numbers[i]);
-                    list.add(numbers[j]);
-                    list.add(numbers[k]);
-                    result.add(list);
-                    j++;
-                    k--;
-                    while (j < k && numbers[j] == numbers[j - 1]) {
-                        j++;
-                    }
-                    while (numbers[k] == numbers[k + 1]) {
-                        k--;
-                    }
+            int start = i + 1, end = n - 1;
+
+            while (start < end) {
+                int twoSum = numbers[start] + numbers[end];
+                if (twoSum > target) {
+                    end--;
                 } else if (twoSum < target) {
-                    j++;
+                    start++;
                 } else {
-                    k--;
+                    ArrayList<Integer> three = new ArrayList<>();
+                    three.add(numbers[i]);
+                    three.add(numbers[start++]);
+                    three.add(numbers[end--]);
+                    result.add(three);
+                    
+                    while (start < end && numbers[start] == numbers[start - 1]) {
+                        start++;
+                    }
+                    while (start < end && numbers[end] == numbers[end + 1]) {
+                        end--;
+                    }
+                }
+            }
+        }
+        
+        return result;
+    }
+
+    /**
+     * 3Sum Smaller.
+     *
+     * Given an array of n integers nums and a target, find the number of index
+     * triplets i, j, k with 0 <= i < j < k < n that satisfy the condition
+     * nums[i] + nums[j] + nums[k] < target.
+     *
+     * For example, given nums = [-2, 0, 1, 3], and target = 2. Return 2.
+     * Because there are two triplets which sums are less than 2: [-2, 0, 1]
+     * [-2, 0, 3].
+     *
+     * Follow up: Could you solve it in O(n<sup>2</sup>) runtime?
+     *
+     * @param nums
+     * @param target
+     * @return
+     */
+    @tags.Array
+    @tags.TwoPointers
+    @tags.Company.Google
+    public int threeSumSmaller(int[] nums, int target) {
+        Arrays.sort(nums);
+        int count = 0;
+
+        for (int i = 0; i < nums.length; i++) {
+            int newTarget = target - nums[i];
+            int start = i + 1, end = nums.length - 1;
+            while (start < end) {
+                int twoSum = nums[start] + nums[end];
+                if (twoSum < newTarget) {
+                    count += end - start;
+                    start++;
+                } else {
+                    end--;
                 }
             }
         }
 
-        return result;
+        return count;
     }
 
     /**
@@ -1560,9 +1842,9 @@ public class ArrayAndNumbers {
     @tags.Array
     @tags.Sort
     @tags.TwoPointers
+    @tags.Company.Bloomberg
     public int threeSumClosest(int[] num, int target) {
         Arrays.sort(num);
-
         int sum = num[0] + num[1] + num[2];
 
         // traverse the array for every possible position of first number
@@ -1657,40 +1939,43 @@ public class ArrayAndNumbers {
     @tags.HashTable
     public ArrayList<ArrayList<Integer>> fourSum(int[] numbers, int target) {
         Arrays.sort(numbers);
-
         ArrayList<ArrayList<Integer>> result = new ArrayList<>();
-        for (int i = 0; i < numbers.length - 3; i++) {
+        int n = numbers.length;
+
+        for (int i = 0; i < n - 3; i++) {
             if (i != 0 && numbers[i] == numbers[i - 1]) {
                 continue;
             }
 
-            for (int j = i + 1; j < numbers.length - 2; j++) {
+            for (int j = i + 1; j < n - 2; j++) {
                 if (j != i + 1 && numbers[j] == numbers[j - 1]) {
                     continue;
                 }
 
-                int twoSum = numbers[i] + numbers[j];
-                for (int k = j + 1, l = numbers.length - 1; k < l;) {
-                    int fourSum = twoSum + numbers[k] + numbers[l];
-                    if (fourSum == target) {
-                        ArrayList<Integer> list = new ArrayList<>();
-                        list.add(numbers[i]);
-                        list.add(numbers[j]);
-                        list.add(numbers[k]);
-                        list.add(numbers[l]);
-                        result.add(list);
-                        k++;
-                        l--;
-                        while (k < l && numbers[k] == numbers[k - 1]) {
-                            k++;
-                        }
-                        while (numbers[l] == numbers[l + 1]) {
-                            l--;
-                        }
-                    } else if (fourSum > target) {
-                        l--;
+                int start = j + 1, end = n - 1;
+                while (start < end) {
+                    int sum = numbers[i] + numbers[j] + numbers[start]
+                            + numbers[end];
+                    if (sum < target) {
+                        start++;
+                    } else if (sum > target) {
+                        end--;
                     } else {
-                        k++;
+                        ArrayList<Integer> group = new ArrayList<>();
+                        group.add(numbers[i]);
+                        group.add(numbers[j]);
+                        group.add(numbers[start++]);
+                        group.add(numbers[end--]);
+                        result.add(group);
+
+                        while (start < end
+                                && numbers[start] == numbers[start - 1]) {
+                            start++;
+                        }
+                        while (start < end
+                                && numbers[end] == numbers[end + 1]) {
+                            end--;
+                        }
                     }
                 }
             }
@@ -1699,7 +1984,12 @@ public class ArrayAndNumbers {
         return result;
     }
 
-    /** 4Sum - O(n<sup>2</sup>logn<sup>2</sup>) = O(n<sup>2</sup>logn) time. */
+    /**
+     * 4Sum.
+     *
+     * O(n<sup>3</sup>) or O(n<sup>2</sup>logn<sup>2</sup>) =
+     * O(n<sup>2</sup>logn) time.
+     */
     @tags.Array
     @tags.Sort
     @tags.TwoPointers
@@ -1758,6 +2048,95 @@ public class ArrayAndNumbers {
         ArrayList<ArrayList<Integer>> result = new ArrayList<ArrayList<Integer>>(
                 set);
         return result;
+    }
+
+    /**
+     * k Sum
+     *
+     * Given n distinct positive integers, integer k (k <= n) and a number
+     * target. Find k numbers where sum is target. Calculate how many solutions
+     * there are?
+     *
+     * Example Given [1,2,3,4], k = 2, target = 5. There are 2 solutions: [1,4]
+     * and [2,3]. Return 2.
+     *
+     * @param A:
+     *            an integer array.
+     * @param k:
+     *            a positive integer (k <= length(A))
+     * @param target:
+     *            a integer
+     * @return an integer
+     */
+    @tags.DynamicProgramming
+    @tags.Source.LintCode
+    public int kSum(int A[], int k, int target) {
+        if (A == null || A.length == 0 || k == 0 || target == 0) {
+            return 0;
+        }
+
+        int[][][] dp = new int[A.length + 1][k + 1][target + 1];
+        for (int i = 0; i <= A.length; i++) {
+            dp[i][0][0] = 1;
+        }
+
+        for (int i = 1; i <= A.length; i++) {
+            for (int j = 1; j <= k; j++) {
+                for (int t = 1; t <= target; t++) {
+                    dp[i][j][t] = dp[i - 1][j][t];
+                    if (A[i - 1] <= t) {
+                        dp[i][j][t] += dp[i - 1][j - 1][t - A[i - 1]];
+                    }
+                }
+            }
+        }
+
+        return dp[A.length][k][target];
+    }
+
+    /**
+     * k Sum II.
+     *
+     * Given n unique integers, number k (1<=k<=n) and target. Find all possible
+     * k integers where their sum is target.
+     *
+     * Example: Given [1,2,3,4], k = 2, target = 5. Return: [ [1,4], [2,3] ].
+     *
+     * @param A:
+     *            an integer array.
+     * @param k:
+     *            a positive integer (k <= length(A))
+     * @param target:
+     *            a integer
+     * @return a list of lists of integer
+     */
+    @tags.DFS
+    @tags.Backtracking
+    @tags.Source.LintCode
+    public ArrayList<ArrayList<Integer>> kSumII(int[] A, int k, int target) {
+        if (A == null || A.length == 0) {
+            return new ArrayList<>();
+        }
+
+        ArrayList<ArrayList<Integer>> result = new ArrayList<>();
+        ArrayList<Integer> path = new ArrayList<>();
+        kSumII(A, 0, k, target, result, path);
+        return result;
+    }
+
+    private void kSumII(int[] A, int pos, int k, int target,
+            ArrayList<ArrayList<Integer>> result, ArrayList<Integer> path) {
+        if (target == 0 && k == 0) {
+            result.add(new ArrayList<>(path));
+            return;
+        } else if (k == 0 || pos == A.length) {
+            return;
+        }
+
+        path.add(A[pos]);
+        kSumII(A, pos + 1, k - 1, target - A[pos], result, path);
+        path.remove(path.size() - 1);
+        kSumII(A, pos + 1, k, target, result, path);
     }
 
     // ---------------------------------------------------------------------- //
@@ -1985,28 +2364,6 @@ public class ArrayAndNumbers {
     // ---------------------------------- OLD ----------------------------------
 
     /**
-     * Remove Duplicates from Sorted Array
-     * 
-     * @param A
-     * @return new length
-     */
-    public int removeDuplicates(int[] A) {
-        if (A == null || A.length == 0) {
-            return 0;
-        }
-
-        int last = 0;
-
-        for (int i = 1; i < A.length; i++) {
-            if (A[i] != A[last]) {
-                A[++last] = A[i];
-            }
-        }
-
-        return last + 1;
-    }
-
-    /**
      * Find Duplicate from Unsorted Array
      * 
      * A = [2, 3, 4, 2, 5], length = n, containing one missing, one duplicate
@@ -2163,9 +2520,8 @@ public class ArrayAndNumbers {
     @Test
     public void test() {
         findDupTest();
-
         topkTest();
-
+        subarraySumClosestTest();
         continuousSubarraySumTest();
         continuousSubarraySumIITest();
     }
@@ -2182,6 +2538,13 @@ public class ArrayAndNumbers {
         Assert.assertEquals(1000, result[0]);
         Assert.assertEquals(100, result[1]);
         Assert.assertEquals(10, result[2]);
+    }
+
+    private void subarraySumClosestTest() {
+        int[] nums = {-3,1,1,-3,5};
+        int[] result = subarraySumClosest(nums);
+        Assert.assertEquals(1, result[0]);
+        Assert.assertEquals(3, result[1]);
     }
 
     private void continuousSubarraySumTest() {

@@ -853,9 +853,7 @@ public class DynamicProgramming {
             return 0;
         }
 
-        int m = A.length();
-        int n = B.length();
-
+        int m = A.length(), n = B.length();
         int max = 0;
         int[][] dp = new int[m][n];
 
@@ -1534,95 +1532,6 @@ public class DynamicProgramming {
                 return false;
             }
         }
-    }
-
-    /**
-     * k Sum
-     *
-     * Given n distinct positive integers, integer k (k <= n) and a number
-     * target. Find k numbers where sum is target. Calculate how many solutions
-     * there are?
-     *
-     * Example Given [1,2,3,4], k = 2, target = 5. There are 2 solutions: [1,4]
-     * and [2,3]. Return 2.
-     *
-     * @param A:
-     *            an integer array.
-     * @param k:
-     *            a positive integer (k <= length(A))
-     * @param target:
-     *            a integer
-     * @return an integer
-     */
-    @tags.DynamicProgramming
-    @tags.Source.LintCode
-    public int kSum(int A[], int k, int target) {
-        if (A == null || A.length == 0 || k == 0 || target == 0) {
-            return 0;
-        }
-
-        int[][][] dp = new int[A.length + 1][k + 1][target + 1];
-        for (int i = 0; i <= A.length; i++) {
-            dp[i][0][0] = 1;
-        }
-
-        for (int i = 1; i <= A.length; i++) {
-            for (int j = 1; j <= k; j++) {
-                for (int t = 1; t <= target; t++) {
-                    dp[i][j][t] = dp[i - 1][j][t];
-                    if (A[i - 1] <= t) {
-                        dp[i][j][t] += dp[i - 1][j - 1][t - A[i - 1]];
-                    }
-                }
-            }
-        }
-
-        return dp[A.length][k][target];
-    }
-
-    /**
-     * k Sum II.
-     *
-     * Given n unique integers, number k (1<=k<=n) and target. Find all possible
-     * k integers where their sum is target.
-     *
-     * Example: Given [1,2,3,4], k = 2, target = 5. Return: [ [1,4], [2,3] ].
-     *
-     * @param A:
-     *            an integer array.
-     * @param k:
-     *            a positive integer (k <= length(A))
-     * @param target:
-     *            a integer
-     * @return a list of lists of integer
-     */
-    @tags.DFS
-    @tags.Backtracking
-    @tags.Source.LintCode
-    public ArrayList<ArrayList<Integer>> kSumII(int[] A, int k, int target) {
-        if (A == null || A.length == 0) {
-            return new ArrayList<>();
-        }
-
-        ArrayList<ArrayList<Integer>> result = new ArrayList<>();
-        ArrayList<Integer> path = new ArrayList<>();
-        kSumII(A, 0, k, target, result, path);
-        return result;
-    }
-
-    private void kSumII(int[] A, int pos, int k, int target,
-            ArrayList<ArrayList<Integer>> result, ArrayList<Integer> path) {
-        if (target == 0 && k == 0) {
-            result.add(new ArrayList<>(path));
-            return;
-        } else if (k == 0 || pos == A.length) {
-            return;
-        }
-
-        path.add(A[pos]);
-        kSumII(A, pos + 1, k - 1, target - A[pos], result, path);
-        path.remove(path.size() - 1);
-        kSumII(A, pos + 1, k, target, result, path);
     }
 
     // ---------------------------------------------------------------------- //

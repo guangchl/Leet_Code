@@ -1,19 +1,23 @@
 package tags;
 
 public @interface Company {
-    public @interface Yelp {
 
+    @interface Adobe {
     }
 
-    public @interface Snapchat {
-
-    }
-
-    public @interface Amazon {
-
+    @interface Amazon {
     }
 
     @interface Airbnb {
+    }
+
+    @interface Apple {
+    }
+
+    @interface Bloomberg {
+    }
+
+    @interface Dropbox {
     }
 
     @interface Facebook {
@@ -28,6 +32,9 @@ public @interface Company {
     @interface Microsoft {
     }
 
+    @interface Snapchat {
+    }
+
     @interface Twitter {
     }
 
@@ -35,6 +42,9 @@ public @interface Company {
     }
 
     @interface Yahoo {
+    }
+
+    @interface Yelp {
     }
 
     @interface Zenefits {

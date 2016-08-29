@@ -392,100 +392,6 @@ public class Problems {
 	}
 
 	/**
-	 * Remove Duplicates from Sorted Array
-	 * 
-	 * Given a sorted array, remove the duplicates in place such that each
-	 * element appear only once and return the new length.
-	 * 
-	 * Do not allocate extra space for another array, you must do this in place
-	 * with constant memory.
-	 * 
-	 * For example, Given input array A = [1,1,2],
-	 * 
-	 * Your function should return length = 2, and A is now [1,2].
-	 * 
-	 * Simple optimization: instead of left shift one step every time, find all
-	 * the duplicates then shift. This will be efficient if a lot same
-	 * duplicates appear
-	 */
-	public int removeDuplicates(int[] A) {
-		int size = A.length;
-		
-		// case with no duplicates
-		if (size < 2) {
-			return size;
-		}
-		
-		// once a duplicate is found, shift all following numbers left
-		int dup = A[0];
-		for (int i = 1; i < size; i++) {
-			if (A[i] == dup) {
-				int end; // end index of the same duplicate
-				for (end = i; end + 1 < size && A[end + 1] == dup;) {
-					end++;
-				}
-				int len = end - i + 1; // length of this set of duplicates
-				
-				// left shift the part at the right of the set of duplicates
-				for (int j = i; j + len < size; j++) {
-					A[j] = A[j + len]; 
-				}
-				size -= len;
-			}
-			
-			dup = A[i];
-		}
-		
-		return size;
-	}
-
-	/**
-	 * Remove Duplicates from Sorted Array II
-	 * 
-	 * Follow up for "Remove Duplicates": What if duplicates are allowed at most
-	 * twice?
-	 * 
-	 * For example, Given sorted array A = [1,1,1,2,2,3], your function should
-	 * return length = 5, and A is now [1,1,2,2,3].
-	 */
-	public int removeDuplicates2(int[] A) {
-        int size = A.length;
-		
-		// case with no duplicates
-		if (size < 3) {
-			return size;
-		}
-		
-		// once a duplicate is found, shift all following numbers left
-		int dup = A[0];
-		for (int i = 1; i < size; i++) {
-			if (A[i] == dup) {
-				int end; // end index of the same duplicate
-				for (end = i; end + 1 < size && A[end + 1] == dup;) {
-					end++;
-				}
-				int len = end - i + 1; // length of this set of duplicates
-				
-				// the only additional code for this follow up problem
-				if (len > 1) {
-				    len--;
-				    i++;
-    				// left shift the part at the right of the set of duplicates
-    				for (int j = i; j + len < size; j++) {
-    					A[j] = A[j + len]; 
-    				}
-    				size -= len;
-				}
-			}
-			
-			// update the duplicate value
-			dup = A[i];
-		}
-		
-		return size;
-    }
-
-	/**
 	 * Convert Sorted Array to Binary Search Tree
 	 * 
 	 * Given an array where elements are sorted in ascending order, convert it
@@ -1376,47 +1282,7 @@ public class Problems {
         
         return length;
     }
-    
-	/**
-	 * Longest Common Prefix
-	 * 
-	 * Write a function to find the longest common prefix string amongst an
-	 * array of strings.
-	 */
-    public String longestCommonPrefix(String[] strs) {
-        if (strs.length == 0) {
-            return "";
-        }
-        
-        // use StringBuffer to store every temporary prefix
-        StringBuffer prefix = new StringBuffer();
-        prefix.append(strs[0]);
-        
-        for (int i = 1; i < strs.length; i++) {
-            String s = strs[i];
-            
-            // trim the size of the prefix
-            if (s.length() < prefix.length()) {
-                prefix.delete(s.length(), prefix.length());
-            }
-            
-            // compare the old prefix and new string
-            for (int j = 0; j < prefix.length(); j++) {
-                if (prefix.charAt(j) != s.charAt(j)) {
-                    prefix.delete(j, prefix.length());
-                    break;
-                }
-            }
-            
-            // prefix become empty string means no new prefix any more
-            if (prefix.length() == 0) {
-                break;
-            }
-        }
-        
-        return prefix.toString();
-    }
- 
+
     /**
 	 * Valid Sudoku
 	 * 
@@ -2321,35 +2187,7 @@ public class Problems {
         
         return quotient;
     }
-    
-    /**
-     * First Missing Positive
-     */
-    public int firstMissingPositive(int[] A) {
-        int len = A.length;
-        if (len == 0) {
-            return 1;
-        }
-        
-        for (int i = 0; i < A.length;) {
-            int num = A[i];
-            if (num > 0 && num <= len && num != i + 1 && num != A[num - 1]) {
-                A[i] = A[num - 1];
-                A[num - 1] = num;
-            } else {
-                i++;
-            }
-        }
 
-        for (int i = 0; i < len; i++) {
-            if (A[i] != i + 1) {
-                return i + 1;
-            }
-        }
-        
-        return len + 1;
-    }
-    
     /**
 	 * Two Sum
 	 * 
@@ -2689,102 +2527,7 @@ public class Problems {
         
         return false;
     }
-    
-    /**
-	 * String to Integer (atoi)
-	 * 
-	 * Implement atoi to convert a string to an integer.
-	 * 
-	 * Hint: Carefully consider all possible input cases. If you want a
-	 * challenge, please do not see below and ask yourself what are the possible
-	 * input cases.
-	 * 
-	 * Notes: It is intended for this problem to be specified vaguely (ie, no
-	 * given input specs). You are responsible to gather all the input
-	 * requirements up front.
-	 */
-    public int atoi(String str) {
-        int len = str.length();
-        int iter = 0;
-        boolean negative = false;
-        int result = 0;
-        
-        // delete white space
-        while (iter < len && str.charAt(iter) == ' ') {
-            iter++;
-        }
-        if (iter == len) return 0;
-        
-        // check sign
-        if (str.charAt(iter) == '-') {
-            negative = true;
-            iter++;
-        } else if (str.charAt(iter) == '+') {
-            iter++;
-        }
-        
-        // find integer
-        while (iter < len) {
-            int digit = str.charAt(iter) - '0';
-            if (digit < 0 || digit > 9) {
-                break;
-            } else {
-                if (negative) {
-                    int bound = (Integer.MIN_VALUE + digit) / 10;
-                    if (result < bound) {
-                        return Integer.MIN_VALUE;
-                    } else {
-                        result = result * 10 - digit;
-                    }
-                } else {
-                    int bound = (Integer.MAX_VALUE - digit) / 10;
-                    if (result > bound) {
-                        return Integer.MAX_VALUE;
-                    } else {
-                        result = result * 10 + digit;
-                    }
-                }
-            }
-            iter++;
-        }
-        
-        return result;
-    }
-    
-    /**
-	 * Anagrams
-	 * 
-	 * Given an array of strings, return all groups of strings that are
-	 * anagrams.
-	 * 
-	 * Note: All inputs will be in lower-case.
-	 */
-    public ArrayList<String> anagrams(String[] strs) {
-        ArrayList<String> strings = new ArrayList<String>();
-        Map<String, ArrayList<String>> map = new HashMap<String, ArrayList<String>>();
-        
-        for (String s : strs) {
-            char[] cs = s.toCharArray();
-            Arrays.sort(cs);
-            String ss = new String(cs);
-            if (map.containsKey(ss)) {
-                map.get(ss).add(s);
-            } else {
-                ArrayList<String> list = new ArrayList<String>();
-                list.add(s);
-                map.put(ss, list);
-            }
-        }
-        
-        for (ArrayList<String> value : map.values()) {
-            if (value.size() > 1) {
-                strings.addAll(value);
-            }
-        }
-        
-        return strings;
-    }
-    
+
     /**
 	 * Valid Number
 	 * 
@@ -2838,63 +2581,6 @@ public class Problems {
 		}
 		return true;
 	}
-
-	/**
-	 * Longest Palindromic Substring
-	 *
-	 * Given a string S, find the longest palindromic substring in S. You may
-	 * assume that the maximum length of S is 1000, and there exists one unique
-	 * longest palindromic substring.
-	 */
-	public String longestPalindrome(String s) {
-		int len = s.length();
-        if (len < 2) {
-            return s;
-        }
-        
-        int left = 0;
-        int right = 0;
-        int maxLen = 1;
-        for (int i = 1; i < len - 1; i++) {
-        	// no longer substring can be found
-        	if (2 * i + 1 <= maxLen || (len - i) * 2 <= maxLen) break;
-        	
-            int l, r;
-            // even number of characters
-            for (l = i - 1, r = i; l >= 0 && r < len; l--, r++) {
-                if (s.charAt(l) != s.charAt(r)) {
-                    break;
-                }
-            }
-            l++;
-            r--;
-            if (r - l + 1 > maxLen) {
-                left = l;
-                right = r;
-                maxLen = right - left + 1;
-            }
-            
-            // odd number of characters
-            for (l = i - 1, r = i + 1; l >= 0 && r < len; l--, r++) {
-                if (s.charAt(l) != s.charAt(r)) {
-                    break;
-                }
-            }
-            l++;
-            r--;
-            if (r - l + 1 > maxLen) {
-                left = l;
-                right = r;
-                maxLen = right - left + 1;
-            }
-        }
-        
-        if (maxLen == 1 && s.charAt(len - 1) == s.charAt(len - 2)) {
-            return s.substring(len - 2);
-        }
-        
-        return s.substring(left, right + 1);
-    }
 
 	/**
 	 * Valid Palindrome
