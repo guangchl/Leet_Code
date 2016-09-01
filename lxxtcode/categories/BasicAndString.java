@@ -6,6 +6,9 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import org.junit.Assert;
+import org.junit.Test;
+
 /**
  * Essential skill testers, string problems and math.
  *
@@ -192,6 +195,55 @@ public class BasicAndString {
         }
 
         return (int) val;
+    }
+
+    /**
+     * Sqrt(x) - O(logx) time.
+     *
+     * Implement int sqrt(int x). Compute and return the square root of x.
+     *
+     * Example: sqrt(3) = 1, sqrt(4) = 2, sqrt(5) = 2, sqrt(10) = 3.
+     *
+     * @param x: An integer
+     * @return: The sqrt of x
+     */
+    @tags.BinarySearch
+    @tags.Math
+    @tags.Company.Apple
+    @tags.Company.Bloomberg
+    @tags.Company.Facebook
+    public int sqrt(int x) {
+        double error = 0.0000001f;
+        double low = 0, high = x / 2 + 1;
+
+        while (high - low > error) {
+            double mid = (high + low) / 2;
+            if (mid * mid > x) {
+                high = mid;
+            } else {
+                low = mid;
+            }
+        }
+
+        return (int) Math.floor(high);
+    }
+
+    /** Sqrt(x) - better solution. */
+    @tags.BinarySearch
+    @tags.Math
+    @tags.Company.Facebook
+    public int sqrt2(int x) {
+        int start = 0, end = x;
+        while (start < end) {
+            int mid = (start + end + 1) >>> 1;
+            if (mid > x / mid) {
+                end = mid - 1;
+            } else {
+                start = mid;
+            }
+        }
+
+        return end;
     }
 
     // ---------------------------------------------------------------------- //
@@ -511,28 +563,6 @@ public class BasicAndString {
     }
 
     /**
-     * Sqrt(x)
-     * 
-     * Implement int sqrt(int x).
-     * 
-     * Compute and return the square root of x.
-     */
-    public int sqrt(int x) {
-        double error = 0.0000001f;
-        double high = x;
-        double low = 0;
-        while (high - low > error) {
-            double mid = (high + low) / 2;
-            if (mid * mid > x) {
-                high = mid;
-            } else {
-                low = mid;
-            }
-        }
-        return (int) Math.floor(high);
-    }
-
-    /**
      * Pow(x, n)
      * 
      * Implement pow(x, n).
@@ -734,13 +764,17 @@ public class BasicAndString {
         return pathNum[m - 1][n - 1];
     }
 
+    @Test
     public void test() {
-        double a = Double.MAX_VALUE;
-        System.out.println(a);
+        sqrtTest();
     }
 
-    public static void main(String[] args) {
-        BasicAndString basic = new BasicAndString();
-        basic.test();
+    private void sqrtTest() {
+        Assert.assertEquals(0, sqrt(0));
+        Assert.assertEquals(1, sqrt(3));
+        Assert.assertEquals(2, sqrt(4));
+        Assert.assertEquals(256, sqrt(65536));
+        Assert.assertEquals(31622, sqrt(999999999));
     }
+
 }

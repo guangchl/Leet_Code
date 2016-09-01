@@ -1,6 +1,10 @@
 package categories;
 
+import java.util.ArrayList;
 import java.util.List;
+
+import org.junit.Assert;
+import org.junit.Test;
 
 public class BinarySearch {
 
@@ -32,24 +36,31 @@ public class BinarySearch {
         return -1;
     }
 
-    // ******************************* PROBLEMS *******************************
+    // ---------------------------------------------------------------------- //
+    // ------------------------------- PROBLEMS ----------------------------- //
+    // ---------------------------------------------------------------------- //
 
     /**
-     * Search Insert Position
+     * Search Insert Position.
      *
      * Given a sorted array and a target value, return the index if the target
      * is found. If not, return the index where it would be if it were inserted
      * in order. You may assume no duplicates in the array.
+     *
+     * Example: [1,3,5,6], 5 ¡ú 2. [1,3,5,6], 2 ¡ú 1. [1,3,5,6], 7 ¡ú 4. [1,3,5,6],
+     * 0 ¡ú 0.
+     *
+     * Challenge: O(log(n)) time
      */
+    @tags.Array
+    @tags.SortedArray
+    @tags.BinarySearch
     public int searchInsert(int[] A, int target) {
-        if (A == null) {
-            return -1;
-        } else if (A.length == 0) {
+        if (A == null || A.length == 0) {
             return 0;
         }
 
-        int start = 0;
-        int end = A.length - 1;
+        int start = 0, end = A.length - 1;
 
         while (start < end) {
             int mid = (start + end) >>> 1;
@@ -68,14 +79,22 @@ public class BinarySearch {
      * Search for a Range.
      *
      * Given a sorted array of integers, find the starting and ending position
-     * of a given target value.
+     * of a given target value. If the target is not found in the array, return
+     * [-1, -1].
      *
-     * Your algorithm's runtime complexity must be in the order of O(log n).
+     * Example: Given [5, 7, 7, 8, 8, 10] and target value 8, return [3, 4].
      *
-     * If the target is not found in the array, return [-1, -1].
+     * Challenge: O(log n) time.
      *
-     * For example, Given [5, 7, 7, 8, 8, 10] and target value 8, return [3, 4].
+     * @param A
+     *            : an integer sorted array
+     * @param target
+     *            : an integer to be inserted return : a list of length 2,
+     *            [index1, index2]
      */
+    @tags.Array
+    @tags.SortedArray
+    @tags.BinarySearch
     public int[] searchRange(int[] A, int target) {
         int[] range = new int[2];
         range[0] = -1;
@@ -89,12 +108,12 @@ public class BinarySearch {
         while (start < end) {
             int mid = (start + end) >>> 1; // left middle
 
-            if (A[mid] == target) {
-                end = mid;
+            if (A[mid] < target) {
+                start = mid + 1;
             } else if (A[mid] > target) {
                 end = mid - 1;
             } else {
-                start = mid + 1;
+                end = mid;
             }
         }
 
@@ -127,13 +146,20 @@ public class BinarySearch {
      * Search a 2D Matrix.
      *
      * Write an efficient algorithm that searches for a value in an m x n
-     * matrix. This matrix has the following properties:
+     * matrix. This matrix has the following properties: Integers in each row
+     * are sorted from left to right. The first integer of each row is greater
+     * than the last integer of the previous row.
      *
-     * Integers in each row are sorted from left to right. The first integer of
-     * each row is greater than the last integer of the previous row.
+     * Example: Consider the following matrix: [ [1, 3, 5, 7], [10, 11, 16, 20],
+     * [23, 30, 34, 50] ] Given target = 3, return true.
+     *
+     * Challenge: O(log(n) + log(m)) time.
      */
+    @tags.Matrix
+    @tags.BinarySearch
     public boolean searchMatrix(int[][] matrix, int target) {
-        if (matrix == null || matrix.length == 0 || matrix[0].length == 0) {
+        if (matrix == null || matrix.length == 0 || matrix[0] == null
+                || matrix[0].length == 0) {
             return false;
         }
 
@@ -142,12 +168,12 @@ public class BinarySearch {
 
         while (start <= end) {
             int mid = (start + end) >>> 1;
-            int midRow = mid / n;
-            int midCol = mid % n;
+            int row = mid / n;
+            int col = mid % n;
 
-            if (matrix[midRow][midCol] == target) {
+            if (matrix[row][col] == target) {
                 return true;
-            } else if (matrix[midRow][midCol] < target) {
+            } else if (matrix[row][col] < target) {
                 start = mid + 1;
             } else {
                 end = mid - 1;
@@ -164,7 +190,6 @@ public class BinarySearch {
      * matrix, return the occurrence of it.
      *
      * This matrix has the following properties:
-     *
      * Integers in each row are sorted from left to right. Integers in each
      * column are sorted from up to bottom. No duplicate integers in each row or
      * column.
@@ -178,24 +203,31 @@ public class BinarySearch {
      *             number you want to search in the matrix
      * @return: An integer indicate the occurrence of target in the given matrix
      */
+    @tags.Matrix
+    @tags.SortedMatrix
+    @tags.BinarySearch
+    @tags.Company.Amazon
+    @tags.Company.Apple
+    @tags.Company.Google
     public int searchMatrix2(int[][] matrix, int target) {
-        if (matrix == null || matrix.length == 0 || matrix[0] == null || matrix[0].length == 0) {
+        if (matrix == null || matrix.length == 0 || matrix[0] == null
+                || matrix[0].length == 0) {
             return 0;
         }
 
         int m = matrix.length, n = matrix[0].length;
-        int i = 0, j = n - 1;
+        int row = 0, col = n - 1;
         int count = 0;
 
-        while (i < m && j >= 0) {
-            if (matrix[i][j] > target) {
-                j--;
-            } else if (matrix[i][j] < target) {
-                i++;
+        while (row < m && col >= 0) {
+            if (matrix[row][col] < target) {
+                row++;
+            } else if (matrix[row][col] > target) {
+                col--;
             } else {
                 count++;
-                i++;
-                j--;
+                row++;
+                col--;
             }
         }
 
@@ -210,12 +242,20 @@ public class BinarySearch {
      *
      * If the target number does not exist in the array, return -1.
      *
+     * Example: If the array is [1, 2, 3, 3, 4, 5, 10], for given target 3,
+     * return 2.
+     *
+     * Challenge: If the count of numbers is bigger than 2^32, can your code
+     * work properly?
+     *
      * @param nums:
      *            The integer array.
      * @param target:
      *            Target to find.
      * @return: The first position of target. Position starts from 0.
      */
+    @tags.Array
+    @tags.BinarySearch
     public int firstPosition(int[] nums, int target) {
         // write your code here
         if (nums == null || nums.length == 0) {
@@ -330,214 +370,6 @@ public class BinarySearch {
     }
 
     /**
-     * Find Minimum in Rotated Sorted Array.
-     *
-     * Suppose a sorted array is rotated at some pivot unknown to you
-     * beforehand. You may assume no duplicate exists in the array.
-     */
-    public int findMin(int[] num) {
-        if (num == null || num.length == 0) {
-            return -1;
-        }
-
-        int start = 0, end = num.length - 1;
-
-        while (start < end) {
-            int mid = (start + end) >>> 1;
-
-            if (num[mid] < num[end]) {
-                end = mid;
-            } else {
-                start = mid + 1;
-            }
-        }
-
-        return num[start];
-    }
-
-    /**
-     * Find Minimum in Rotated Sorted Array II.
-     *
-     * Suppose a sorted array is rotated at some pivot unknown to you
-     * beforehand. (i.e., 0 1 2 4 5 6 7 might become 4 5 6 7 0 1 2).
-     *
-     * Find the minimum element.
-     *
-     * Notice: The array may contain duplicates.
-     *
-     * @param num:
-     *            a rotated sorted array
-     * @return: the minimum number in the array
-     */
-    public int findMinWithDup(int[] num) {
-        if (num == null || num.length == 0) {
-            return -1;
-        }
-
-        int start = 0, end = num.length - 1;
-        while (start < end) {
-            int mid = (start + end) >>> 1;
-            if (num[mid] == num[end]) {
-                end--;
-            } else if (num[mid] < num[end]) {
-                end = mid;
-            } else {
-                start = mid + 1;
-            }
-        }
-
-        return num[start];
-    }
-
-    /**
-     * Search in Rotated Sorted Array
-     *
-     * It should be shortened by using same search without normal binary search
-     *
-     * Suppose a sorted array is rotated at some pivot unknown to you
-     * beforehand.
-     *
-     * (i.e., 0 1 2 4 5 6 7 might become 4 5 6 7 0 1 2).
-     *
-     * You are given a target value to search. If found in the array return its
-     * index, otherwise return -1.
-     *
-     * You may assume no duplicate exists in the array.
-     */
-    public int search(int[] A, int target) {
-        if (A == null || A.length == 0) {
-            return -1;
-        }
-
-        int start = 0, end = A.length - 1;
-
-        while (start < end) {
-            int mid = (start + end) >>> 1;
-
-            if (A[mid] == target) {
-                return mid;
-            } else if (A[mid] < target) {
-                if (A[mid] < A[end] && A[end] < target) {
-                    end = mid - 1;
-                } else {
-                    start = mid + 1;
-                }
-            } else {
-                if (A[start] < A[mid] && A[start] > target) {
-                    start = mid + 1;
-                } else {
-                    end = mid - 1;
-                }
-            }
-        }
-
-        return (A[start] == target) ? start : -1;
-    }
-
-    /**
-     * Search in Rotated Sorted Array II
-     *
-     * Follow up for "Search in Rotated Sorted Array": What if duplicates are
-     * allowed? Would this affect the run-time complexity? How and why?
-     *
-     * Write a function to determine if a given target is in the array.
-     *
-     * O(logN) ~ O(n), depends on number of duplicates.
-     *
-     * This solutions is so concise and beautiful.
-     *
-     * @param A
-     *            : an integer ratated sorted array and duplicates are allowed
-     * @param target
-     *            : an integer to be search
-     * @return : a boolean
-     */
-    public boolean searchWithDup(int[] A, int target) {
-        if (A == null || A.length == 0) {
-            return false;
-        }
-
-        int start = 0, end = A.length - 1;
-
-        while (start <= end) {
-            int mid = (start + end) >>> 1;
-
-            if (A[mid] == target) {
-                return true; // or return index according to requirement;
-            }
-
-            if (A[mid] < A[end]) { // right part is sorted
-                if (A[mid] < target && A[end] >= target) {
-                    start = mid + 1;
-                } else {
-                    end = mid - 1;
-                }
-            } else if (A[mid] > A[end]) { // left part is sorted
-                if (A[mid] < target && A[start] >= target) {
-                    end = mid - 1;
-                } else {
-                    start = mid + 1;
-                }
-            } else {
-                end--;
-            }
-        }
-
-        return false;
-    }
-
-    /**
-     * Search in Rotated Sorted Array II
-     *
-     * Follow up for "Search in Rotated Sorted Array": What if duplicates are
-     * allowed? Would this affect the run-time complexity? How and why?
-     *
-     * Write a function to determine if a given target is in the array.
-     *
-     * O(logN) ~ O(n), depends on number of duplicates.
-     *
-     * This solutions is so concise and beautiful.
-     *
-     * @param A
-     *            : an integer ratated sorted array and duplicates are allowed
-     * @param target
-     *            : an integer to be search
-     * @return : a boolean
-     */
-    public boolean searchRotatedWithDup(int[] A, int target) {
-        int left = 0;
-        int right = A.length - 1;
-
-        while (left <= right) {
-            int mid = (left + right) / 2;
-
-            if (A[mid] == target) {
-                return true;
-            }
-
-            if (A[left] < A[mid]) { // left part is sorted
-                if (A[left] <= target && A[mid] >= target) {
-                    right = mid;
-                } else {
-                    left = mid + 1;
-                }
-
-            } else if (A[left] > A[mid]) { // right part is sorted
-                if (A[mid] <= target && A[right] >= target) {
-                    left = mid;
-                } else {
-                    right = mid - 1;
-                }
-
-            } else {
-                left++;
-            }
-        }
-
-        return false;
-    }
-
-    /**
      * Find Peak Element.
      *
      * There is an integer array which has the following features:
@@ -550,9 +382,19 @@ public class BinarySearch {
      *
      * Notice: The array may contains multiple peeks, find any of them.
      *
-     * @param A: An integers array.
+     * Example: Given [1, 2, 1, 3, 4, 5, 7, 6]. Return index 1 (which is number
+     * 2) or 6 (which is number 7)
+     *
+     * Challenge: Time complexity O(logN)
+     *
+     * @param A:
+     *            An integers array.
      * @return: return any of peek positions.
      */
+    @tags.Array
+    @tags.BinarySearch
+    @tags.Source.LintCode
+    @tags.Company.Google
     public int findPeak(int[] A) {
         int start = 0, end = A.length - 1;
 
@@ -574,6 +416,71 @@ public class BinarySearch {
     }
 
     /**
+     * Find Peak Element II - O(nlogm) time.
+     *
+     * There is an integer matrix which has the following features: The numbers
+     * in adjacent positions are different. The matrix has n rows and m columns.
+     * For all i < m, A[0][i] < A[1][i] && A[n - 2][i] > A[n - 1][i]. For all j
+     * < n, A[j][0] < A[j][1] && A[j][m - 2] > A[j][m - 1]. We define a position
+     * P is a peek if: A[j][i] > A[j+1][i] && A[j][i] > A[j-1][i] && A[j][i] >
+     * A[j][i+1] && A[j][i] > A[j][i-1] Find a peak element in this matrix.
+     * Return the index of the peak.
+     *
+     * Notice: The matrix may contains multiple peeks, find any of them.
+     *
+     * Example: Given a matrix: [ [1 ,2 ,3 ,6 ,5], [16,41,23,22,6],
+     * [15,17,24,21,7], [14,18,19,20,10], [13,14,11,10,9] ], return index of 41
+     * (which is [1,1]) or index of 24 (which is [2,2]).
+     *
+     * Challenge: Solve it in O(n+m) time. If you come up with an algorithm that
+     * you thought it is O(n log m) or O(m log n), can you prove it is actually
+     * O(n+m) or propose a similar but O(n+m) algorithm?
+     *
+     * Check the link for O(m + n) solution:
+     * http://courses.csail.mit.edu/6.006/spring11/lectures/lec02.pdf.
+     *
+     * @param A:
+     *            An integer matrix
+     * @return: The index of the peak
+     */
+    @tags.BinarySearch
+    @tags.Matrix
+    @tags.Source.LintCode
+    public List<Integer> findPeakII(int[][] A) {
+        List<Integer> index = new ArrayList<>();
+        if (A == null || A.length == 0 || A[0] == null || A[0].length == 0) {
+            return index;
+        }
+
+        int start = 1, end = A.length - 2;
+        while (start <= end) {
+            int mid = (start + end) >>> 1;
+            int col = findMax(A[mid]);
+            if (A[mid][col] < A[mid - 1][col]) {
+                end = mid - 1;
+            } else if (A[mid][col] < A[mid + 1][col]) {
+                start = mid + 1;
+            } else {
+                index.add(mid);
+                index.add(col);
+                return index;
+            }
+        }
+
+        return index;
+    }
+
+    private int findMax(int[] nums) {
+        int index = 0;
+        for (int i = 1; i < nums.length; i++) {
+            if (nums[i] > nums[index]) {
+                index = i;
+            }
+        }
+        return index;
+    }
+
+    /**
      * First Bad Version.
      *
      * The code base version is an integer start from 1 to n. One day, someone
@@ -589,6 +496,9 @@ public class BinarySearch {
      *            An integers.
      * @return An integer which is the first bad version.
      */
+    @tags.BinarySearch
+    @tags.Source.LintCode
+    @tags.Company.Facebook
     public int findFirstBadVersion(int n) {
         // write your code here
         if (n < 1) {
@@ -597,25 +507,33 @@ public class BinarySearch {
 
         int start = 1, end = n;
 
-        while (start < end) {
+        while (start <= end) {
             int mid = (start + end) >>> 1;
 
-            if (isBadVersion(mid)) {
+            if (SVNRepo.isBadVersion(mid)) {
                 end = mid;
             } else {
                 start = mid + 1;
             }
         }
 
-        if (isBadVersion(start)) {
-            return start;
-        }
-        return -1;
+        return SVNRepo.isBadVersion(start) ? start : -1;
     }
 
-    private boolean isBadVersion(int n) {
-        // Helper function just for compilation, not implemented.
-        throw new IllegalStateException();
+    /**
+     * Helper class just for testing. Call {@link #setBadVersion(int)} before
+     * using it.
+     */
+    public static class SVNRepo {
+        static int badVersion = 1;
+
+        public static void setBadVersion(int badVersion) {
+            SVNRepo.badVersion = badVersion;
+        }
+
+        private static boolean isBadVersion(int n) {
+            return badVersion == n;
+        }
     }
 
     /**
@@ -810,12 +728,17 @@ public class BinarySearch {
      *
      * Notice: You couldn't cut wood into float length.
      *
+     * Example: For L=[232, 124, 456], k=7, return 114.
+     *
+     * Challenge: O(n log Len), where Len is the longest length of the wood.
+     *
      * @param L:
      *            Given n pieces of wood with length L[i]
      * @param k:
      *            An integer
      * @return: The maximum length of the small pieces.
      */
+    @tags.BinarySearch
     public int woodCut(int[] L, int k) {
         if (L == null || L.length == 0 || k <= 0) {
             return 0;
@@ -840,6 +763,7 @@ public class BinarySearch {
             }
         }
 
+        // not enough wood to cut k pieces out
         if (countPieces(L, start) >= k) {
             return start;
         }
@@ -852,6 +776,191 @@ public class BinarySearch {
             count += L[i] / len;
         }
         return count;
+    }
+
+    // ---------------------------------------------------------------------- //
+    // ------------------------------ ROTATED ------------------------------- //
+    // ---------------------------------------------------------------------- //
+
+    /**
+     * Find Minimum in Rotated Sorted Array.
+     *
+     * Suppose a sorted array is rotated at some pivot unknown to you
+     * beforehand. Find the minimum element.
+     *
+     * You may assume no duplicate exists in the array.
+     *
+     * Example: Given [4, 5, 6, 7, 0, 1, 2] return 0
+     *
+     * @param nums: a rotated sorted array
+     * @return: the minimum number in the array
+     */
+    @tags.BinarySearch
+    public int findMin(int[] num) {
+        if (num == null || num.length == 0) {
+            throw new IllegalArgumentException();
+        }
+
+        int start = 0, end = num.length - 1;
+
+        while (start < end) {
+            int mid = (start + end) >>> 1;
+
+            if (num[mid] < num[end]) {
+                end = mid;
+            } else {
+                start = mid + 1;
+            }
+        }
+
+        return num[start];
+    }
+
+    /**
+     * Find Minimum in Rotated Sorted Array II.
+     *
+     * Suppose a sorted array is rotated at some pivot unknown to you
+     * beforehand. (i.e., 0 1 2 4 5 6 7 might become 4 5 6 7 0 1 2). Find the
+     * minimum element.
+     *
+     * Notice: The array may contain duplicates.
+     *
+     * Example: Given [4,4,5,6,7,0,1,2] return 0.
+     *
+     * @param num:
+     *            a rotated sorted array
+     * @return: the minimum number in the array
+     */
+    @tags.BinarySearch
+    @tags.DivideAndConquer
+    public int findMinWithDup(int[] num) {
+        if (num == null || num.length == 0) {
+            throw new IllegalArgumentException();
+        }
+
+        int start = 0, end = num.length - 1;
+        while (start < end) {
+            int mid = (start + end) >>> 1;
+            if (num[mid] < num[end]) {
+                end = mid;
+            } else if (num[mid] > num[end]) {
+                start = mid + 1;
+            } else {
+                end--;
+            }
+        }
+
+        return num[start];
+    }
+
+    /**
+     * Search in Rotated Sorted Array
+     *
+     * Suppose a sorted array is rotated at some pivot unknown to you
+     * beforehand. (i.e., 0 1 2 4 5 6 7 might become 4 5 6 7 0 1 2). You are
+     * given a target value to search. If found in the array return its index,
+     * otherwise return -1. You may assume no duplicate exists in the array.
+     *
+     * Example: For [4, 5, 1, 2, 3] and target=1, return 2. For [4, 5, 1, 2, 3]
+     * and target=0, return -1.
+     *
+     * Challenge: O(logN) time.
+     *
+     * @param A
+     *            : an integer rotated sorted array
+     * @param target
+     *            : an integer to be searched return : an integer
+     */
+    @tags.BinarySearch
+    @tags.Array
+    @tags.SortedArray
+    @tags.Company.Facebook
+    @tags.Company.LinkedIn
+    @tags.Company.Uber
+    public int search(int[] A, int target) {
+        if (A == null || A.length == 0) {
+            return -1;
+        }
+
+        int start = 0, end = A.length - 1;
+
+        while (start <= end) {
+            int mid = (start + end) >>> 1;
+            if (A[mid] < target) {
+                if (A[start] > A[mid] && A[end] < target) {
+                    end = mid - 1;
+                } else {
+                    start = mid + 1;
+                }
+            } else if (A[mid] > target) {
+                if (A[mid] > A[end] && A[start] > target) {
+                    start = mid + 1;
+                } else {
+                    end = mid - 1;
+                }
+            } else {
+                return mid;
+            }
+        }
+
+        return -1;
+    }
+
+    /**
+     * Search in Rotated Sorted Array II
+     *
+     * Follow up for "Search in Rotated Sorted Array": What if duplicates are
+     * allowed? Would this affect the run-time complexity? How and why?
+     *
+     * Write a function to determine if a given target is in the array.
+     *
+     * Example: Given [1, 1, 0, 1, 1, 1] and target = 0, return true. Given [1,
+     * 1, 1, 1, 1, 1] and target = 0, return false.
+     *
+     * O(logN) ~ O(n), depends on number of duplicates. This solutions is so
+     * concise and beautiful.
+     *
+     * @param A
+     *            : an integer ratated sorted array and duplicates are allowed
+     * @param target
+     *            : an integer to be search
+     * @return : a boolean
+     */
+    @tags.BinarySearch
+    @tags.Array
+    @tags.SortedArray
+    public boolean searchII(int[] A, int target) {
+        if (A == null || A.length == 0) {
+            return false;
+        }
+
+        int start = 0, end = A.length - 1;
+
+        while (start <= end) {
+            int mid = (start + end) >>> 1;
+
+            if (A[mid] == target) {
+                return true; // or return index according to requirement;
+            }
+
+            if (A[mid] < A[end]) { // right part is sorted
+                if (A[mid] < target && A[end] >= target) {
+                    start = mid + 1;
+                } else {
+                    end = mid - 1;
+                }
+            } else if (A[mid] > A[end]) { // left part is sorted
+                if (A[mid] < target && A[start] >= target) {
+                    end = mid - 1;
+                } else {
+                    start = mid + 1;
+                }
+            } else {
+                end--;
+            }
+        }
+
+        return false;
     }
 
     // ------------------------------- OLD ---------------------------------
@@ -956,6 +1065,7 @@ public class BinarySearch {
     // return 0;
     // }
 
+    @Test
     public void test() {
         int[] nums = new int[3];
         nums[0] = 1;
@@ -964,11 +1074,14 @@ public class BinarySearch {
         System.out.println(binarySearch(nums, 1));
 
         System.out.println(kClosestNumbers(nums, 2, 3));
+
+        woodCutTest();
     }
 
-    public static void main(String[] args) {
-        BinarySearch test = new BinarySearch();
-        test.test();
+    private void woodCutTest() {
+        int[] L = {232,124,456};
+        int k = 7;
+        Assert.assertEquals(124, woodCut(L, k));
     }
 
 }
