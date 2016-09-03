@@ -52,9 +52,7 @@ public class DynamicProgramming {
         return matrix[m - 1][n - 1];
     }
 
-    /**
-     * Unique Paths (1 dimensional Array).
-     */
+    /** Unique Paths (1 dimensional Array). */
     public int uniquePaths1D(int m, int n) {
         if (m == 0 || n == 0) {
             return 0;

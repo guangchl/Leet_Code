@@ -14,7 +14,7 @@ import org.junit.Test;
  *
  * @author Guangcheng Lu
  */
-public class BasicAndString {
+public class BasicAndStringAndMath {
 
     // ---------------------------------------------------------------------- //
     // ------------------------------- PROBLEMS ----------------------------- //
@@ -125,6 +125,230 @@ public class BasicAndString {
     // ---------------------------------------------------------------------- //
     // --------------------------------- MATH ------------------------------- //
     // ---------------------------------------------------------------------- //
+
+    /**
+     * Flip Bits.
+     *
+     * Determine the number of bits required to flip if you want to convert
+     * integer n to integer m.
+     *
+     * Notice: Both n and m are 32-bit integers.
+     *
+     * Example: Given n = 31 (11111), m = 14 (01110), return 2.
+     *
+     * @param a,
+     *            b: Two integer return: An integer
+     */
+    @tags.BitManipulation
+    @tags.Source.CrackingTheCodingInterview
+    public static int bitSwapRequired(int a, int b) {
+        // write your code here
+        int count = 0;
+        for (int c = a ^ b; c != 0; c = c >>> 1) {
+            count += c & 1;
+        }
+        return count;
+    }
+
+    /**
+     * O(1) Check Power of 2.
+     *
+     * Using O(1) time to check whether an integer n is a power of 2.
+     *
+     * Example: For n=4, return true; For n=5, return false;
+     *
+     * Challenge: O(1) time.
+     *
+     * @param n:
+     *            An integer
+     * @return: True or false
+     */
+    @tags.BitManipulation
+    public boolean checkPowerOf2(int n) {
+        if (n <= 0) {
+            return false;
+        }
+        return (n & (n - 1)) == 0;
+    }
+
+    /**
+     * Trailing Zeros.
+     *
+     * Write an algorithm which computes the number of trailing zeros in n
+     * factorial.
+     *
+     * Example: 11! = 39916800, so the out should be 2.
+     *
+     * Challenge: O(log N) time.
+     *
+     * @param n:
+     *            As desciption
+     * @return: An integer, denote the number of trailing zeros in n!
+     */
+    @tags.Math
+    public long trailingZeros(long n) {
+        long count = 0;
+        while (n >= 5) {
+            count += n / 5;
+            n /= 5;
+        }
+        return count;
+    }
+
+    /**
+     * Update Bits.
+     *
+     * Given two 32-bit numbers, N and M, and two bit positions, i and j. Write
+     * a method to set all bits between i and j in N equal to M (e g , M becomes
+     * a substring of N located at i and starting at j)
+     *
+     * Notice: In the function, the numbers N and M will given in decimal, you
+     * should also return a decimal number.
+     *
+     * Clarification: You can assume that the bits j through i have enough space
+     * to fit all of M. That is, if M=10011£¬ you can assume that there are at
+     * least 5 bits between j and i. You would not, for example, have j=3 and
+     * i=2, because M could not fully fit between bit 3 and bit 2.
+     *
+     * Example: Given N=(10000000000)2, M=(10101)2, i=2, j=6. return
+     * N=(10001010100)2
+     *
+     * Challenge: Minimum number of operations?
+     *
+     * @param n,
+     *            m: Two integer
+     * @param i,
+     *            j: Two bit positions return: An integer
+     */
+    @tags.BitManipulation
+    @tags.Source.CrackingTheCodingInterview
+    public int updateBits(int n, int m, int i, int j) {
+        // get mask to clear i to j in n
+        int mask = Integer.MIN_VALUE >> (j - i);
+        mask >>>= (31 - j);
+        mask = ~mask;
+        n = n & mask;
+
+        // get mask of m being i to j
+        m = m << i;
+
+        return m | n;
+    }
+
+    /**
+     * Unique Binary Search Trees.
+     *
+     * Given n, how many structurally unique BSTs (binary search trees) that
+     * store values 1...n?
+     *
+     * Example: Given n = 3, there are a total of 5 unique BST's.
+     *
+     * @paramn n: An integer
+     * @return: An integer
+     */
+    @tags.DynamicProgramming
+    @tags.CatalanNumber
+    public int numTrees(int n) {
+        int[] treeCount = new int[n + 1];
+        treeCount[0] = 1;
+
+        for (int i = 1; i <= n; i++) { // fill dp array increasingly
+            for (int j = 0; j <= i - 1; j++) { // root can be any node
+                treeCount[i] += treeCount[j] * treeCount[i - j - 1];
+            }
+        }
+
+        return treeCount[n];
+    }
+
+    /**
+     * Fast Power.
+     *
+     * Calculate the an % b where a, b and n are all 32bit integers.
+     *
+     * Example: For 231 % 3 = 2. For 1001000 % 1000 = 0.
+     *
+     * Challenge: O(logn).
+     *
+     * @param a,
+     *            b, n: 32bit integers
+     * @return: An integer
+     */
+    @tags.DivideAndConquer
+    public int fastPower(int a, int b, int n) {
+        if (n == 0) {
+            return 1 % b;
+        } else if (n == 1) {
+            return a % b;
+        }
+
+        long half = fastPower(a, b, n / 2);
+        long result = (half * half) % b;
+        if (n % 2 == 1) {
+            result = (result * a) % b;
+        }
+
+        return (int) result;
+    }
+
+    /**
+     * Binary Representation.
+     *
+     * Given a (decimal - e.g. 3.72) number that is passed in as a string,
+     * return the binary representation that is passed in as a string. If the
+     * fractional part of the number can not be represented accurately in binary
+     * with at most 32 characters, return ERROR.
+     *
+     * Example: For n = "3.72", return "ERROR". For n = "3.5", return "11.1".
+     *
+     * @param n:
+     *            Given a decimal number that is passed in as a string
+     * @return: A string
+     */
+    @tags.String
+    @tags.BitManipulation
+    @tags.Source.CrackingTheCodingInterview
+    public String binaryRepresentation(String n) {
+        int dot = n.indexOf('.');
+        int integer = (dot == -1) ? Integer.valueOf(n)
+                : Integer.valueOf(n.substring(0, dot));
+
+        StringBuilder sb1 = new StringBuilder();
+        while (integer > 0) {
+            sb1.append(integer % 2);
+            integer /= 2;
+        }
+        if (sb1.length() == 0) {
+            sb1.append(0);
+        }
+        sb1.reverse();
+
+        if (dot == -1) {
+            return sb1.toString();
+        }
+
+        double fractional = Double.valueOf(n.substring(dot));
+        if (fractional == 0) {
+            return sb1.toString();
+        }
+
+        StringBuilder sb2 = new StringBuilder();
+        double sum = 0;
+        for (double d = 0.5; sb2.length() < 32 && sum < fractional; d /= 2) {
+            if (fractional >= sum + d) {
+                sb2.append(1);
+                sum += d;
+            } else {
+                sb2.append(0);
+            }
+        }
+
+        if (sum != fractional) {
+            return "ERROR";
+        } else {
+            return sb1.toString() + "." + sb2.toString();
+        }
+    }
 
     /**
      * String to Integer (atoi).
@@ -661,107 +885,6 @@ public class BasicAndString {
             }
         }
         return true;
-    }
-
-    /**
-     * Unique Paths
-     * 
-     * A robot is located at the top-left corner of a m x n grid (marked 'Start'
-     * in the diagram below).
-     * 
-     * The robot can only move either down or right at any point in time. The
-     * robot is trying to reach the bottom-right corner of the grid (marked
-     * 'Finish' in the diagram below).
-     * 
-     * How many possible unique paths are there?
-     * 
-     * Note: m and n will be at most 100.
-     */
-    public int uniquePaths(int m, int n) {
-        if (m == 0 || n == 0) {
-            return 0;
-        }
-
-        int[][] pathNum = new int[m][n];
-
-        // initialize the first line
-        for (int i = 0; i < n; i++) {
-            pathNum[0][i] = 1;
-        }
-
-        // initialize the first column
-        for (int i = 1; i < m; i++) {
-            pathNum[i][0] = 1;
-        }
-
-        // fill all blanks left
-        for (int i = 1; i < m; i++) {
-            for (int j = 1; j < n; j++) {
-                pathNum[i][j] = pathNum[i - 1][j] + pathNum[i][j - 1];
-            }
-        }
-
-        return pathNum[m - 1][n - 1];
-    }
-
-    /**
-     * Unique Paths II
-     * 
-     * Follow up for "Unique Paths":
-     * 
-     * Now consider if some obstacles are added to the grids. How many unique
-     * paths would there be?
-     * 
-     * An obstacle and empty space is marked as 1 and 0 respectively in the
-     * grid.
-     * 
-     * Note: You can only move either down or right at any point in time.
-     */
-    public int uniquePathsWithObstacles(int[][] obstacleGrid) {
-        int m = obstacleGrid.length;
-        if (m == 0) {
-            return 0;
-        }
-
-        int n = obstacleGrid[0].length;
-        if (n == 0) {
-            return 0;
-        }
-
-        // construct the cache matrix
-        int[][] pathNum = new int[m][n];
-
-        // fill the first column
-        pathNum[0][0] = (obstacleGrid[0][0] == 0 ? 1 : 0);
-        for (int i = 1; i < m; i++) {
-            if (pathNum[i - 1][0] == 0 || obstacleGrid[i][0] == 1) {
-                pathNum[i][0] = 0;
-            } else {
-                pathNum[i][0] = 1;
-            }
-        }
-
-        // fill the first row
-        for (int i = 1; i < n; i++) {
-            if (pathNum[0][i - 1] == 0 || obstacleGrid[0][i] == 1) {
-                pathNum[0][i] = 0;
-            } else {
-                pathNum[0][i] = 1;
-            }
-        }
-
-        // fill all the remaining
-        for (int i = 1; i < m; i++) {
-            for (int j = 1; j < n; j++) {
-                if (obstacleGrid[i][j] == 1) {
-                    pathNum[i][j] = 0;
-                } else {
-                    pathNum[i][j] = pathNum[i - 1][j] + pathNum[i][j - 1];
-                }
-            }
-        }
-
-        return pathNum[m - 1][n - 1];
     }
 
     @Test
