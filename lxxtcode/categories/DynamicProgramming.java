@@ -285,24 +285,19 @@ public class DynamicProgramming {
             return -1;
         }
 
-        int[] jumps = new int[A.length];
-        for (int i = 1; i < A.length; i++) {
-            jumps[i] = Integer.MAX_VALUE;
+        int n = A.length;
+        int[] steps = new int[n];
+        for (int i = 1; i < n; i++) {
+            steps[i] = Integer.MAX_VALUE;
         }
 
-        int distance = 0;
-        for (int i = 0; i < A.length; i++) {
-            distance = Math.max(distance, i + A[i]);
-            for (int j = i + 1; j <= distance && j < A.length; j++) {
-                jumps[j] = Math.min(jumps[i] + 1, jumps[j]);
+        for (int i = 0; i < n; i++) {
+            for (int j = i + 1; j <= i + A[i] && j < n; j++) {
+                steps[j] = Math.min(steps[j], steps[i] + 1);
             }
         }
 
-        if (distance < A.length - 1) {
-            return -1;
-        } else {
-            return jumps[jumps.length - 1];
-        }
+        return steps[n - 1] == Integer.MAX_VALUE ? -1 : steps[n - 1];
     }
 
     public int jump2(int[] A) {

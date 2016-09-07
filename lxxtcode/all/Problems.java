@@ -115,53 +115,6 @@ public class Problems {
 	  
 	
 	// ****************************** SOLUTIONS ******************************
-	/**
-	 * Single Number
-	 * 
-	 * Given an array of integers, every element appears twice except for one.
-	 * Find that single one. Time: O(n). Space: O(0).
-	 * 
-	 * If there's no space constraint, Map should be a common solution
-	 */
-	public int singleNumber(int[] A) {
-		// Since A^B^A == B, xor every other element with first one of the A
-		for (int i = 1; i < A.length; i++) {
-			A[0] ^= A[i];
-		}
-		return A[0];
-	}
-
-	/**
-	 * Single Number II
-	 * 
-	 * Given an array of integers, every element appears three times except for
-	 * one. Find that single one. Time: O(n). Space: O(0).
-	 * 
-	 * So tricky!!! Three bitmask variables.
-	 */
-	public int singleNumber2(int[] A) {
-		int ones = 0; // represent the ith bit has appear once
-		int twos = 0; // represent the ith bit has appear twice
-		int threes = 0; // represent the ith bit has appear three times
-
-		for (int i = 0; i < A.length; i++) {
-			threes = (threes & ~A[i]) | (twos & A[i]);
-			twos = (twos & ~A[i]) | (ones & A[i]);
-			ones = (ones ^ A[i]) & ~(threes | twos);
-		}
-
-		return ones;
-		// Another solution
-		// int ones = 0, twos = 0, threes = 0;
-		// for (int i = 0; i < n; i++) {
-		// twos |= ones & A[i];
-		// ones ^= A[i];
-		// threes = ones & twos;
-		// ones &= ~threes;
-		// twos &= ~threes;
-		// }
-		// return ones;
-	}
 
 	/**
 	 * Reverse Integer

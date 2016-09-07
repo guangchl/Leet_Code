@@ -1,8 +1,11 @@
 package categories;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
+import java.util.Comparator;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
@@ -14,7 +17,7 @@ import org.junit.Test;
  *
  * @author Guangcheng Lu
  */
-public class BasicAndStringAndMath {
+public class BasicAndStringAndMathAndGreedy {
 
     // ---------------------------------------------------------------------- //
     // ------------------------------- PROBLEMS ----------------------------- //
@@ -120,6 +123,48 @@ public class BasicAndStringAndMath {
         }
 
         return strs[0];
+    }
+
+    // ---------------------------------------------------------------------- //
+    // -------------------------------- Greedy ------------------------------ //
+    // ---------------------------------------------------------------------- //
+
+    /**
+     * Gas Station.
+     *
+     * There are N gas stations along a circular route, where the amount of gas
+     * at station i is gas[i]. You have a car with an unlimited gas tank and it
+     * costs cost[i] of gas to travel from station i to its next station (i+1).
+     * You begin the journey with an empty tank at one of the gas stations.
+     * Return the starting gas station's index if you can travel around the
+     * circuit once, otherwise return -1.
+     *
+     * Notice: The solution is guaranteed to be unique.
+     *
+     * Example: Given 4 gas stations with gas[i]=[1,1,3,1], and the
+     * cost[i]=[2,2,1,1]. The starting gas station's index is 2.
+     *
+     * Challenge: O(n) time and O(1) extra space.
+     *
+     * @param gas:
+     *            an array of integers
+     * @param cost:
+     *            an array of integers
+     * @return: an integer
+     */
+    @tags.Greedy
+    public int canCompleteCircuit(int[] gas, int[] cost) {
+        int sum = 0, index = 0, total = 0;
+        for (int i = 0; i < gas.length; i++) {
+            sum += gas[i] - cost[i];
+            total += gas[i] - cost[i];
+            if (sum < 0) {
+                sum = 0;
+                index = i + 1;
+            }
+        }
+
+        return total < 0 ? -1 : index;
     }
 
     // ---------------------------------------------------------------------- //
@@ -351,6 +396,425 @@ public class BasicAndStringAndMath {
     }
 
     /**
+     * Single Number.
+     *
+     * Given an array of integers, every element appears twice except for one.
+     * Find that single one. Time: O(n). Space: O(0).
+     *
+     * If there's no space constraint, Map should be a common solution.
+     *
+     * @param A
+     *            : an integer array
+     * @return : a integer
+     */
+    @tags.Greedy
+    public int singleNumber(int[] A) {
+        // Since A^B^A == B, xor every other element with first one of the A
+        for (int i = 1; i < A.length; i++) {
+            A[0] ^= A[i];
+        }
+        return A[0];
+    }
+
+    /**
+     * Single Number II.
+     *
+     * Given an array of integers, every element appears three times except for
+     * one. Find that single one. Time: O(n). Space: O(0).
+     *
+     * Example: Given [1,1,2,3,3,3,2,2,4,1], return 4.
+     *
+     * So tricky!!! Three bitmask variables.
+     *
+     * @param A
+     *            : An integer array
+     * @return : An integer
+     */
+    @tags.Greedy
+    public int singleNumberII(int[] A) {
+        int ones = 0; // represent the ith bit has appear once
+        int twos = 0; // represent the ith bit has appear twice
+        int threes = 0; // represent the ith bit has appear three times
+
+        for (int i = 0; i < A.length; i++) {
+            threes = (threes & ~A[i]) | (twos & A[i]);
+            twos = (twos & ~A[i]) | (ones & A[i]);
+            ones = (ones ^ A[i]) & ~(threes | twos);
+        }
+
+        return ones;
+    }
+
+    /** Another approach, just do this. */
+    public int singleNumberII2(int[] A) {
+        if (A == null || A.length == 0) {
+            return -1;
+        }
+        int num = 0;
+        for (int i = 0; i < 32; i++) {
+            int count = 0;
+            for (int j = 0; j < A.length; j++) {
+                count += (A[j] >> i) & 1;
+            }
+            if (count % 3 == 1) {
+                num |= (1 << i);
+            }
+        }
+        return num;
+    }
+
+    /**
+     * Single Number III.
+     *
+     * Given 2*n + 2 numbers, every numbers occurs twice except two, find them.
+     *
+     * Example: Given [1,2,2,3,4,4,5,3] return 1 and 5.
+     *
+     * Challenge: O(n) time, O(1) extra space.
+     *
+     * @param A
+     *            : An integer array
+     * @return : Two integers
+     */
+    @tags.Greedy
+    @tags.Source.LintCode
+    public List<Integer> singleNumberIII(int[] A) {
+        int xor = 0;
+        for (int i = 0; i < A.length; i++) {
+            xor ^= A[i];
+        }
+
+        int lastDiffBit = xor & ~(xor - 1);
+        int group1 = 0, group2 = 0;
+        for (int i = 0; i < A.length; i++) {
+            if ((A[i] & lastDiffBit) == 0) {
+                group1 ^= A[i];
+            } else {
+                group2 ^= A[i];
+            }
+        }
+
+        List<Integer> result = new ArrayList<>();
+        result.add(group1);
+        result.add(group2);
+        return result;
+    }
+
+    /**
+     * Majority Number.
+     *
+     * Given an array of integers, the majority number is the number that occurs
+     * more than half of the size of the array. Find it.
+     *
+     * Example: Given [1, 1, 1, 1, 2, 2, 2], return 1.
+     *
+     * Challenge: O(n) time and O(1) extra space.
+     *
+     * @param nums:
+     *            a list of integers
+     * @return: find a majority number
+     */
+    @tags.Greedy
+    @tags.Enumeration
+    @tags.Source.LintCode
+    @tags.Company.Zenefits
+    public int majorityNumber(ArrayList<Integer> nums) {
+        if (nums == null || nums.size() == 0) {
+            throw new IllegalArgumentException();
+        }
+
+        int num = 0;
+        int count = 0;
+        for (int i = 0; i < nums.size(); i++) {
+            if (count == 0) {
+                num = nums.get(i);
+                count++;
+            } else if (nums.get(i) == num) {
+                count++;
+            } else {
+                count--;
+            }
+        }
+
+        return num;
+    }
+
+    /**
+     * Majority Number II.
+     *
+     * Given an array of integers, the majority number is the number that occurs
+     * more than 1/3 of the size of the array. Find it.
+     *
+     * Notice: There is only one majority number in the array.
+     *
+     * Example: Given [1, 2, 1, 2, 1, 3, 3], return 1.
+     *
+     * Challenge: O(n) time and O(1) extra space.
+     *
+     * @param nums:
+     *            A list of integers
+     * @return: The majority number that occurs more than 1/3
+     */
+    @tags.Greedy
+    @tags.Enumeration
+    @tags.Source.LintCode
+    @tags.Company.Zenefits
+    public int majorityNumberII(ArrayList<Integer> nums) {
+        int candidate1 = 0, candidate2 = 0;
+        int count1 = 0, count2 = 0;
+        for (int i = 0; i < nums.size(); i++) {
+            if (nums.get(i) == candidate1) {
+                count1++;
+            } else if (nums.get(i) == candidate2) {
+                count2++;
+            } else if (count1 == 0) {
+                candidate1 = nums.get(i);
+                count1 = 1;
+            } else if (count2 == 0) {
+                candidate2 = nums.get(i);
+                count2 = 1;
+            } else {
+                count1--;
+                count2--;
+            }
+        }
+
+        count1 = 0;
+        count2 = 0;
+        for (int i = 0; i < nums.size(); i++) {
+            if (nums.get(i) == candidate1) {
+                count1++;
+            } else if (nums.get(i) == candidate2) {
+                count2++;
+            }
+        }
+
+        return count1 > count2 ? candidate1 : candidate2;
+    }
+
+    /**
+     * Majority Number III.
+     *
+     * Given an array of integers and a number k, the majority number is the
+     * number that occurs more than 1/k of the size of the array. Find it.
+     *
+     * Notice: There is only one majority number in the array.
+     *
+     * Example: Given [3,1,2,3,2,3,3,4,4,4] and k=3, return 3.
+     *
+     * Challenge: O(n) time and O(k) extra space.
+     *
+     * @param nums:
+     *            A list of integers
+     * @param k:
+     *            As described
+     * @return: The majority number
+     */
+    @tags.HashTable
+    @tags.LinkedList
+    @tags.Source.LintCode
+    public int majorityNumber(ArrayList<Integer> nums, int k) {
+        Map<Integer, Integer> candidates = new HashMap<>();
+        for (int i = 0; i < nums.size(); i++) {
+            int num = nums.get(i);
+            if (candidates.containsKey(num)) {
+                candidates.put(num, candidates.get(num) + 1);
+            } else if (candidates.size() < k) {
+                candidates.put(num, 1);
+            } else {
+                Iterator<Integer> iter = candidates.keySet().iterator();
+                while (iter.hasNext()) {
+                    int candidate = iter.next();
+                    int cnt = candidates.get(candidate);
+                    if (cnt == 1) {
+                        iter.remove();
+                    } else {
+                        candidates.put(candidate, cnt - 1);
+                    }
+                }
+            }
+        }
+
+        for (Integer candidate : candidates.keySet()) {
+            candidates.put(candidate, 0);
+        }
+
+        for (int i = 0; i < nums.size(); i++) {
+            int num = nums.get(i);
+            if (candidates.containsKey(num)) {
+                candidates.put(num, candidates.get(num) + 1);
+            }
+        }
+
+        int major = 0, count = 0;
+        for (Integer candidate : candidates.keySet()) {
+            if (candidates.get(candidate) > count) {
+                major = candidate;
+                count = candidates.get(candidate);
+            }
+        }
+
+        return major;
+    }
+
+    /**
+     * Delete Digits.
+     *
+     * Given string A representative a positive integer which has N digits,
+     * remove any k digits of the number, the remaining digits are arranged
+     * according to the original order to become a new positive integer. Find
+     * the smallest integer after remove k digits. N <= 240 and k <= N.
+     *
+     * Example: Given an integer A = "178542", k = 4. return a string "12".
+     *
+     * @param A:
+     *            A positive integer which has N digits, A is a string.
+     * @param k:
+     *            Remove k digits.
+     * @return: A string
+     */
+    @tags.Greedy
+    @tags.Source.LintCode
+    public String DeleteDigits(String A, int k) {
+        StringBuilder sb = new StringBuilder(A);
+        while (k > 0) {
+            for (int i = 0; i < sb.length(); i++) {
+                if (i == sb.length() - 1 || sb.charAt(i) > sb.charAt(i + 1)) {
+                    sb.deleteCharAt(i);
+                    k--;
+                    break;
+                }
+            }
+        }
+
+        int i = 0;
+        while (sb.charAt(i) == '0' && i < sb.length()) {
+            i++;
+        }
+        return sb.substring(i);
+    }
+
+    /**
+     * Reorder array to construct the minimum number.
+     *
+     * Construct minimum number by reordering a given non-negative integer
+     * array. Arrange them such that they form the minimum number.
+     *
+     * Notice: The result may be very large, so you need to return a string
+     * instead of an integer.
+     *
+     * Example: Given [3, 32, 321], there are 6 possible numbers can be
+     * constructed by reordering the array: 3+32+321=332321, 3+321+32=332132,
+     * 32+3+321=323321, 32+321+3=323213, 321+3+32=321332, 321+32+3=321323. So
+     * after reordering, the minimum number is 321323, and return it.
+     *
+     * Challenge: Do it in O(nlogn) time complexity.
+     *
+     * @param nums
+     *            n non-negative integer array
+     * @return a string
+     */
+    @tags.Array
+    @tags.Permutation
+    public String minNumber(int[] nums) {
+        if (nums == null || nums.length == 0) {
+            return "";
+        }
+
+        // convert numbers to strings
+        List<String> strings = new ArrayList<>();
+        for (Integer i : nums) {
+            strings.add(String.valueOf(i));
+        }
+
+        // sort
+        Collections.sort(strings, new Comparator<String>() {
+            @Override
+            public int compare(String s1, String s2) {
+                StringBuilder sb1 = new StringBuilder(s1);
+                while (sb1.length() < s2.length()) {
+                    sb1.append(s1.charAt(0));
+                }
+                s1 = sb1.toString();
+
+                StringBuilder sb2 = new StringBuilder(s2);
+                while (s1.length() > sb2.length()) {
+                    sb2.append(s2.charAt(0));
+                }
+                s2 = sb2.toString();
+                return s1.compareTo(s2);
+            }
+        });
+
+        // combine
+        StringBuilder sb = new StringBuilder();
+        for (String s : strings) {
+            sb.append(s);
+        }
+
+        // remove leading 0s
+        int index = 0;
+        while (index < sb.length() && sb.charAt(index) == '0') {
+            index++;
+        }
+        if (index == sb.length()) {
+            return "0";
+        } else {
+            return sb.substring(index);
+        }
+    }
+
+    /**
+     * Largest Number.
+     *
+     * Given a list of non negative integers, arrange them such that they form
+     * the largest number.
+     *
+     * Notice: The result may be very large, so you need to return a string
+     * instead of an integer.
+     *
+     * Example: Given [1, 20, 23, 4, 8], the largest formed number is 8423201.
+     *
+     * Challenge: Do it in O(nlogn) time complexity.
+     *
+     * @param num:
+     *            A list of non negative integers
+     * @return: A string
+     */
+    @tags.Sort
+    public String largestNumber(int[] num) {
+        String[] nums = new String[num.length];
+        for (int i = 0; i < num.length; i++) {
+            nums[i] = String.valueOf(num[i]);
+        }
+
+        Arrays.sort(nums, new Comparator<String>() {
+            @Override
+            public int compare(String s1, String s2) {
+                StringBuilder sb1 = new StringBuilder(s1);
+                StringBuilder sb2 = new StringBuilder(s2);
+                while (sb1.length() < sb2.length()) {
+                    sb1.append(sb1.charAt(0));
+                }
+                while (sb2.length() < sb1.length()) {
+                    sb2.append(sb2.charAt(0));
+                }
+                return sb2.toString().compareTo(sb1.toString());
+            }
+        });
+
+        StringBuilder sb = new StringBuilder();
+        for (int i = 0; i < nums.length; i++) {
+            sb.append(nums[i]);
+        }
+
+        if (sb.charAt(0) == '0') {
+            return "0";
+        }
+        return sb.toString();
+    }
+
+    /**
      * String to Integer (atoi).
      *
      * Implement function atoi to convert a string to an integer. If no valid
@@ -428,7 +892,8 @@ public class BasicAndStringAndMath {
      *
      * Example: sqrt(3) = 1, sqrt(4) = 2, sqrt(5) = 2, sqrt(10) = 3.
      *
-     * @param x: An integer
+     * @param x:
+     *            An integer
      * @return: The sqrt of x
      */
     @tags.BinarySearch
@@ -714,76 +1179,6 @@ public class BasicAndStringAndMath {
         }
 
         return (sb.length() > 0) ? sb.substring(0, sb.length() - 1) : "";
-    }
-
-    /**
-     * Single Number
-     * 
-     * Given an array of integers, every element appears twice except for one.
-     * Find that single one. Time: O(n). Space: O(0).
-     * 
-     * If there's no space constraint, Map should be a common solution
-     */
-    public int singleNumber(int[] A) {
-        if (A == null || A.length == 0) {
-            return -1;
-        }
-
-        // Since A^B^A == B, xor every other element with first one of the A
-        for (int i = 1; i < A.length; i++) {
-            A[0] ^= A[i];
-        }
-        return A[0];
-    }
-
-    /**
-     * Single Number II
-     * 
-     * Given an array of integers, every element appears three times except for
-     * one. Find that single one. Time: O(n). Space: O(0).
-     * 
-     * So tricky!!! Three bitmask variables.
-     */
-    public int singleNumber2(int[] A) {
-        int ones = 0; // represent the ith bit has appear once
-        int twos = 0; // represent the ith bit has appear twice
-        int threes = 0; // represent the ith bit has appear three times
-
-        for (int i = 0; i < A.length; i++) {
-            threes = (threes & ~A[i]) | (twos & A[i]);
-            twos = (twos & ~A[i]) | (ones & A[i]);
-            ones = (ones ^ A[i]) & ~(threes | twos);
-        }
-
-        return ones;
-        // Another solution
-        // int ones = 0, twos = 0, threes = 0;
-        // for (int i = 0; i < n; i++) {
-        // twos |= ones & A[i];
-        // ones ^= A[i];
-        // threes = ones & twos;
-        // ones &= ~threes;
-        // twos &= ~threes;
-        // }
-        // return ones;
-    }
-
-    /** Another approach */
-    public int singleNumber22(int[] A) {
-        if (A == null || A.length == 0) {
-            return -1;
-        }
-        int result = 0;
-        int[] bits = new int[32];
-        for (int i = 0; i < 32; i++) {
-            for (int j = 0; j < A.length; j++) {
-                bits[i] += A[j] >> i & 1;
-                bits[i] %= 3;
-            }
-
-            result |= (bits[i] << i);
-        }
-        return result;
     }
 
     /**

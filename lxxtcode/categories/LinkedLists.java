@@ -2,6 +2,7 @@ package categories;
 
 import java.math.BigInteger;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.Comparator;
 import java.util.HashSet;
 import java.util.List;
@@ -11,7 +12,9 @@ import java.util.Stack;
 
 public class LinkedLists {
 
-    // ******************************** MODELS ********************************
+    // ---------------------------------------------------------------------- //
+    // ------------------------------- MODELS ------------------------------- //
+    // ---------------------------------------------------------------------- //
 
     /** Definition for singly-linked list. */
     public class ListNode {
@@ -56,7 +59,9 @@ public class LinkedLists {
         }
     }
 
-    // ******************************* TEMPLATE *******************************
+    // ---------------------------------------------------------------------- //
+    // ------------------------------ TEMPLATE ------------------------------ //
+    // ---------------------------------------------------------------------- //
 
     /**
      * Remove a node from a single linked list
@@ -96,8 +101,18 @@ public class LinkedLists {
     @tags.LinkedList
     @tags.Source.LeetCode
     @tags.Source.LintCode
+    @tags.Company.Adobe
+    @tags.Company.Amazon
+    @tags.Company.Apple
+    @tags.Company.Bloomberg
     @tags.Company.Facebook
+    @tags.Company.Microsoft
+    @tags.Company.Snapchat
+    @tags.Company.Twitter
     @tags.Company.Uber
+    @tags.Company.Yahoo
+    @tags.Company.Yelp
+    @tags.Company.Zenefits
     public ListNode reverse(ListNode head) {
         ListNode newHead = null;
 
@@ -109,6 +124,48 @@ public class LinkedLists {
         }
 
         return newHead;
+    }
+
+    /**
+     * Reverse Linked List II
+     *
+     * Reverse a linked list from position m to n. Do it in-place and in
+     * one-pass.
+     *
+     * For example: Given 1->2->3->4->5->NULL, m = 2 and n = 4, return
+     * 1->4->3->2->5->NULL.
+     *
+     * Note: m, n satisfy the following condition: 1 ¡Ü m ¡Ü n ¡Ü length of list.
+     *
+     * @param ListNode
+     *            head is the head of the linked list
+     * @oaram m and n
+     * @return: The head of the reversed ListNode
+     */
+    @tags.LinkedList
+    public ListNode reverseBetween(ListNode head, int m, int n) {
+        ListNode dummy = new ListNode(0);
+        dummy.next = head;
+
+        ListNode leftTail = dummy;
+        while (--m > 0 && leftTail != null) {
+            leftTail = leftTail.next;
+            n--;
+        }
+
+        if (leftTail == null || leftTail.next == null) {
+            return head;
+        }
+
+        ListNode midTail = leftTail.next;
+        while (--n > 0 && midTail.next != null) {
+            ListNode next = leftTail.next;
+            leftTail.next = midTail.next;
+            midTail.next = midTail.next.next;
+            leftTail.next.next = next;
+        }
+
+        return dummy.next;
     }
 
     /**
@@ -158,13 +215,53 @@ public class LinkedLists {
         return slow;
     }
 
-    // ******************************* PROBLEMS *******************************
+    // ---------------------------------------------------------------------- //
+    // ------------------------------ PROBLEMS ------------------------------ //
+    // ---------------------------------------------------------------------- //
 
     /**
-     * Remove Nth Node From End of List
+     * Nth to Last Node in List.
+     *
+     * Find the nth to last element of a singly linked list. The minimum number
+     * of nodes in list is n.
+     *
+     * Example: Given a List 3->2->1->5->null and n = 2, return node whose value
+     * is 1.
+     *
+     * @param head:
+     *            The first node of linked list.
+     * @param n:
+     *            An integer.
+     * @return: Nth to last node of a singly linked list.
+     */
+    @tags.LinkedList
+    @tags.TwoPointers
+    @tags.Source.CrackingTheCodingInterview
+    public ListNode nthToLast(ListNode head, int n) {
+        ListNode current = head;
+        while (n-- > 0) {
+            current = current.next;
+        }
+        while (current != null) {
+            current = current.next;
+            head = head.next;
+        }
+        return head;
+    }
+
+    /**
+     * Remove Nth Node From End of List.
      *
      * Given a linked list, remove the nth node from the end of list and return
      * its head.
+     *
+     * Notice: The minimum number of nodes in list is n.
+     *
+     * Example: Given linked list: 1->2->3->4->5->null, and n = 2. After
+     * removing the second node from the end, the linked list becomes
+     * 1->2->3->5->null.
+     *
+     * Challenge: Can you do it without getting the length of the linked list?
      *
      * @param head:
      *            The first node of linked list.
@@ -179,7 +276,7 @@ public class LinkedLists {
         dummy.next = head;
 
         // two runner method
-        ListNode fast = head, slow = dummy;
+        ListNode fast = dummy, slow = dummy;
 
         // move the fast runner to forward by n steps
         while (n-- >= 0) {
@@ -222,25 +319,24 @@ public class LinkedLists {
     @tags.LinkedList
     @tags.TwoPointers
     public ListNode partition(ListNode head, int x) {
-        ListNode list1 = new ListNode(-1);
-        ListNode tail1 = list1;
-        ListNode list2 = new ListNode(-1);
-        ListNode tail2 = list2;
+        ListNode dummy1 = new ListNode(0), dummy2 = new ListNode(0);
+        ListNode prev1 = dummy1, prev2 = dummy2;
 
         while (head != null) {
             if (head.val < x) {
-                tail1.next = head;
-                tail1 = head;
+                prev1.next = head;
+                prev1 = head;
             } else {
-                tail2.next = head;
-                tail2 = head;
+                prev2.next = head;
+                prev2 = head;
             }
             head = head.next;
         }
 
-        tail1.next = list2.next;
-        tail2.next = null;
-        return list1.next;
+        prev1.next = dummy2.next;
+        prev2.next = null;
+
+        return dummy1.next;
     }
 
     /**
@@ -291,19 +387,19 @@ public class LinkedLists {
      */
     @tags.LinkedList
     public ListNode deleteDuplicatesII(ListNode head) {
-        ListNode dummy = new ListNode(-1);
+        ListNode dummy = new ListNode(0);
         dummy.next = head;
         head = dummy;
 
         while (head != null && head.next != null) {
-            ListNode lastDup = head.next;
-            while (lastDup.next != null && lastDup.val == lastDup.next.val) {
-                lastDup = lastDup.next;
+            ListNode current = head.next;
+            while (current.next != null && current.next.val == head.next.val) {
+                current = current.next;
             }
-            if (head.next != lastDup) {
-                head.next = lastDup.next;
+            if (head.next == current) {
+                head = current;
             } else {
-                head = head.next;
+                head.next = current.next;
             }
         }
 
@@ -343,13 +439,19 @@ public class LinkedLists {
     }
 
     /**
-     * Convert Sorted List to Balanced BST
+     * Convert Sorted List to Balanced BST (Convert Sorted List to Binary Search
+     * Tree).
      *
      * Given a singly linked list where elements are sorted in ascending order,
      * convert it to a height balanced BST.
+     *
+     * @param head: The first node of linked list.
+     * @return: a tree node
      */
     @tags.LinkedList
     @tags.Recursion
+    @tags.DFS
+    @tags.Company.Zenefits
     public TreeNode sortedListToBST(ListNode head) {
         ArrayList<TreeNode> treeNodes = new ArrayList<>();
         while (head != null) {
@@ -375,7 +477,7 @@ public class LinkedLists {
     }
 
     /**
-     * Convert Sorted List to Balanced BST
+     * Convert Sorted List to Balanced BST.
      *
      * TODO: Compare this solution.
      */
@@ -412,11 +514,13 @@ public class LinkedLists {
     }
 
     /**
-     * Copy List with Random Pointer
+     * Copy List with Random Pointer.
      *
      * A linked list is given such that each node contains an additional random
      * pointer which could point to any node in the list or null. Return a deep
      * copy of the list.
+     *
+     * Challenge: Could you solve it with O(1) space?
      *
      * @param head:
      *            The head of linked list with a random pointer.
@@ -424,38 +528,39 @@ public class LinkedLists {
      */
     @tags.LinkedList
     @tags.HashTable
+    @tags.Company.Amazon
+    @tags.Company.Bloomberg
+    @tags.Company.Microsoft
     @tags.Company.Uber
     public RandomListNode copyRandomList(RandomListNode head) {
-        RandomListNode dummy = new RandomListNode(0);
-        dummy.next = head;
-
         // copy nodes and append copy after each original node
-        while (head != null) {
-            RandomListNode next = head.next;
-            head.next = new RandomListNode(head.label);
-            head.next.next = next;
-            head = next;
+        RandomListNode current = head;
+        while (current != null) {
+            RandomListNode copy = new RandomListNode(current.label);
+            copy.next = current.next;
+            current.next = copy;
+            current = copy.next;
         }
 
         // copy random pointer
-        head = dummy.next;
-        while (head != null) {
-            if (head.random != null) {
-                head.next.random = head.random.next;
+        current = head;
+        while (current != null) {
+            if (current.random != null) {
+                current.next.random = current.random.next;
             }
-            head = head.next.next;
+            current = current.next.next;
         }
 
         // separate the 2 lists
-        RandomListNode pre = dummy;
-        head = dummy.next;
-        while (head != null) {
-            pre.next = head.next;
-            pre = pre.next;
-            head.next = pre.next;
-            head = head.next;
+        RandomListNode dummy = new RandomListNode(0);
+        RandomListNode prev = dummy;
+        current = head;
+        while (current != null) {
+            prev.next = current.next;
+            current.next = current.next.next;
+            current = current.next;
+            prev = prev.next;
         }
-        pre.next = null;
 
         return dummy.next;
     }
@@ -516,7 +621,7 @@ public class LinkedLists {
     }
 
     /**
-     * Reorder List
+     * Reorder List.
      *
      * Given a singly linked list L: L0¡úL1¡ú¡­¡úLn-1¡úLn, reorder it to:
      * L0¡úLn¡úL1¡úLn-1¡úL2¡úLn-2¡ú¡­
@@ -531,43 +636,75 @@ public class LinkedLists {
      */
     @tags.LinkedList
     public void reorderList(ListNode head) {
-        if (head == null || head.next == null || head.next.next == null)
+        if (head == null || head.next == null || head.next.next == null) {
             return;
+        }
 
         // find the second half
-        ListNode slow = head;
-        ListNode fast = head.next;
+        ListNode slow = head, fast = head.next;
         while (fast != null && fast.next != null) {
             slow = slow.next;
             fast = fast.next.next;
         }
 
         // break the list, reverse the second half list
-        ListNode list = slow.next;
+        ListNode list = reverse(slow.next);
         slow.next = null;
-        list = reverse(list);
 
-        // merge the two list
-        ListNode current = head;
+        // merge the two lists
         while (list != null) {
-            ListNode temp = list;
-            list = list.next;
-            temp.next = current.next;
-            current.next = temp;
-            current = temp.next;
+            ListNode next = list.next;
+            list.next = head.next;
+            head.next = list;
+            head = list.next;
+            list = next;
         }
     }
 
     /**
-     * Sort List
+     * Sort List.
      *
      * Sort a linked list in O(n log n) time using constant space complexity.
      *
+     * Example: Given 1->3->2->null, sort it to 1->2->3->null.
+     *
+     * Challenge: Solve it by merge sort & quick sort separately.
+     *
      * Important: Space O(n) solution: copy all nodes to array to avoid cost of
      * findMiddle!!! Collections.sort dumps list elements to an array first.
+     *
+     * @param head:
+     *            The head of linked list.
+     * @return: You should return the head of the sorted linked list, using
+     *          constant space complexity.
      */
     @tags.LinkedList
-    /** Quick sort */
+    @tags.Sort
+    public ListNode sortList(ListNode head) {
+        ArrayList<ListNode> list = new ArrayList<>();
+        while (head != null) {
+            list.add(head);
+            head = head.next;
+        }
+
+        Collections.sort(list, new Comparator<ListNode>() {
+            @Override
+            public int compare(ListNode n1, ListNode n2) {
+                return n1.val - n2.val;
+            }
+        });
+
+        list.add(null);
+        for (int i = 0; i < list.size() - 1; i++) {
+            list.get(i).next = list.get(i + 1);
+        }
+
+        return list.get(0);
+    }
+
+    /** Sort List - Quick sort */
+    @tags.LinkedList
+    @tags.Sort
     public ListNode sortListQuick(ListNode head) {
         if (head == null)
             return null;
@@ -627,9 +764,9 @@ public class LinkedLists {
         return dummy.next;
     }
 
-    /**
-     * Sort List - Merge sort
-     */
+    /** Sort List - Merge sort */
+    @tags.LinkedList
+    @tags.Sort
     public ListNode sortListMerge(ListNode head) {
         if (head == null || head.next == null) {
             return head;
@@ -669,53 +806,13 @@ public class LinkedLists {
     }
 
     /**
-     * Reverse Linked List II
-     *
-     * Reverse a linked list from position m to n. Do it in-place and in
-     * one-pass.
-     *
-     * For example: Given 1->2->3->4->5->NULL, m = 2 and n = 4, return
-     * 1->4->3->2->5->NULL.
-     *
-     * Note: m, n satisfy the following condition: 1 ¡Ü m ¡Ü n ¡Ü length of list.
-     *
-     * @param ListNode
-     *            head is the head of the linked list
-     * @oaram m and n
-     * @return: The head of the reversed ListNode
-     */
-    @tags.LinkedList
-    public ListNode reverseBetween(ListNode head, int m, int n) {
-        ListNode dummy = new ListNode(0);
-        dummy.next = head;
-
-        ListNode leftTail = dummy;
-        while (--m > 0 && leftTail != null) {
-            leftTail = leftTail.next;
-            n--;
-        }
-
-        if (leftTail == null || leftTail.next == null) {
-            return head;
-        }
-
-        ListNode midTail = leftTail.next;
-        while (--n > 0 && midTail.next != null) {
-            ListNode next = leftTail.next;
-            leftTail.next = midTail.next;
-            midTail.next = midTail.next.next;
-            leftTail.next.next = next;
-        }
-
-        return dummy.next;
-    }
-
-    /**
-     * Linked List Cycle
+     * Linked List Cycle - O(1) space.
      *
      * Given a linked list, determine if it has a cycle in it.
      *
-     * Space Complexity: O(1)
+     * Example: Given -21->10->4->5, tail connects to node index 1, return true
+     *
+     * Challenge: Follow up: Can you solve it without using extra space?
      *
      * @param head:
      *            The first node of linked list.
@@ -723,16 +820,22 @@ public class LinkedLists {
      */
     @tags.TwoPointers
     @tags.LinkedList
+    @tags.Company.Amazon
+    @tags.Company.Bloomberg
+    @tags.Company.Microsoft
+    @tags.Company.Yahoo
     public boolean hasCycle(ListNode head) {
         ListNode slow = head, fast = head;
-        do {
-            if (fast == null || fast.next == null) {
-                return false;
-            }
+
+        while (fast != null && fast.next != null) {
             slow = slow.next;
             fast = fast.next.next;
-        } while (slow != fast);
-        return true;
+            if (slow == fast) {
+                return true;
+            }
+        }
+
+        return false;
     }
 
     /**
@@ -751,9 +854,7 @@ public class LinkedLists {
     @tags.TwoPointers
     @tags.LinkedList
     public ListNode detectCycle(ListNode head) {
-        ListNode dummy = new ListNode(0);
-        dummy.next = head;
-        ListNode fast = dummy, slow = dummy;
+        ListNode slow = head, fast = head;
 
         // fast double speed to slow
         do {
@@ -762,13 +863,13 @@ public class LinkedLists {
             }
             slow = slow.next;
             fast = fast.next.next;
-        } while (fast != slow);
+        } while (slow != fast);
 
         // same pace
-        slow = dummy;
-        while (fast != slow) {
-            fast = fast.next;
+        slow = head;
+        while (slow != fast) {
             slow = slow.next;
+            fast = fast.next;
         }
 
         return fast;
@@ -889,9 +990,9 @@ public class LinkedLists {
      * digits are stored in reverse order and each of their nodes contain a
      * single digit. Add the two numbers and return it as a linked list.
      *
-     * Given 7->1->6 + 5->9->2. That is, 617 + 295. Return 2->1->9. That is 912.
-     * Given 3->1->5 and 5->9->2, return 8->0->8. Input: (2 -> 4 -> 3) + (5 -> 6
-     * -> 4) Output: 7 -> 0 -> 8.
+     * Example: Given 7->1->6 + 5->9->2. That is, 617 + 295. Return 2->1->9.
+     * That is 912. Given 3->1->5 and 5->9->2, return 8->0->8. Input: (2->4->3)
+     * + (5->6->4) Output: 7->0->8.
      *
      * @param l1:
      *            the first list
@@ -901,50 +1002,36 @@ public class LinkedLists {
      */
     @tags.LinkedList
     @tags.Math
+    @tags.HighPrecision
     @tags.Source.CrackingTheCodingInterview
     /** Adding node by node */
-    public ListNode addTwoNumbers(ListNode l1, ListNode l2) {
-        ListNode l = new ListNode(0); // dummy head node
-        int sum = 0, carry = 0;
-        ListNode current = l;
+    public ListNode addLists(ListNode l1, ListNode l2) {
+        ListNode dummy = new ListNode(0);
+        ListNode prev = dummy;
+        int carry = 0;
 
-        while (l1 != null && l2 != null) {
-            sum = l1.val + l2.val + carry;
-            carry = sum / 10;
-            current.next = new ListNode(sum % 10);
-            current = current.next;
-            l1 = l1.next;
-            l2 = l2.next;
+        while (carry > 0 || l1 != null || l2 != null) {
+            int sum = carry;
+            if (l1 != null) {
+                sum += l1.val;
+                l1 = l1.next;
+            }
+            if (l2 != null) {
+                sum += l2.val;
+                l2 = l2.next;
+            }
+            carry = sum >= 10 ? 1 : 0;
+            sum = sum % 10;
+
+            prev.next = new ListNode(sum);
+            prev = prev.next;
         }
 
-        // done with both l1 and l2
-        if (l1 == null && l2 == null) {
-            if (carry != 0)
-                current.next = new ListNode(carry);
-            return l.next;
-        } else if (l1 != null) { // l1 still need to be added
-            current.next = l1;
-        } else if (l2 != null) { // l2 still need to be added
-            current.next = l2;
-        }
-        current = current.next;
-
-        while (carry != 0 && current.next != null) {
-            sum = current.val + carry;
-            carry = sum / 10;
-            current.val = sum % 10;
-            current = current.next;
-        }
-        sum = current.val + carry;
-        carry = sum / 10;
-        current.val = sum % 10;
-        if (carry != 0)
-            current.next = new ListNode(carry);
-        return l.next;
+        return dummy.next;
     }
 
     /** Add Two Numbers - BigInteger Solution */
-    public ListNode addLists(ListNode l1, ListNode l2) {
+    public ListNode addLists2(ListNode l1, ListNode l2) {
         ListNode dummy = new ListNode(0);
         ListNode prev = dummy;
 
@@ -1014,35 +1101,6 @@ public class LinkedLists {
     }
 
     /**
-     * Nth to Last Node in List
-     *
-     * Find the nth to last element of a singly linked list. The minimum number
-     * of nodes in list is n.
-     *
-     * Example: Given a List 3->2->1->5->null and n = 2, return node whose value
-     * is 1.
-     *
-     * @param head:
-     *            The first node of linked list.
-     * @param n:
-     *            An integer.
-     * @return: Nth to last node of a singly linked list.
-     */
-    @tags.LinkedList
-    @tags.Source.CrackingTheCodingInterview
-    public ListNode nthToLast(ListNode head, int n) {
-        ListNode current = head;
-        while (n-- > 0) {
-            current = current.next;
-        }
-        while (current != null) {
-            current = current.next;
-            head = head.next;
-        }
-        return head;
-    }
-
-    /**
      * Merge Two Sorted Lists
      *
      * Merge two sorted (ascending) linked lists and return it as a new sorted
@@ -1059,7 +1117,10 @@ public class LinkedLists {
      * @return: ListNode head of linked list
      */
     @tags.LinkedList
+    @tags.Company.Amazon
+    @tags.Company.Apple
     @tags.Company.LinkedIn
+    @tags.Company.Microsoft
     public ListNode mergeTwoLists(ListNode l1, ListNode l2) {
         ListNode dummy = new ListNode(0);
         ListNode prev = dummy;
@@ -1079,8 +1140,7 @@ public class LinkedLists {
         // append the remaining list
         if (l1 != null) {
             prev.next = l1;
-        }
-        if (l2 != null) {
+        } else if (l2 != null) {
             prev.next = l2;
         }
 
@@ -1286,6 +1346,7 @@ public class LinkedLists {
      * @return: the list after rotation
      */
     @tags.LinkedList
+    @tags.TwoPointers
     @tags.BasicImplementation
     public ListNode rotateRight(ListNode head, int k) {
         if (head == null) {

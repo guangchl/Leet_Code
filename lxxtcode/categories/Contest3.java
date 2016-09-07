@@ -2,8 +2,6 @@ package categories;
 
 import java.util.AbstractMap;
 import java.util.ArrayList;
-import java.util.Collections;
-import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
 
@@ -160,76 +158,6 @@ public class Contest3 {
                     new AbstractMap.SimpleEntry<>(i + 1, sumsCount[i] / total));
         }
         return result;
-    }
-
-    /**
-     * Reorder array to construct the minimum number.
-     *
-     * Construct minimum number by reordering a given non-negative integer
-     * array. Arrange them such that they form the minimum number.
-     *
-     * Notice: The result may be very large, so you need to return a string
-     * instead of an integer.
-     *
-     * Example: Given [3, 32, 321], there are 6 possible numbers can be
-     * constructed by reordering the array: 3+32+321=332321, 3+321+32=332132,
-     * 32+3+321=323321, 32+321+3=323213, 321+3+32=321332, 321+32+3=321323. So
-     * after reordering, the minimum number is 321323, and return it.
-     *
-     * Challenge: Do it in O(nlogn) time complexity.
-     *
-     * @param nums
-     *            n non-negative integer array
-     * @return a string
-     */
-    @tags.Array
-    @tags.Permutation
-    public String minNumber(int[] nums) {
-        if (nums == null || nums.length == 0) {
-            return "";
-        }
-
-        // convert numbers to strings
-        List<String> strings = new ArrayList<>();
-        for (Integer i : nums) {
-            strings.add(String.valueOf(i));
-        }
-
-        // sort
-        Collections.sort(strings, new Comparator<String>() {
-            @Override
-            public int compare(String s1, String s2) {
-                StringBuilder sb1 = new StringBuilder(s1);
-                while (sb1.length() < s2.length()) {
-                    sb1.append(s1.charAt(0));
-                }
-                s1 = sb1.toString();
-
-                StringBuilder sb2 = new StringBuilder(s2);
-                while (s1.length() > sb2.length()) {
-                    sb2.append(s2.charAt(0));
-                }
-                s2 = sb2.toString();
-                return s1.compareTo(s2);
-            }
-        });
-
-        // combine
-        StringBuilder sb = new StringBuilder();
-        for (String s : strings) {
-            sb.append(s);
-        }
-
-        // remove leading 0s
-        int index = 0;
-        while (index < sb.length() && sb.charAt(index) == '0') {
-            index++;
-        }
-        if (index == sb.length()) {
-            return "0";
-        } else {
-            return sb.substring(index);
-        }
     }
 
     @Test
