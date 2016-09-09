@@ -7,9 +7,13 @@ import java.util.List;
 import java.util.Queue;
 import java.util.Stack;
 
+import org.junit.Test;
+
 public class BinaryTreeAndDivideConquer {
 
-    // **************************** Data Structure ****************************
+    // ---------------------------------------------------------------------- //
+    // ------------------------------- MODELS ------------------------------- //
+    // ---------------------------------------------------------------------- //
 
     /** Definition for binary tree */
     public class TreeNode {
@@ -38,10 +42,12 @@ public class BinaryTreeAndDivideConquer {
         }
     }
 
-    // ******************************* TRAVERSAL *******************************
+    // ---------------------------------------------------------------------- //
+    // ----------------------------- TRAVERSAL ------------------------------ //
+    // ---------------------------------------------------------------------- //
 
     /**
-     * Binary Tree Preorder Traversal
+     * Binary Tree Preorder Traversal - recursive solution.
      *
      * Given a binary tree, return the preorder traversal of its nodes' values.
      *
@@ -53,6 +59,10 @@ public class BinaryTreeAndDivideConquer {
      *            The root of binary tree.
      * @return: Preorder in ArrayList which contains node values.
      */
+    @tags.Recursion
+    @tags.Tree
+    @tags.BinaryTree
+    @tags.BinaryTreeTraversal
     public ArrayList<Integer> preorderTraversalRec(TreeNode root) {
         ArrayList<Integer> result = new ArrayList<>();
         preorderTraverse(root, result);
@@ -68,14 +78,17 @@ public class BinaryTreeAndDivideConquer {
     }
 
     /**
-     * Binary Tree Preorder Traversal.
-     *
-     * Iterative solution.
+     * Binary Tree Preorder Traversal - iterative solution.
      *
      * @param root:
      *            The root of binary tree.
      * @return: Preorder in ArrayList which contains node values.
      */
+    @tags.NonRecursion
+    @tags.Stack
+    @tags.Tree
+    @tags.BinaryTree
+    @tags.BinaryTreeTraversal
     public ArrayList<Integer> preorderTraversalIter(TreeNode root) {
         ArrayList<Integer> result = new ArrayList<>();
         Stack<TreeNode> stack = new Stack<>();
@@ -94,10 +107,19 @@ public class BinaryTreeAndDivideConquer {
     }
 
     /**
-     * @param root: The root of binary tree.
+     * Binary Tree Postorder Traversal.
+     *
+     * Example: Given binary tree {1,#,2,3}, return [3,2,1].
+     *
+     * Challenge: Can you do it without recursion?
+     *
+     * @param root:
+     *            The root of binary tree.
      * @return: Postorder in ArrayList which contains node values.
      */
     @tags.Recursion
+    @tags.Stack
+    @tags.Tree
     @tags.BinaryTree
     @tags.BinaryTreeTraversal
     public ArrayList<Integer> postorderTraversal(TreeNode root) {
@@ -112,14 +134,11 @@ public class BinaryTreeAndDivideConquer {
                 current = current.left;
             }
 
-            current = stack.peek();
-            if (current.right == null || current.right == prev) {
-                stack.pop();
-                result.add(current.val);
-                prev = current;
-                current = null;
+            if (stack.peek().right == prev || stack.peek().right == null) {
+                prev = stack.pop();
+                result.add(prev.val);
             } else {
-                current = current.right;
+                current = stack.peek().right;
             }
         }
 
@@ -131,12 +150,19 @@ public class BinaryTreeAndDivideConquer {
      *
      * Given a binary tree, return the inorder traversal of its nodes' values.
      *
-     * @param root: The root of binary tree.
+     * Example: Given binary tree {1,#,2,3}, return [1,3,2].
+     *
+     * Challenge: Can you do it without recursion?
+     *
+     * @param root:
+     *            The root of binary tree.
      * @return: Inorder in ArrayList which contains node values.
      */
     @tags.Recursion
+    @tags.Tree
     @tags.BinaryTree
     @tags.BinaryTreeTraversal
+    @tags.Company.Microsoft
     public ArrayList<Integer> inorderTraversal(TreeNode root) {
         ArrayList<Integer> result = new ArrayList<>();
         Stack<TreeNode> stack = new Stack<>();
@@ -162,60 +188,71 @@ public class BinaryTreeAndDivideConquer {
      * Given a binary tree, return the level order traversal of its nodes'
      * values. (ie, from left to right, level by level).
      *
+     * Example: Given binary tree {3,9,20,#,#,15,7}, return its level order
+     * traversal as: [ [3], [9,20], [15,7] ].
+     *
+     * Challenge: Challenge 1: Using only 1 queue to implement it. Challenge 2:
+     * Use DFS algorithm to do it.
+     *
      * @param root:
      *            The root of binary tree.
      * @return: Level order a list of lists of integer
      */
     @tags.Queue
+    @tags.Tree
     @tags.BinaryTree
     @tags.BFS
     @tags.BinaryTreeTraversal
+    @tags.Company.Amazon
+    @tags.Company.Apple
+    @tags.Company.Bloomberg
     @tags.Company.Facebook
     @tags.Company.LinkedIn
+    @tags.Company.Microsoft
     @tags.Company.Uber
     public ArrayList<ArrayList<Integer>> levelOrder(TreeNode root) {
         ArrayList<ArrayList<Integer>> result = new ArrayList<>();
-        if (root == null) {
-            return result;
-        }
-
         Queue<TreeNode> queue = new LinkedList<>();
         queue.offer(root);
-        queue.offer(null);
-        ArrayList<Integer> level = new ArrayList<>();
 
-        while (!queue.isEmpty()) {
-            TreeNode node = queue.poll();
-            if (node != null) {
-                level.add(node.val);
-                if (node.left != null) {
-                    queue.offer(node.left);
-                }
-                if (node.right != null) {
-                    queue.offer(node.right);
-                }
-            } else {
-                result.add(level);
-                if (queue.isEmpty()) {
-                    break;
-                } else {
-                    queue.offer(null);
-                    level = new ArrayList<>();
+        while (true) {
+            Queue<TreeNode> newQueue = new LinkedList<>();
+            ArrayList<Integer> level = new ArrayList<>();
+
+            for (TreeNode node : queue) {
+                if (node != null) {
+                    level.add(node.val);
+                    newQueue.offer(node.left);
+                    newQueue.offer(node.right);
                 }
             }
+
+            if (level.size() == 0) {
+                break;
+            }
+
+            result.add(level);
+            queue = newQueue;
         }
 
         return result;
     }
 
     /**
-     * Binary Tree Level Order Traversal II
+     * Binary Tree Level Order Traversal II.
      *
      * Given a binary tree, return the bottom-up level order traversal of its
      * nodes' values. (ie, from left to right, level by level from leaf to
      * root).
+     *
+     * Example: Given binary tree {3,9,20,#,#,15,7}, return its level order
+     * traversal as: [ [15,7], [9,20], [3] ].
+     *
+     * @param root: The root of binary tree.
+     * @return: buttom-up level order a list of lists of integer
      */
     @tags.Queue
+    @tags.Tree
     @tags.BinaryTree
     @tags.BinaryTreeTraversal
     @tags.BFS
@@ -232,47 +269,53 @@ public class BinaryTreeAndDivideConquer {
      * nodes' values. (ie, from left to right, then right to left for the next
      * level and alternate between).
      *
+     * Example: Given binary tree {1,2,3,4,#,#,5,#,#,6,7,#,#,#,8}, return its
+     * zigzag level order traversal as: [[1],[3,2],[4,5],[7,6],[8]].
+     *
      * @param root:
      *            The root of binary tree.
      * @return: A list of lists of integer include the zigzag level order
      *          traversal of its nodes' values
      */
+    @tags.Stack
     @tags.Queue
     @tags.BFS
+    @tags.Tree
     @tags.BinaryTree
     @tags.BinaryTreeTraversal
+    @tags.Company.Bloomberg
     @tags.Company.LinkedIn
+    @tags.Company.Microsoft
     public ArrayList<ArrayList<Integer>> zigzagLevelOrder(TreeNode root) {
         ArrayList<ArrayList<Integer>> result = new ArrayList<>();
-        Stack<TreeNode> thisLevel = new Stack<>();
-        thisLevel.push(root);
-        boolean normalOrder = true;
+        boolean forward = true;
+        Stack<TreeNode> stack = new Stack<>();
+        stack.push(root);
 
-        while (!thisLevel.isEmpty()) {
-            Stack<TreeNode> nextLevel = new Stack<>();
+        while (true) {
             ArrayList<Integer> level = new ArrayList<>();
+            Stack<TreeNode> newStack = new Stack<>();
 
-            while (!thisLevel.isEmpty()) {
-                TreeNode node = thisLevel.pop();
-                if (node == null) continue;
-                level.add(node.val);
-
-                // push child to next level
-                if (normalOrder) {
-                    nextLevel.push(node.left);
-                    nextLevel.push(node.right);
-                } else {
-                    nextLevel.push(node.right);
-                    nextLevel.push(node.left);
+            while (!stack.isEmpty()) {
+                TreeNode node = stack.pop();
+                if (node != null) {
+                    level.add(node.val);
+                    if (forward) {
+                        newStack.push(node.left);
+                        newStack.push(node.right);
+                    } else {
+                        newStack.push(node.right);
+                        newStack.push(node.left);
+                    }
                 }
             }
 
-            // append the result
-            if (!level.isEmpty()) {
-                thisLevel = nextLevel;
-                result.add(level);
-                normalOrder ^= true;
+            if (level.isEmpty()) {
+                break;
             }
+            result.add(level);
+            forward = !forward;
+            stack = newStack;
         }
 
         return result;
@@ -342,6 +385,15 @@ public class BinaryTreeAndDivideConquer {
      *            The root of binary tree.
      * @return: An integer.
      */
+    @tags.Recursion
+    @tags.DFS
+    @tags.Tree
+    @tags.BinaryTree
+    @tags.DivideAndConquer
+    @tags.Company.Apple
+    @tags.Company.LinkedIn
+    @tags.Company.Uber
+    @tags.Company.Yahoo
     public int maxDepth(TreeNode root) {
         if (root == null) {
             return 0;
@@ -359,10 +411,18 @@ public class BinaryTreeAndDivideConquer {
      * tree in which the depth of the two subtrees of every node never differ by
      * more than 1.
      *
+     * Example: Given binary tree A = {3,9,20,#,#,15,7}, B = {3,#,20,15,7}. The
+     * binary tree A is a height-balanced binary tree, but B is not.
+     *
      * @param root:
      *            The root of binary tree.
      * @return: True if this Binary tree is Balanced, or false.
      */
+    @tags.Recursion
+    @tags.DivideAndConquer
+    @tags.Tree
+    @tags.DFS
+    @tags.Company.Bloomberg
     public boolean isBalanced(TreeNode root) {
         return height(root) != -1;
     }
@@ -540,11 +600,10 @@ public class BinaryTreeAndDivideConquer {
      * Given a binary tree, determine if it is a valid binary search tree (BST).
      *
      * Assume a BST is defined as follows:
-     *
      * The left subtree of a node contains only nodes with keys less than the
      * node's key. The right subtree of a node contains only nodes with keys
      * greater than the node's key. Both the left and right subtrees must also
-     * be binary search trees. A single node tree is a BST
+     * be binary search trees. A single node tree is a BST.
      *
      * @param root:
      *            The root of binary tree.
@@ -555,15 +614,15 @@ public class BinaryTreeAndDivideConquer {
     @tags.DivideAndConquer
     @tags.Recursion
     public boolean isValidBST(TreeNode root) {
-        return isValidBST(root, Long.MIN_VALUE, Long.MAX_VALUE);
+        return isValidBST(root, Integer.MIN_VALUE, Integer.MAX_VALUE);
     }
 
-    boolean isValidBST(TreeNode node, long min, long max) {
+    private boolean isValidBST(TreeNode node, int min, int max) {
         if (node == null) {
             return true;
         }
 
-        if (min < node.val && node.val < max) {
+        if (min <= node.val && node.val <= max) {
             boolean left = isValidBST(node.left, min, node.val);
             boolean right = isValidBST(node.right, node.val, max);
             return left && right;
@@ -851,8 +910,10 @@ public class BinaryTreeAndDivideConquer {
      *            The root of binary tree.
      * @return: An integer.
      */
+    @tags.Tree
     @tags.BinaryTree
     @tags.DFS
+    @tags.BFS
     public int minDepth(TreeNode root) {
         if (root == null) {
             return 0;
@@ -876,6 +937,8 @@ public class BinaryTreeAndDivideConquer {
      *
      * Notice: You can assume there is no duplicate values in this tree + node.
      *
+     * Challenge: Can you do it without recursion?
+     *
      * @param root:
      *            The root of the binary search tree.
      * @param node:
@@ -898,6 +961,32 @@ public class BinaryTreeAndDivideConquer {
         return root;
     }
 
+    /** Insert Node in a Binary Search Tree - iterative. */
+    public TreeNode insertNode2(TreeNode root, TreeNode node) {
+        if (root == null) {
+            return node;
+        }
+
+        TreeNode current = root;
+        while (true) {
+            if (current.val < node.val) {
+                if (current.right == null) {
+                    current.right = node;
+                    break;
+                }
+                current = current.right;
+            } else {
+                if (current.left == null) {
+                    current.left = node;
+                    break;
+                }
+                current = current.left;
+            }
+        }
+
+        return root;
+    }
+
     /**
      * Construct Binary Tree from Preorder and Inorder Traversal.
      *
@@ -913,12 +1002,9 @@ public class BinaryTreeAndDivideConquer {
      * @return : Root of a tree
      */
     @tags.BinaryTree
+    @tags.Note.SuperHard
     public TreeNode buildTreePreIn(int[] preorder, int[] inorder) {
         int len = preorder.length;
-        if (len != inorder.length) {
-            return null;
-        }
-
         return buildTreePreIn(preorder, 0, len - 1, inorder, 0, len - 1);
     }
 
@@ -928,17 +1014,18 @@ public class BinaryTreeAndDivideConquer {
             return null;
         }
 
-        int rootVal = preorder[preStart];
-        TreeNode root = new TreeNode(rootVal);
-        int index;
-        for (index = inStart; index <= inEnd; index++) {
-            if (inorder[index] == rootVal) {
+        TreeNode root = new TreeNode(preorder[preStart]);
+        int index = inStart;
+        for (; index <= inEnd; index++) {
+            if (inorder[index] == root.val) {
                 break;
             }
         }
 
-        root.left = buildTreePreIn(preorder, preStart + 1, preStart + index - inStart, inorder, inStart, index - 1);
-        root.right = buildTreePreIn(preorder, preStart + index - inStart + 1, preEnd, inorder, index + 1, inEnd);
+        root.left = buildTreePreIn(preorder, preStart + 1,
+                preStart + index - inStart, inorder, inStart, index - 1);
+        root.right = buildTreePreIn(preorder, preStart + index - inStart + 1,
+                preEnd, inorder, index + 1, inEnd);
         return root;
     }
 
@@ -957,12 +1044,9 @@ public class BinaryTreeAndDivideConquer {
      * @return : Root of a tree
      */
     @tags.BinaryTree
+    @tags.Note.SuperHard
     public TreeNode buildTreeInPost(int[] inorder, int[] postorder) {
         int len = postorder.length;
-        if (inorder.length != len) {
-            return null;
-        }
-
         return buildTreeInPost(postorder, 0, len - 1, inorder, 0, len - 1);
     }
 
@@ -972,24 +1056,24 @@ public class BinaryTreeAndDivideConquer {
             return null;
         }
 
-        int rootVal = postorder[postEnd];
-        TreeNode root = new TreeNode(rootVal);
-
-        int index;
-        for (index = inStart; index <= inEnd; index++) {
-            if (inorder[index] == rootVal) {
+        TreeNode root = new TreeNode(postorder[postEnd]);
+        int index = inStart;
+        for (; index <= inEnd; index++) {
+            if (inorder[index] == root.val) {
                 break;
             }
         }
 
-        root.left = buildTreeInPost(postorder, postStart, postStart + index - inStart - 1, inorder, inStart, index - 1);
-        root.right = buildTreeInPost(postorder, postStart + index - inStart, postEnd - 1, inorder, index + 1, inEnd);
+        root.left = buildTreeInPost(inorder, inStart, index - 1, postorder, postStart,
+                postStart + index - inStart - 1);
+        root.right = buildTreeInPost(inorder, index + 1, inEnd, postorder,
+                postStart + index - inStart, postEnd - 1);
 
         return root;
     }
 
     /**
-     * Search Range in Binary Search Tree
+     * Search Range in Binary Search Tree.
      *
      * Given two values k1 and k2 (where k1 < k2) and a root pointer to a Binary
      * Search Tree. Find all the keys of tree in range k1 to k2. i.e. print all
@@ -1019,6 +1103,30 @@ public class BinaryTreeAndDivideConquer {
             }
             inorderTraverse(node.right, result, k1, k2);
         }
+    }
+
+    /** Search Range in Binary Search Tree - iterative solution. */
+    public ArrayList<Integer> searchRange2(TreeNode root, int k1, int k2) {
+        ArrayList<Integer> result = new ArrayList<>();
+        Stack<TreeNode> stack = new Stack<>();
+        TreeNode current = root;
+
+        while (current != null || !stack.isEmpty()) {
+            while (current != null) {
+                stack.push(current);
+                current = current.left;
+            }
+
+            TreeNode node = stack.pop();
+            if (node != null) {
+                if (k1 <= node.val && node.val <= k2) {
+                    result.add(node.val);
+                }
+                current = node.right;
+            }
+        }
+
+        return result;
     }
 
     /**
@@ -1077,7 +1185,7 @@ public class BinaryTreeAndDivideConquer {
 
         TreeNode root = null;
         if (!nodes[index].equals("#")) {
-            root = new TreeNode(Integer.valueOf(nodes[index]));
+            root = new TreeNode(Integer.parseInt(nodes[index]));
         }
         index++;
 
@@ -1085,18 +1193,14 @@ public class BinaryTreeAndDivideConquer {
         queue.offer(root);
 
         while (!queue.isEmpty()) {
-            for (int i = 0; i < queue.size(); i++) {
-                TreeNode node = queue.poll();
-                if (node == null) {
-                    continue;
-                }
-
+            TreeNode node = queue.poll();
+            if (node != null) {
                 if (!nodes[index].equals("#")) {
-                    node.left = new TreeNode(Integer.valueOf(nodes[index]));
+                    node.left = new TreeNode(Integer.parseInt(nodes[index]));
                 }
                 index++;
                 if (!nodes[index].equals("#")) {
-                    node.right = new TreeNode(Integer.valueOf(nodes[index]));
+                    node.right = new TreeNode(Integer.parseInt(nodes[index]));
                 }
                 index++;
                 queue.offer(node.left);
@@ -1123,55 +1227,58 @@ public class BinaryTreeAndDivideConquer {
      */
     @tags.BinarySearchTree
     @tags.Source.LintCode
+    @tags.Note.SuperHard
     public TreeNode removeNode(TreeNode root, int value) {
-        TreeNode dummy = new TreeNode(0);
-        dummy.right = root;
-
-        // find the the parent of the node to remove
-        TreeNode parent = findNode(dummy, root, value);
-
-        // remove the node
-        if (parent.left != null && parent.left.val == value) {
-            deleteNode(parent, parent.left);
-        } else if (parent.right != null && parent.right.val == value) {
-            deleteNode(parent, parent.right);
-        }
-
-        return dummy.right;
-    }
-
-    private TreeNode findNode(TreeNode parent, TreeNode node, int value) {
-        if (node == null || node.val == value) {
-            return parent;
-        } else if (node.val > value) {
-            return findNode(node, node.left, value);
-        } else {
-            return findNode(node, node.right, value);
-        }
-    }
-
-    private void deleteNode(TreeNode parent, TreeNode node) {
-        TreeNode left = node.left;
-        TreeNode right = node.right;
-        TreeNode temp = null;
-
-        if (right != null) {
-            temp = right;
-            while (temp.left != null) {
-                temp = temp.left;
+        // find parent of the node to remove
+        TreeNode prev = null;
+        TreeNode current = root;
+        while (current != null) {
+            if (current.val < value) {
+                prev = current;
+                current = current.right;
+            } else if (current.val > value) {
+                prev = current;
+                current = current.left;
+            } else {
+                break;
             }
-
-            temp.left = left;
-            temp = right;
-        } else {
-            temp = left;
         }
 
-        if (parent.left == node) {
-            parent.left = temp;
-        } else {
-            parent.right = temp;
+        // not found
+        if (current == null) {
+            return root;
         }
+
+        // combine the left child and right child
+        TreeNode left = current.left;
+        TreeNode right = current.right;
+        if (prev == null) {
+            root = combine(left, right);
+        } else {
+            if (prev.left == current) {
+                prev.left = combine(left, right);
+            } else {
+                prev.right = combine(left, right);
+            }
+        }
+
+        return root;
+    }
+
+    private TreeNode combine(TreeNode n1, TreeNode n2) {
+        if (n1 == null) {
+            return n2;
+        } else if (n2 == null) {
+            return n1;
+        }
+
+        TreeNode current = n1;
+        while (current.right != null) {
+            current = current.right;
+        }
+        current.right = n2;
+
+        return n1;
     }
 
     /**
@@ -1243,6 +1350,88 @@ public class BinaryTreeAndDivideConquer {
         }
     }
 
+    /**
+     * Unique Binary Search Trees.
+     *
+     * Given n, how many structurally unique BSTs (binary search trees) that
+     * store values 1...n?
+     *
+     * Example: Given n = 3, there are a total of 5 unique BST's.
+     *
+     * @paramn n: An integer
+     * @return: An integer
+     */
+    @tags.DynamicProgramming
+    @tags.CatalanNumber
+    public int numTrees(int n) {
+        int[] treeCount = new int[n + 1];
+        treeCount[0] = 1;
+
+        for (int i = 1; i <= n; i++) { // fill dp array increasingly
+            for (int j = 1; j <= i; j++) { // root can be any node
+                treeCount[i] += treeCount[j - 1] * treeCount[i - j];
+            }
+        }
+
+        return treeCount[n];
+    }
+
+    /** Unique Binary Search Trees - O(1) space. */
+    public int numTrees2(int n) {
+        // base case
+        if (n == 0 || n == 1) {
+            return 1;
+        }
+
+        // recursive traverse every possible case
+        int sum = 0;
+        for (int i = 0; i < n; i++) {
+            sum = sum + numTrees(i) * numTrees(n - i - 1);
+        }
+
+        return sum;
+    }
+
+    /**
+     * Unique Binary Search Trees II.
+     *
+     * Given n, generate all structurally unique BST's (binary search trees)
+     * that store values 1...n.
+     *
+     * Example: Given n = 3, your program should return all 5 unique BSTs.
+     *
+     * @paramn n: An integer
+     * @return: A list of root
+     */
+    @tags.DFS
+    @tags.DynamicProgramming
+    public List<TreeNode> generateTrees(int n) {
+        return generateTrees(1, n);
+    }
+
+    private List<TreeNode> generateTrees(int start, int end) {
+        List<TreeNode> trees = new ArrayList<>();
+        if (start > end) {
+            trees.add(null); // Notice: we need a null to represent empty tree
+            return trees;
+        }
+
+        for (int i = start; i <= end; i++) {
+            List<TreeNode> left = generateTrees(start, i - 1);
+            List<TreeNode> right = generateTrees(i + 1, end);
+            for (TreeNode ln : left) {
+                for (TreeNode rn : right) {
+                    TreeNode root = new TreeNode(i);
+                    root.left = ln;
+                    root.right = rn;
+                    trees.add(root);
+                }
+            }
+        }
+
+        return trees;
+    }
+
     // ------------------------------ OLD ------------------------------------
 
     /**
@@ -1272,15 +1461,12 @@ public class BinaryTreeAndDivideConquer {
         return buildTree(num, 0, num.length - 1);
     }
 
-    public void test () {
-        TreeNode root = new TreeNode(1);
-        TreeNode left = new TreeNode(1);
-        TreeNode right = new TreeNode(3);
-        root.left = left;
-        root.right = right;
+    // ---------------------------------------------------------------------- //
+    // ----------------------------- UNIT TESTS ----------------------------- //
+    // ---------------------------------------------------------------------- //
 
-        levelOrder(root);
-
+    @Test
+    public void test() {
         TreeNode n1 = null;
         TreeNode n2 = null;
         System.out.println(n1 != n2);
@@ -1290,11 +1476,17 @@ public class BinaryTreeAndDivideConquer {
         int b = Integer.MIN_VALUE;
         int c = (a + b) >>> 1;
         System.out.println(c);
+
+        levelOrderTest();
     }
 
-    public static void main(String[] args) {
-        BinaryTreeAndDivideConquer btdc = new BinaryTreeAndDivideConquer();
-        btdc.test();
-    }
+    private void levelOrderTest() {
+        TreeNode root = new TreeNode(1);
+        TreeNode left = new TreeNode(1);
+        TreeNode right = new TreeNode(3);
+        root.left = left;
+        root.right = right;
 
+        levelOrder(root);
+    }
 }

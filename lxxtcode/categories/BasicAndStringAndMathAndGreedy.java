@@ -281,32 +281,6 @@ public class BasicAndStringAndMathAndGreedy {
     }
 
     /**
-     * Unique Binary Search Trees.
-     *
-     * Given n, how many structurally unique BSTs (binary search trees) that
-     * store values 1...n?
-     *
-     * Example: Given n = 3, there are a total of 5 unique BST's.
-     *
-     * @paramn n: An integer
-     * @return: An integer
-     */
-    @tags.DynamicProgramming
-    @tags.CatalanNumber
-    public int numTrees(int n) {
-        int[] treeCount = new int[n + 1];
-        treeCount[0] = 1;
-
-        for (int i = 1; i <= n; i++) { // fill dp array increasingly
-            for (int j = 0; j <= i - 1; j++) { // root can be any node
-                treeCount[i] += treeCount[j] * treeCount[i - j - 1];
-            }
-        }
-
-        return treeCount[n];
-    }
-
-    /**
      * Fast Power.
      *
      * Calculate the an % b where a, b and n are all 32bit integers.
