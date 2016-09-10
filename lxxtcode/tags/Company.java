@@ -32,6 +32,9 @@ public @interface Company {
     @interface Microsoft {
     }
 
+    @interface PocketGems {
+    }
+
     @interface Snapchat {
     }
 

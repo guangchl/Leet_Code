@@ -1002,7 +1002,7 @@ public class BinaryTreeAndDivideConquer {
      * @return : Root of a tree
      */
     @tags.BinaryTree
-    @tags.Note.SuperHard
+    @tags.Status.SuperHard
     public TreeNode buildTreePreIn(int[] preorder, int[] inorder) {
         int len = preorder.length;
         return buildTreePreIn(preorder, 0, len - 1, inorder, 0, len - 1);
@@ -1044,7 +1044,7 @@ public class BinaryTreeAndDivideConquer {
      * @return : Root of a tree
      */
     @tags.BinaryTree
-    @tags.Note.SuperHard
+    @tags.Status.SuperHard
     public TreeNode buildTreeInPost(int[] inorder, int[] postorder) {
         int len = postorder.length;
         return buildTreeInPost(postorder, 0, len - 1, inorder, 0, len - 1);
@@ -1227,7 +1227,7 @@ public class BinaryTreeAndDivideConquer {
      */
     @tags.BinarySearchTree
     @tags.Source.LintCode
-    @tags.Note.SuperHard
+    @tags.Status.SuperHard
     public TreeNode removeNode(TreeNode root, int value) {
         // find parent of the node to remove
         TreeNode prev = null;

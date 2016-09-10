@@ -144,9 +144,14 @@ public class GraphAndSearch {
      *            A undirected graph node
      * @return: A undirected graph node
      */
+    @tags.Graph
     @tags.DFS
     @tags.BFS
     @tags.Company.Facebook
+    @tags.Company.Google
+    @tags.Company.PocketGems
+    @tags.Company.Uber
+    @tags.Status.NeedPractice
     public UndirectedGraphNode cloneGraph(UndirectedGraphNode node) {
         Map<UndirectedGraphNode, UndirectedGraphNode> map = new HashMap<>();
         Set<UndirectedGraphNode> visited = new HashSet<>();
@@ -237,6 +242,7 @@ public class GraphAndSearch {
     @tags.DFS
     @tags.Source.GeeksForGeeks
     @tags.Source.LintCode
+    @tags.Status.SuperHard
     public ArrayList<DirectedGraphNode> topSort(
             ArrayList<DirectedGraphNode> graph) {
         Map<DirectedGraphNode, Integer> refCount = new HashMap<>();
@@ -274,6 +280,89 @@ public class GraphAndSearch {
         return result;
     }
 
+    // ---------------------------------------------------------------------- //
+    // ---------------------------- Combinations ---------------------------- //
+    // ---------------------------------------------------------------------- //
+
+    /**
+     * Combinations.
+     *
+     * Given two integers n and k, return all possible combinations of k numbers
+     * out of 1 ... n.
+     *
+     * Example: For example, If n = 4 and k = 2, a solution is:
+     * [[2,4],[3,4],[2,3],[1,2],[1,3],[1,4]].
+     *
+     * @param n: Given the range of numbers
+     * @param k: Given the numbers of combinations
+     * @return: All the combinations of k numbers out of 1..n
+     */
+    @tags.Array
+    @tags.Backtracking
+    @tags.DFS
+    public ArrayList<ArrayList<Integer>> combine(int n, int k) {
+        ArrayList<ArrayList<Integer>> combinations = new ArrayList<ArrayList<Integer>>();
+
+        if (n == 0 || k == 0 || n < k) {
+            return combinations;
+        }
+
+        combinations.add(new ArrayList<Integer>());
+
+        for (int i = 1; i <= n; i++) {
+            int len = combinations.size();
+            // add new lists that contain i for lists that are not full
+            for (int j = 0; j < len; j++) {
+                ArrayList<Integer> oldList = combinations.get(j);
+
+                // list that not full
+                if (oldList.size() < k) {
+                    // list that must contain all last integers
+                    if (k - oldList.size() == n - i + 1) {
+                        // add all last integers to the list
+                        for (int num = i; num <= n; num++) {
+                            oldList.add(num);
+                        }
+                    } else {
+                        // copy the old list and add i to it,
+                        // then add the new list to the combinations
+                        ArrayList<Integer> newList = new ArrayList<Integer>(
+                                oldList);
+                        newList.add(i);
+                        combinations.add(newList);
+                    }
+                }
+            }
+        }
+
+        return combinations;
+    }
+
+    /** Combinations - recursive solution. */
+    @tags.Array
+    @tags.Backtracking
+    @tags.DFS
+    public List<List<Integer>> combine2(int n, int k) {
+        List<List<Integer>> result = new ArrayList<>();
+        combine(n, 1, k, result, new ArrayList<Integer>());
+        return result;
+    }
+
+    private void combine(int n, int num, int k, List<List<Integer>> result,
+            List<Integer> path) {
+        if (k == 0) {
+            result.add(new ArrayList<>(path));
+            return;
+        } else if (num > n) {
+            return;
+        }
+
+        path.add(num);
+        combine(n, num + 1, k - 1, result, path);
+        path.remove(path.size() - 1);
+        combine(n, num + 1, k, result, path);
+    }
+
     /**
      * Combination Sum.
      *
@@ -298,6 +387,8 @@ public class GraphAndSearch {
     @tags.DFS
     @tags.Backtracking
     @tags.Array
+    @tags.Company.Snapchat
+    @tags.Company.Uber
     public List<List<Integer>> combinationSum(int[] candidates, int target) {
         if (candidates == null || candidates.length == 0) {
             return Collections.emptyList();
@@ -327,6 +418,45 @@ public class GraphAndSearch {
         }
     }
 
+    /** Combination Sum - another solution. */
+    @tags.DFS
+    @tags.Backtracking
+    @tags.Array
+    @tags.Company.Snapchat
+    @tags.Company.Uber
+    public List<List<Integer>> combinationSum2(int[] candidates, int target) {
+        if (candidates == null || candidates.length == 0) {
+            return Collections.emptyList();
+        }
+
+        Arrays.sort(candidates);
+        List<List<Integer>> result = new ArrayList<>();
+        combinationSum2(candidates, 0, target, result,
+                new ArrayList<Integer>());
+        return result;
+    }
+
+    private void combinationSum2(int[] candidates, int index, int target,
+            List<List<Integer>> result, List<Integer> path) {
+        if (target == 0) {
+            result.add(new ArrayList<>(path));
+            return;
+        } else if (target < 0 || index == candidates.length) {
+            return;
+        }
+
+        path.add(candidates[index]);
+        combinationSum2(candidates, index, target - candidates[index], result,
+                path);
+        path.remove(path.size() - 1);
+        index++;
+        while (index < candidates.length
+                && candidates[index] == candidates[index - 1]) {
+            index++;
+        }
+        combinationSum2(candidates, index, target, result, path);
+    }
+
     /**
      * Combination Sum II.
      *
@@ -351,14 +481,15 @@ public class GraphAndSearch {
     @tags.DFS
     @tags.Backtracking
     @tags.Array
-    public List<List<Integer>> combinationSum2(int[] num, int target) {
+    @tags.Company.Snapchat
+    public List<List<Integer>> combinationSumII(int[] num, int target) {
         if (num == null || num.length == 0) {
             return Collections.emptyList();
         }
-        List<List<Integer>> result = new ArrayList<>();
-        List<Integer> path = new ArrayList<>();
+
         Arrays.sort(num);
-        combinationSumII(num, target, 0, path, result);
+        List<List<Integer>> result = new ArrayList<>();
+        combinationSumII(num, target, 0, new ArrayList<Integer>(), result);
         return result;
     }
 
@@ -379,6 +510,122 @@ public class GraphAndSearch {
             }
         }
     }
+
+    /** Combination Sum II - another solution */
+    @tags.DFS
+    @tags.Backtracking
+    @tags.Array
+    @tags.Company.Snapchat
+    public List<List<Integer>> combinationSumII2(int[] num, int target) {
+        if (num == null || num.length == 0) {
+            return Collections.emptyList();
+        }
+
+        Arrays.sort(num);
+        List<List<Integer>> result = new ArrayList<>();
+        combinationSumII2(num, 0, target, result, new ArrayList<Integer>());
+        return result;
+    }
+
+    private void combinationSumII2(int[] num, int index, int target,
+            List<List<Integer>> result, List<Integer> path) {
+        if (target == 0) {
+            result.add(new ArrayList<>(path));
+            return;
+        } else if (index == num.length || target < 0) {
+            return;
+        }
+
+        path.add(num[index]);
+        combinationSumII2(num, index + 1, target - num[index], result, path);
+        path.remove(path.size() - 1);
+        index++;
+        while (index < num.length && num[index] == num[index - 1]) {
+            index++;
+        }
+        combinationSumII2(num, index, target, result, path);
+    }
+
+    /**
+     * Combination Sum III.
+     *
+     * Find all possible combinations of k numbers that add up to a number n,
+     * given that only numbers from 1 to 9 can be used and each combination
+     * should be a unique set of numbers.
+     *
+     * Example 1: Input: k = 3, n = 7. Output: [[1,2,4]].
+     *
+     * Example 2: Input: k = 3, n = 9. Output: [[1,2,6], [1,3,5], [2,3,4]].
+     *
+     * @param k
+     * @param n
+     * @return
+     */
+    @tags.Array
+    @tags.Backtracking
+    @tags.Status.OK
+    public List<List<Integer>> combinationSumIII(int k, int n) {
+        List<List<Integer>> result = new ArrayList<>();
+        combinationSumIII(k, n, 1, result, new ArrayList<Integer>());
+        return result;
+    }
+
+    private void combinationSumIII(int k, int n, int num,
+            List<List<Integer>> result, List<Integer> path) {
+        if (n == 0 && k == 0) {
+            result.add(new ArrayList<>(path));
+            return;
+        } else if (n < 0 || k < 0 || num == 10) {
+            return;
+        }
+
+        path.add(num);
+        combinationSumIII(k - 1, n - num, num + 1, result, path);
+        path.remove(path.size() - 1);
+        combinationSumIII(k, n, num + 1, result, path);
+    }
+
+    /**
+     * Combination Sum IV.
+     *
+     * Given an integer array with all positive numbers and no duplicates, find
+     * the number of possible combinations that add up to a positive integer
+     * target.
+     *
+     * Example: nums = [1, 2, 3], target = 4. The possible combination ways are:
+     * (1, 1, 1, 1) (1, 1, 2) (1, 2, 1) (1, 3) (2, 1, 1) (2, 2) (3, 1). Note
+     * that different sequences are counted as different combinations. Therefore
+     * the output is 7.
+     *
+     * Follow up: What if negative numbers are allowed in the given array? How
+     * does it change the problem? What limitation we need to add to the
+     * question to allow negative numbers?
+     *
+     * @param nums
+     * @param target
+     * @return
+     */
+    @tags.DynamicProgramming
+    @tags.Company.Facebook
+    @tags.Company.Google
+    @tags.Company.Snapchat
+    @tags.Status.NeedPractice
+    public int combinationSum4(int[] nums, int target) {
+        int[] dp = new int[target + 1];
+        dp[0] = 1;
+        for (int i = 1; i < dp.length; i++) {
+            for (Integer num : nums) {
+                if (i - num >= 0) {
+                    dp[i] += dp[i - num];
+                }
+            }
+        }
+        return dp[target];
+    }
+
+    // ---------------------------------------------------------------------- //
+    // ---------------------------- World Ladder ---------------------------- //
+    // ---------------------------------------------------------------------- //
 
     /**
      * Word Ladder.
@@ -410,14 +657,15 @@ public class GraphAndSearch {
     @tags.Company.LinkedIn
     @tags.Company.Snapchat
     @tags.Company.Yelp
+    @tags.Status.SuperHard
     public int ladderLength(String start, String end, Set<String> dict) {
         if (start.equals(end)) {
             return 1;
         }
 
         Queue<String> queue = new LinkedList<>();
-        Set<String> visited = new HashSet<>();
         queue.offer(start);
+        Set<String> visited = new HashSet<>();
         visited.add(start);
         int len = 1;
 
@@ -425,25 +673,28 @@ public class GraphAndSearch {
             len++;
             Queue<String> level = new LinkedList<>();
 
-            for (String str : queue) {
-                char[] word = str.toCharArray();
-                for (int i = 0; i < word.length; i++) {
+            for (String word : queue) {
+                char[] letters = word.toCharArray();
+                for (int i = 0; i < letters.length; i++) {
+                    char old = letters[i];
                     for (char c = 'a'; c <= 'z'; c++) {
-                        if (word[i] != c) {
-                            char temp = word[i];
-                            word[i] = c;
-                            String newWord = String.valueOf(word);
+                        if (c != old) {
+                            letters[i] = c;
+                            String newWord = new String(letters);
+
+                            // check end
                             if (newWord.equals(end)) {
                                 return len;
                             }
+                            // check dict
                             if (dict.contains(newWord)
                                     && !visited.contains(newWord)) {
                                 level.offer(newWord);
                                 visited.add(newWord);
                             }
-                            word[i] = temp;
                         }
                     }
+                    letters[i] = old;
                 }
             }
 
@@ -487,88 +738,81 @@ public class GraphAndSearch {
     @tags.String
     @tags.Company.Amazon
     @tags.Company.Yelp
+    @tags.Status.SuperHard
     public List<List<String>> findLadders(String start, String end,
             Set<String> dict) {
-        List<List<String>> result = new ArrayList<>();
-        if (start.equals(end)) {
-            List<String> path = new ArrayList<>();
-            path.add(start);
-            result.add(path);
-            return result;
-        }
-
         Queue<String> queue = new LinkedList<>();
         queue.offer(start);
         Set<String> visited = new HashSet<>();
         visited.add(start);
-        Map<String, List<String>> map = new HashMap<>();
+        Map<String, List<String>> prev = new HashMap<>();
 
-        // bfs to find the shortest path
-        while (!queue.isEmpty()) {
-            if (map.containsKey(end)) {
-                break;
-            }
-
-            Set<String> level = new HashSet<>();
+        // bfs to find all links from start to end
+        while (!queue.isEmpty() && !prev.containsKey(end)) {
+            Set<String> newVisited = new HashSet<>();
 
             // explore all possibilities for queued strings
-            for (String s : queue) {
-                char[] word = s.toCharArray();
-                for (int i = 0; i < s.length(); i++) {
-                    char temp = word[i];
+            for (String word : queue) {
+                char[] letters = word.toCharArray();
+
+                for (int i = 0; i < letters.length; i++) {
+                    char old = letters[i];
                     for (char c = 'a'; c <= 'z'; c++) {
-                        if (c != temp) {
-                            word[i] = c;
-                            String newWord = String.valueOf(word);
+                        if (c != old) {
+                            letters[i] = c;
+                            String newWord = new String(letters);
+
                             if (newWord.equals(end) || (dict.contains(newWord)
                                     && !visited.contains(newWord))) {
-                                level.add(newWord);
-                                if (map.containsKey(newWord)) {
-                                    map.get(newWord).add(s);
+                                newVisited.add(newWord);
+                                if (prev.containsKey(newWord)) {
+                                    prev.get(newWord).add(word);
                                 } else {
-                                    List<String> prev = new ArrayList<>();
-                                    prev.add(s);
-                                    map.put(newWord, prev);
+                                    prev.put(newWord, new ArrayList<String>());
+                                    prev.get(newWord).add(word);
                                 }
+
                             }
                         }
                     }
-                    word[i] = temp;
+                    letters[i] = old;
                 }
             }
 
             // offer the unvisited strings to next queue
-            queue = new LinkedList<>();
-            for (String s : level) {
-                if (!visited.contains(s)) {
-                    visited.add(s);
-                    queue.offer(s);
+            queue.clear();
+            for (String newWord : newVisited) {
+                if (!visited.contains(newWord)) {
+                    queue.offer(newWord);
+                    visited.add(newWord);
                 }
             }
         }
 
         // no path found
-        if (!map.containsKey(end)) {
-            return result;
+        List<List<String>> ladders = new ArrayList<>();
+        if (!prev.containsKey(end)) {
+            return ladders;
         }
 
-        // dfs to find the paths
-        findLadders(map, end, result, new LinkedList<String>());
-
-        return result;
+        // dfs to link all paths
+        findLadders(end, ladders, new ArrayList<String>(), prev);
+        return ladders;
     }
 
-    private void findLadders(Map<String, List<String>> map, String s,
-            List<List<String>> result, List<String> path) {
-        path.add(0, s);
-        if (!map.containsKey(s)) {
-            result.add(new ArrayList<>(path));
+    private void findLadders(String s, List<List<String>> ladders,
+            List<String> path, Map<String, List<String>> prev) {
+        path.add(s);
+        if (!prev.containsKey(s)) {
+            List<String> list = new ArrayList<>(path);
+            Collections.reverse(list);
+            ladders.add(list);
         } else {
-            for (String next : map.get(s)) {
-                findLadders(map, next, result, path);
+            for (String parent : prev.get(s)) {
+                findLadders(parent, ladders, path, prev);
             }
         }
-        path.remove(0);
+        path.remove(path.size() - 1);
     }
 
     // ---------------------------------------------------------------------- //
@@ -597,11 +841,11 @@ public class GraphAndSearch {
     @tags.Backtracking
     @tags.Company.Facebook
     @tags.Company.Uber
+    @tags.Status.OK
     public ArrayList<ArrayList<Integer>> subsets(int[] nums) {
-        ArrayList<ArrayList<Integer>> result = new ArrayList<>();
-        List<Integer> path = new ArrayList<>();
         Arrays.sort(nums);
-        subsets(nums, 0, result, path);
+        ArrayList<ArrayList<Integer>> result = new ArrayList<>();
+        subsets(nums, 0, result, new ArrayList<Integer>());
         return result;
     }
 
@@ -618,6 +862,11 @@ public class GraphAndSearch {
     }
 
     /** Subsets - another DFS solution. */
+    @tags.Recursion
+    @tags.DFS
+    @tags.Backtracking
+    @tags.Company.Facebook
+    @tags.Company.Uber
     public ArrayList<ArrayList<Integer>> subsets2(int[] S) {
         ArrayList<ArrayList<Integer>> res = new ArrayList<ArrayList<Integer>>();
         Arrays.sort(S); // not necessary
@@ -707,7 +956,39 @@ public class GraphAndSearch {
         }
     }
 
+    /** Subsets II - another DFS solution. */
+    @tags.Recursion
+    @tags.DFS
+    @tags.Backtracking
+    @tags.Status.NeedPractice
+    public ArrayList<ArrayList<Integer>> subsetsWithDup2(ArrayList<Integer> S) {
+        ArrayList<ArrayList<Integer>> result = new ArrayList<>();
+        Collections.sort(S);
+        subsetsWithDup2(S, 0, result, new ArrayList<Integer>());
+        return result;
+    }
+
+    private void subsetsWithDup2(ArrayList<Integer> S, int index,
+            ArrayList<ArrayList<Integer>> result, ArrayList<Integer> path) {
+        if (index == S.size()) {
+            result.add(new ArrayList<>(path));
+            return;
+        }
+
+        path.add(S.get(index));
+        subsetsWithDup2(S, index + 1, result, path);
+        index++;
+        while (index < S.size() && S.get(index) == S.get(index - 1)) {
+            index++;
+        }
+        path.remove(path.size() - 1);
+        subsetsWithDup2(S, index, result, path);
+    }
+
     /** Subsets II - Iterative solution. */
+    @tags.Recursion
+    @tags.DFS
+    @tags.Backtracking
     public ArrayList<ArrayList<Integer>> subsetsWithDupIterative(
             ArrayList<Integer> S) {
         if (S == null) {
@@ -1139,10 +1420,10 @@ public class GraphAndSearch {
     @tags.Recursion
     @tags.DFS
     @tags.Backtracking
+    @tags.Status.NeedPractice
     public ArrayList<ArrayList<String>> solveNQueens(int n) {
         ArrayList<ArrayList<String>> result = new ArrayList<>();
-        List<Integer> list = new ArrayList<>();
-        solveNQueens(n, result, list);
+        solveNQueens(n, result, new ArrayList<Integer>());
         return result;
     }
 
@@ -1152,6 +1433,7 @@ public class GraphAndSearch {
             result.add(translateNQueens(list));
             return;
         }
+
         for (int i = 0; i < n; i++) {
             if (isValid(list, i)) {
                 list.add(i);
@@ -1204,6 +1486,8 @@ public class GraphAndSearch {
     @tags.Recursion
     @tags.DFS
     @tags.Backtracking
+    @tags.Company.Zenefits
+    @tags.Status.OK
     public int totalNQueens(int n) {
         List<Integer> list = new ArrayList<>();
         return totalNQueens(n, list);
@@ -1246,6 +1530,8 @@ public class GraphAndSearch {
     @tags.Recursion
     @tags.Permutation
     @tags.Company.LinkedIn
+    @tags.Company.Microsoft
+    @tags.Status.NeedPractice
     public ArrayList<ArrayList<Integer>> permute(ArrayList<Integer> nums) {
         if (nums == null) {
             return new ArrayList<>();
@@ -1324,17 +1610,19 @@ public class GraphAndSearch {
     @tags.DFS
     @tags.Recursion
     @tags.Permutation
+    @tags.Backtracking
     @tags.Company.LinkedIn
+    @tags.Company.Microsoft
+    @tags.Status.NeedPractice
     public ArrayList<ArrayList<Integer>> permuteUnique(
             ArrayList<Integer> nums) {
+        ArrayList<ArrayList<Integer>> result = new ArrayList<>();
         if (nums == null || nums.size() == 0) {
             return new ArrayList<>();
         }
 
-        ArrayList<ArrayList<Integer>> result = new ArrayList<>();
         Collections.sort(nums);
-        ArrayList<Integer> path = new ArrayList<>();
-        permuteUnique(nums, 0, result, path);
+        permuteUnique(nums, 0, result, new ArrayList<Integer>());
         return result;
     }
 
@@ -1355,6 +1643,7 @@ public class GraphAndSearch {
 
     /** Permutations II - My iterative solution. */
     @tags.Permutation
+    @tags.Company.Microsoft
     @tags.Company.LinkedIn
     public ArrayList<ArrayList<Integer>> permuteUniqueIterative(int[] num) {
         ArrayList<ArrayList<Integer>> permutations = new ArrayList<ArrayList<Integer>>();

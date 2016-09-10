@@ -1,6 +1,6 @@
 package tags;
 
-public @interface Note {
+public @interface Status {
 
     @interface Easy {
     }

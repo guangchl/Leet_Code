@@ -846,51 +846,7 @@ public class Problems {
             pathSum(root.right, sum, path, paths);
         }
     }
-    
-	/**
-	 * Combinations
-	 * 
-	 * Given two integers n and k, return all possible combinations of k numbers
-	 * out of 1 ... n.
-	 */
-	public ArrayList<ArrayList<Integer>> combine(int n, int k) {
-        ArrayList<ArrayList<Integer>> combinations = new ArrayList<ArrayList<Integer>>();
-        
-        if (n == 0 || k == 0 || n < k) {
-            return combinations;
-        }
-        
-        combinations.add(new ArrayList<Integer>());
-        
-        for (int i = 1; i <= n; i++) {
-            int len = combinations.size();
-            System.out.println(i + " " +combinations);
-            // add new lists that contain i for lists that are not full
-            for (int j = 0; j < len; j++) {
-                ArrayList<Integer> oldList = combinations.get(j);
-                
-                // list that not full
-                if (oldList.size() < k) {
-                    // list that must contain all last integers
-                    if (k - oldList.size() == n - i + 1) {
-                        // add all last integers to the list
-                        for (int num = i; num <= n; num++) {
-                            oldList.add(num);
-                        }
-                    } else {
-                        // copy the old list and add i to it,
-                        // then add the new list to the combinations
-                        ArrayList<Integer> newList = new ArrayList<Integer>(oldList);
-                        newList.add(i);
-                        combinations.add(newList);
-                    }
-                }
-            }
-        }
-        
-        return combinations;
-    }
-	
+
 	/**
 	 * Spiral Matrix
 	 * 
