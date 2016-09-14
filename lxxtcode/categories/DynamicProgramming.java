@@ -83,6 +83,7 @@ public class DynamicProgramming {
      */
     @tags.DynamicProgramming
     @tags.Array
+    @tags.Status.NeedPractice
     public int uniquePathsWithObstacles(int[][] obstacleGrid) {
         if (obstacleGrid == null || obstacleGrid.length == 0
                 || obstacleGrid[0].length == 0) {
@@ -129,6 +130,7 @@ public class DynamicProgramming {
      * @return: An integer
      */
     @tags.DynamicProgramming
+    @tags.Status.OK
     public int climbStairs(int n) {
         // OJ doesn't test this case, should ask interviewer
         if (n == 0) {
@@ -201,6 +203,7 @@ public class DynamicProgramming {
      * @return: An integer, minimum path sum.
      */
     @tags.DynamicProgramming
+    @tags.Status.NeedPractice
     public int minimumTotal(int[][] triangle) {
         // assume a triagle
         if (triangle == null || triangle.length == 0) {
@@ -222,7 +225,7 @@ public class DynamicProgramming {
     }
 
     /**
-     * Jump Game
+     * Jump Game.
      *
      * Given an array of non-negative integers, you are initially positioned at
      * the first index of the array. Each element in the array represents your
@@ -319,90 +322,6 @@ public class DynamicProgramming {
     }
 
     /**
-     * Longest Increasing Subsequence.
-     *
-     * Given a sequence of integers, find the longest increasing subsequence
-     * (LIS). You code should return the length of the LIS.
-     *
-     * https://en.wikipedia.org/wiki/Longest_increasing_subsequence
-     *
-     * @param nums:
-     *            The integer array
-     * @return: The length of LIS (longest increasing subsequence)
-     */
-    @tags.BinarySearch
-    @tags.DynamicProgramming
-    @tags.Source.LintCode
-    public int longestIncreasingSubsequence(int[] nums) {
-        if (nums == null || nums.length == 0) {
-            return 0;
-        }
-
-        int[] lisDP = new int[nums.length];
-        int max = 1;
-
-        for (int i = 0; i < nums.length; i++) {
-            lisDP[i] = 1;
-            for (int j = 0; j < i; j++) {
-                if (nums[j] <= nums[i]) {
-                    lisDP[i] = Math.max(lisDP[i], lisDP[j] + 1);
-                    max = Math.max(lisDP[i], max);
-                }
-            }
-        }
-
-        return max;
-    }
-
-    /**
-     * nlogn solution. TODO: I don't understand yet.
-     *
-     * @param nums
-     * @return
-     */
-    public int longestIncreasingSubsequence2(int[] nums) {
-        int[] minLast = new int[nums.length + 1];
-        minLast[0] = -1;
-        for (int i = 1; i <= nums.length; i++) {
-            minLast[i] = Integer.MAX_VALUE;
-        }
-
-        for (int i = 0; i < nums.length; i++) {
-            // find the first number in minLast > nums[i]
-            int index = binarySearch(minLast, nums[i]);
-            minLast[index] = nums[i];
-        }
-
-        for (int i = nums.length; i >= 1; i--) {
-            if (minLast[i] != Integer.MAX_VALUE) {
-                return i;
-            }
-        }
-
-        return 0;
-    }
-
-    // find the first number > num
-    private int binarySearch(int[] minLast, int num) {
-        int start = 0, end = minLast.length - 1;
-        while (start + 1 < end) {
-            int mid = (end - start) / 2 + start;
-            if (minLast[mid] == num) {
-                start = mid;
-            } else if (minLast[mid] < num) {
-                start = mid;
-            } else {
-                end = mid;
-            }
-        }
-
-        if (minLast[start] > num) {
-            return start;
-        }
-        return end;
-    }
-
-    /**
      * Coin Change.
      *
      * You are given coins of different denominations and a total amount of
@@ -474,6 +393,7 @@ public class DynamicProgramming {
      */
     @tags.String
     @tags.DynamicProgramming
+    @tags.Status.OK
     public int minDistance(String word1, String word2) {
         if (word1 == null || word2 == null)
             return -1; // invalid input
@@ -507,7 +427,7 @@ public class DynamicProgramming {
     }
 
     /**
-     * Distinct Subsequences
+     * Distinct Subsequences.
      *
      * Given a string S and a string T, count the number of distinct
      * subsequences of T in S.
@@ -517,12 +437,18 @@ public class DynamicProgramming {
      * disturbing the relative positions of the remaining characters. (ie, "ACE"
      * is a subsequence of "ABCDE" while "AEC" is not).
      *
+     * Example: Given S = "rabbbit", T = "rabbit", return 3.
+     *
+     * Challenge: Do it in O(n2) time and O(n) memory. O(n2) memory is also
+     * acceptable if you do not know how to optimize memory.
+     *
      * @param S,
      *            T: Two string.
      * @return: Count the number of distinct subsequences
      */
     @tags.String
     @tags.DynamicProgramming
+    @tags.Status.SuperHard
     public int numDistinct(String S, String T) {
         // TODO: get used to this implicit recurrence relation
         // Take away from this problem is draw the matrix first if the only
@@ -548,7 +474,7 @@ public class DynamicProgramming {
     }
 
     /**
-     * Word Break
+     * Word Break.
      *
      * Given a string s and a dictionary of words dict, determine if s can be
      * break into a space-separated sequence of one or more dictionary words.
@@ -556,7 +482,7 @@ public class DynamicProgramming {
      * For example, given s = "leetcode", dict = ["leet", "code"]. Return true
      * because "leetcode" can be segmented as "leet code".
      *
-     * Bottom up DP seems quick useful
+     * Bottom up DP seems quick useful.
      *
      * @param s:
      *            A string s
@@ -589,6 +515,39 @@ public class DynamicProgramming {
         }
 
         return wb[wb.length - 1];
+    }
+
+    /**
+     * Word Break - another solution.
+     *
+     * Greedy?
+     */
+    @tags.String
+    @tags.DynamicProgramming
+    public boolean wordBreak2(String s, Set<String> dict) {
+        if (s == null || dict == null)
+            return false;
+
+        int n = s.length();
+        boolean[] wb = new boolean[n + 1]; // wb[i] = breakable before char at i
+        wb[0] = true;
+
+        int maxLen = 0;
+        for (String word : dict) {
+            maxLen = Math.max(maxLen, word.length());
+        }
+
+        for (int i = 0; i <= n; i++) {
+            if (wb[i]) {
+                for (int j = i + 1; j <= n && j - i <= maxLen; j++) {
+                    if (!wb[j] && dict.contains(s.substring(i, j))) {
+                        wb[j] = true;
+                    }
+                }
+            }
+        }
+
+        return wb[n];
     }
 
     /**
@@ -841,26 +800,21 @@ public class DynamicProgramming {
     @tags.String
     @tags.DynamicProgramming
     @tags.Source.LintCode
+    @tags.Status.Easy
     public int longestCommonSubstringDP(String A, String B) {
-        if (A == null || A.length() == 0 || B == null || B.length() == 0) {
+        if (A == null || B == null) {
             return 0;
         }
 
         int m = A.length(), n = B.length();
+        int[][] lcs = new int[m + 1][n + 1];
         int max = 0;
-        int[][] dp = new int[m][n];
 
-        for (int i = 0; i < m; i++) {
-            for (int j = 0; j < n; j++) {
+        for (int i = m - 1; i >= 0; i--) {
+            for (int j = n - 1; j >= 0; j--) {
                 if (A.charAt(i) == B.charAt(j)) {
-                    if (i == 0 || j == 0) {
-                        dp[i][j] = 1;
-                    } else {
-                        dp[i][j] = dp[i - 1][j - 1] + 1;
-                    }
-                    if (max < dp[i][j]) {
-                        max = dp[i][j];
-                    }
+                    lcs[i][j] = lcs[i + 1][j + 1] + 1;
+                    max = Math.max(max, lcs[i][j]);
                 }
             }
         }
@@ -884,32 +838,107 @@ public class DynamicProgramming {
     @tags.DynamicProgramming
     @tags.Source.LintCode
     public int longestCommonSubsequence(String A, String B) {
-        if (A == null || A.length() == 0 || B == null || B.length() == 0) {
+        if (A == null || B == null || A.length() * B.length() == 0) {
             return 0;
         }
 
-        int aLen = A.length(), bLen = B.length();
-        int[][] dp = new int[aLen][bLen];
+        int m = A.length(), n = B.length();
+        int[][] lcs = new int[m + 1][n + 1];
 
-        for (int i = 0; i < aLen; i++) {
-            for (int j = 0; j < bLen; j++) {
+        for (int i = m - 1; i >= 0; i--) {
+            for (int j = n - 1; j >= 0; j--) {
+                lcs[i][j] = Math.max(lcs[i + 1][j], lcs[i][j + 1]);
                 if (A.charAt(i) == B.charAt(j)) {
-                    dp[i][j] = 1;
-                }
-
-                if (i != 0 && j != 0) {
-                    dp[i][j] += dp[i - 1][j - 1];
-                }
-                if (i != 0) {
-                    dp[i][j] = Math.max(dp[i][j], dp[i - 1][j]);
-                }
-                if (j != 0) {
-                    dp[i][j] = Math.max(dp[i][j], dp[i][j - 1]);
+                    lcs[i][j] = Math.max(lcs[i][j], lcs[i + 1][j + 1] + 1);
                 }
             }
         }
 
-        return dp[aLen - 1][bLen - 1];
+        return lcs[0][0];
+    }
+
+    /**
+     * Longest Increasing Subsequence.
+     *
+     * Given a sequence of integers, find the longest increasing subsequence
+     * (LIS). You code should return the length of the LIS.
+     *
+     * https://en.wikipedia.org/wiki/Longest_increasing_subsequence
+     *
+     * @param nums:
+     *            The integer array
+     * @return: The length of LIS (longest increasing subsequence)
+     */
+    @tags.BinarySearch
+    @tags.DynamicProgramming
+    @tags.Source.LintCode
+    public int longestIncreasingSubsequence(int[] nums) {
+        if (nums == null || nums.length == 0) {
+            return 0;
+        }
+
+        int[] lis = new int[nums.length];
+        int max = 0;
+
+        for (int i = 0; i < nums.length; i++) {
+            lis[i] = 1;
+            for (int j = 0; j < i; j++) {
+                if (nums[j] < nums[i]) {
+                    lis[i] = Math.max(lis[i], lis[j] + 1);
+                }
+            }
+            max = Math.max(max, lis[i]);
+        }
+
+        return max;
+    }
+
+    /**
+     * nlogn solution. TODO: I don't understand yet.
+     *
+     * @param nums
+     * @return
+     */
+    public int longestIncreasingSubsequence2(int[] nums) {
+        int[] minLast = new int[nums.length + 1];
+        minLast[0] = -1;
+        for (int i = 1; i <= nums.length; i++) {
+            minLast[i] = Integer.MAX_VALUE;
+        }
+
+        for (int i = 0; i < nums.length; i++) {
+            // find the first number in minLast > nums[i]
+            int index = binarySearch(minLast, nums[i]);
+            minLast[index] = nums[i];
+        }
+
+        for (int i = nums.length; i >= 1; i--) {
+            if (minLast[i] != Integer.MAX_VALUE) {
+                return i;
+            }
+        }
+
+        return 0;
+    }
+
+    // find the first number > num
+    private int binarySearch(int[] minLast, int num) {
+        int start = 0, end = minLast.length - 1;
+        while (start + 1 < end) {
+            int mid = (end - start) / 2 + start;
+            if (minLast[mid] == num) {
+                start = mid;
+            } else if (minLast[mid] < num) {
+                start = mid;
+            } else {
+                end = mid;
+            }
+        }
+
+        if (minLast[start] > num) {
+            return start;
+        }
+        return end;
     }
 
     /**
@@ -926,6 +955,7 @@ public class DynamicProgramming {
      * @return: true or false.
      */
     @tags.DynamicProgramming
+    @tags.Status.OK
     public boolean isInterleave(String s1, String s2, String s3) {
         if (s1 == null || s2 == null || s3 == null) {
             throw new IllegalArgumentException("Input strings cannot be null.");
@@ -939,24 +969,14 @@ public class DynamicProgramming {
         // Backward dp population from right bottom corner
         boolean[][] dp = new boolean[m + 1][n + 1];
         dp[m][n] = true;
-        for (int i = m - 1; i >= 0; i--) {
-            if (s1.charAt(i) != s3.charAt(n + i)) {
-                break;
-            }
-            dp[i][n] = true;
-        }
-        for (int j = n - 1; j >= 0; j--) {
-            if (s2.charAt(j) != s3.charAt(m + j)) {
-                break;
-            }
-            dp[m][j] = true;
-        }
 
-        for (int i = m - 1; i >= 0; i--) {
-            for (int j = n - 1; j >= 0; j--) {
-                if ((s1.charAt(i) == s3.charAt(i + j) && dp[i + 1][j])
-                        || (s2.charAt(j) == s3.charAt(i + j) && dp[i][j + 1])) {
-                    dp[i][j] = true;
+        for (int i = m; i >= 0; i--) {
+            for (int j = n; j >= 0; j--) {
+                if (i != m) {
+                    dp[i][j] = s1.charAt(i) == s3.charAt(i + j) && dp[i + 1][j];
+                }
+                if (j != n && !dp[i][j]) {
+                    dp[i][j] = s2.charAt(j) == s3.charAt(i + j) && dp[i][j + 1];
                 }
             }
         }
@@ -965,7 +985,7 @@ public class DynamicProgramming {
     }
 
     /**
-     * Decode Ways
+     * Decode Ways.
      *
      * A message containing letters from A-Z is being encoded to numbers using
      * the following mapping: 'A' -> 1 'B' -> 2 ... 'Z' -> 26. Given an encoded
@@ -1028,6 +1048,7 @@ public class DynamicProgramming {
     @tags.DynamicProgramming
     @tags.Backpack
     @tags.Source.LintCode
+    @tags.Status.SuperHard
     public int backPack(int m, int[] A) {
         if (m <= 0 || A == null || A.length == 0) {
             return 0;
@@ -1038,8 +1059,8 @@ public class DynamicProgramming {
         dp[0] = true;
 
         for (Integer item : A) {
-            for (int i = m; i > 0; i--) {
-                if (!dp[i] && i - item >= 0 && dp[i - item]) {
+            for (int i = m; i >= item; i--) {
+                if (!dp[i] && dp[i - item]) {
                     dp[i] = true;
                 }
             }
@@ -1169,29 +1190,30 @@ public class DynamicProgramming {
     @tags.DynamicProgramming
     @tags.Backpack
     @tags.Source.LintCode
+    @tags.Status.SuperHard
     public int MinAdjustmentCost(ArrayList<Integer> A, int target) {
         if (A == null || target < 0) {
             return 0;
         }
 
-        int[][] dp = new int[A.size() + 1][101];
-        for (int i = A.size() - 1; i >= 0; i--) {
-            for (int j = 1; j < 101; j++) {
-                dp[i][j] = Integer.MAX_VALUE;
-                for (int k = 1; k < 101; k++) {
-                    if (Math.abs(j - k) <= target) {
-                        dp[i][j] = Math.min(dp[i][j], dp[i + 1][k]);
-                    }
+        int n = A.size();
+        int[][] costs = new int[n + 1][100 + 1];
+
+        for (int i = n - 1; i >= 0; i--) {
+            for (int j = 1; j <= 100; j++) {
+                int lower = Math.max(1, j - target);
+                int upper = Math.min(100, j + target);
+                costs[i][j] = costs[i + 1][upper];
+                for (int k = lower; k < upper; k++) {
+                    costs[i][j] = Math.min(costs[i][j], costs[i + 1][k]);
                 }
-                dp[i][j] += Math.abs(A.get(i) - j);
+                costs[i][j] += Math.abs(A.get(i) - j);
             }
         }
 
-        int min = Integer.MAX_VALUE;
-        for (int i = 1; i < 101; i++) {
-            if (dp[0][i] < min) {
-                min = dp[0][i];
-            }
+        int min = costs[0][1];
+        for (int i = 1; i <= 100; i++) {
+            min = Math.min(min, costs[0][i]);
         }
 
         return min;

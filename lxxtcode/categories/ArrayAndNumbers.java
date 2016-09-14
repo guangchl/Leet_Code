@@ -1324,6 +1324,7 @@ public class ArrayAndNumbers {
     @tags.Enumeration
     @tags.Company.LinkedIn
     @tags.Source.LintCode
+    @tags.Status.OK
     public int maxSubArray(int[] nums) {
         if (nums == null || nums.length == 0) {
             return 0;
@@ -1365,6 +1366,7 @@ public class ArrayAndNumbers {
     @tags.Enumeration
     @tags.ForwardBackwardTraversal
     @tags.Source.LintCode
+    @tags.Status.OK
     public int maxTwoSubArrays(ArrayList<Integer> nums) {
         if (nums == null || nums.size() < 2) {
             return 0;
@@ -1416,6 +1418,7 @@ public class ArrayAndNumbers {
     @tags.Subarray
     @tags.DynamicProgramming
     @tags.Source.LintCode
+    @tags.Status.SuperHard
     public int maxSubArray(int[] nums, int k) {
         int n = nums.length;
         int[][] maxToHere = new int[n + 1][k + 1];
@@ -1459,42 +1462,45 @@ public class ArrayAndNumbers {
     @tags.Greedy
     @tags.Enumeration
     @tags.ForwardBackwardTraversal
+    @tags.DynamicProgramming
     @tags.Source.LintCode
+    @tags.Status.NeedPractice
     public int maxDiffSubArrays(int[] nums) {
-        int len = nums.length;
-        int[] forwardMax = new int[len];
-        int[] forwardMin = new int[len];
-        int maxToHere = nums[0];
-        int minToHere = nums[0];
+        if (nums == null || nums.length < 2) {
+            return 0;
+        }
+
+        int n = nums.length;
+        int[] forwardMax = new int[n], forwardMin = new int[n];
         forwardMax[0] = nums[0];
         forwardMin[0] = nums[0];
-        for (int i = 1; i < len; i++) {
-            maxToHere = Math.max(nums[i], nums[i] + maxToHere);
-            forwardMax[i] = Math.max(forwardMax[i - 1], maxToHere);
-            minToHere = Math.min(nums[i], nums[i] + minToHere);
-            forwardMin[i] = Math.min(forwardMin[i - 1], minToHere);
+        int maxEndHere = nums[0], minEndHere = nums[0];
+
+        for (int i = 1; i < n; i++) {
+            maxEndHere = maxEndHere <= 0 ? nums[i] : maxEndHere + nums[i];
+            forwardMax[i] = Math.max(forwardMax[i - 1], maxEndHere);
+            minEndHere = minEndHere >= 0 ? nums[i] : minEndHere + nums[i];
+            forwardMin[i] = Math.min(forwardMin[i - 1], minEndHere);
         }
 
-        int[] backwardMax = new int[len];
-        int[] backwardMin = new int[len];
-        maxToHere = nums[len - 1];
-        minToHere = nums[len - 1];
-        backwardMax[len - 1] = nums[len - 1];
-        backwardMin[len - 1] = nums[len - 1];
-        for (int i = len - 2; i >= 0; i--) {
-            maxToHere = Math.max(nums[i], nums[i] + maxToHere);
-            backwardMax[i] = Math.max(backwardMax[i + 1], maxToHere);
-            minToHere = Math.min(nums[i], nums[i] + minToHere);
-            backwardMin[i] = Math.min(backwardMin[i + 1], minToHere);
+        int[] backwardMax = new int[n], backwardMin = new int[n];
+        backwardMax[n - 1] = nums[n - 1];
+        backwardMin[n - 1] = nums[n - 1];
+        int maxStartHere = nums[n - 1], minStartHere = nums[n - 1];
+
+        for (int i = n - 2; i >= 0; i--) {
+            maxStartHere = maxStartHere <= 0 ? nums[i] : maxStartHere + nums[i];
+            backwardMax[i] = Math.max(backwardMax[i + 1], maxStartHere);
+            minStartHere = minStartHere >= 0 ? nums[i] : minStartHere + nums[i];
+            backwardMin[i] = Math.min(backwardMin[i + 1], minStartHere);
         }
 
-        int diff = 0;
-        for (int i = 0; i < len - 1; i++) {
-            diff = Math.max(diff, Math.abs(forwardMax[i] - backwardMin[i + 1]));
-            diff = Math.max(diff, Math.abs(forwardMin[i] - backwardMax[i + 1]));
+        int max = 0;
+        for (int i = 0; i < n - 1; i++) {
+            max = Math.max(max, forwardMax[i] - backwardMin[i + 1]);
+            max = Math.max(max, backwardMax[i + 1] - forwardMin[i]);
         }
-
-        return diff;
+        return max;
     }
 
     /**
@@ -1516,18 +1522,21 @@ public class ArrayAndNumbers {
     @tags.DynamicProgramming
     @tags.Greedy
     @tags.Source.LintCode
+    @tags.Status.Easy
     public int minSubArray(ArrayList<Integer> nums) {
         if (nums == null || nums.size() == 0) {
-            return -1;
+            return 0;
         }
+
         int min = nums.get(0);
-        int minToHere = nums.get(0);
+        int minEndHere = nums.get(0);
 
         for (int i = 1; i < nums.size(); i++) {
-            minToHere = (minToHere < 0) ? minToHere + nums.get(i) : nums.get(i);
-            if (minToHere < min) {
-                min = minToHere;
+            if (minEndHere > 0) {
+                minEndHere = 0;
             }
+            minEndHere += nums.get(i);
+            min = Math.min(min, minEndHere);
         }
 
         return min;
@@ -1550,6 +1559,7 @@ public class ArrayAndNumbers {
     @tags.Subarray
     @tags.DynamicProgramming
     @tags.Company.LinkedIn
+    @tags.Status.NeedPractice
     public int maxProduct(int[] nums) {
         if (nums == null || nums.length == 0) {
             return 0;
