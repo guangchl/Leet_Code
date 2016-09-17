@@ -2,6 +2,7 @@ package categories;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.Comparator;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -22,8 +23,67 @@ import org.junit.Assert;
 public class ArrayAndNumbers {
 
     // ---------------------------------------------------------------------- //
+    // ------------------------------- MODELS ------------------------------- //
+    // ---------------------------------------------------------------------- //
+
+    /** Definition for an interval. */
+    public class Interval {
+        int start;
+        int end;
+        Interval() { start = 0; end = 0; }
+        Interval(int s, int e) { start = s; end = e; }
+    }
+
+    // ---------------------------------------------------------------------- //
     // ------------------------------ PROBLEMS ------------------------------ //
     // ---------------------------------------------------------------------- //
+
+    /**
+     * Merge Intervals.
+     *
+     * Given a collection of intervals, merge all overlapping intervals.
+     *
+     * Example: Given intervals => merged intervals:
+     * [[2,3],[2,2],[3,3],[1,3],[5,7],[2,2],[4,6]] => [[1,3],[4,7]].
+     *
+     * Challenge: O(n log n) time and O(1) extra space.
+     *
+     * @param intervals,
+     *            a collection of intervals
+     * @return: A new sorted interval list.
+     */
+    @tags.Array
+    @tags.Sort
+    @tags.Company.Google
+    @tags.Company.LinkedIn
+    @tags.Status.NeedPractice
+    public List<Interval> merge(List<Interval> intervals) {
+        List<Interval> result = new ArrayList<>();
+        if (intervals == null || intervals.size() == 0) {
+            return result;
+        }
+
+        Collections.sort(intervals, new Comparator<Interval>() {
+            @Override
+            public int compare(Interval i1, Interval i2) {
+                return i1.start - i2.start;
+            }
+        });
+
+        Interval current = intervals.get(0);
+        current = new Interval(current.start, current.end);
+        for (int i = 1; i < intervals.size(); i++) {
+            if (current.end >= intervals.get(i).start) {
+                current.end = Math.max(current.end, intervals.get(i).end);
+            } else {
+                result.add(current);
+                current = intervals.get(i);
+            }
+        }
+
+        result.add(current);
+        return result;
+    }
 
     /**
      * Intersection of Two Arrays
@@ -619,6 +679,58 @@ public class ArrayAndNumbers {
             }
         }
         return start;
+    }
+
+    /**
+     * Median.
+     *
+     * Given a unsorted array with integers, find the median of it. A median is
+     * the middle number of the array after it is sorted. If there are even
+     * numbers in the array, return the N/2-th number after sorted.
+     *
+     * Example: Given [4, 5, 1, 2, 3], return 3. Given [7, 9, 4, 5], return 5.
+     *
+     * Challenge: O(n) time.
+     *
+     * @param nums:
+     *            A list of integers.
+     * @return: An integer denotes the middle number of the array.
+     */
+    @tags.Array
+    @tags.QuickSort
+    @tags.Source.LintCode
+    @tags.Status.NeedPractice
+    public int median(int[] nums) {
+        int start = 0, end = nums.length - 1;
+        int m = (start + end) >>> 1;
+        while (true) {
+            int pivot = partition(start, end, nums);
+            if (pivot < m) {
+                start = pivot + 1;
+            } else if (pivot > m) {
+                end = pivot - 1;
+            } else {
+                return nums[m];
+            }
+        }
+    }
+
+    private int partition(int start, int end, int[] nums) {
+        int pivot = start++;
+        while (start <= end) {
+            if (nums[start] <= nums[pivot]) {
+                start++;
+            } else {
+                int tmp = nums[start];
+                nums[start] = nums[end];
+                nums[end] = tmp;
+                end--;
+            }
+        }
+        int tmp = nums[pivot];
+        nums[pivot] = nums[end];
+        nums[end] = tmp;
+        return end;
     }
 
     /**

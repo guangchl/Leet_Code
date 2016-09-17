@@ -872,6 +872,7 @@ public class DynamicProgramming {
     @tags.BinarySearch
     @tags.DynamicProgramming
     @tags.Source.LintCode
+    @tags.Status.OK
     public int longestIncreasingSubsequence(int[] nums) {
         if (nums == null || nums.length == 0) {
             return 0;

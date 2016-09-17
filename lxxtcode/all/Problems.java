@@ -2,8 +2,6 @@ package all;
 
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Collections;
-import java.util.Comparator;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
@@ -2554,50 +2552,7 @@ public class Problems {
         
         return sum;
     }
-	
-	/**
-	 * Merge Intervals
-	 */
-	public ArrayList<Interval> merge(ArrayList<Interval> intervals) {
-        ArrayList<Interval> result = new ArrayList<Interval>();
-        if (intervals == null || intervals.size() == 0) {
-            return result;
-        }
-        
-        Collections.sort(intervals, new Comparator<Interval>() {
-                    @Override
-                    public int compare(Interval interval1, Interval interval2) {
-                        if (interval1.start < interval2.start) {
-                            return -1;
-                        } else if (interval1.start > interval2.start) {
-                            return 1;
-                        } else if (interval1.end < interval2.end) {
-                            return -1;
-                        } else if (interval1.end > interval2.end) {
-                            return 1;
-                        }
-                        
-                        return 0;
-                    }
-                });
-        
-        result.add(intervals.get(0));
-        for (int i = 1; i < intervals.size(); i++) {
-            Interval last = result.get(result.size() - 1);
-            Interval next = intervals.get(i);
-            if (last.end < next.start) {
-                result.add(next);
-            } else if (last.end >= next.end) {
-                continue;
-            } else {
-                result.remove(last);
-                result.add(new Interval(last.start, next.end));
-            }
-        }
-        
-        return result;
-    }
-	
+
 	/**
 	 * Insert Interval
 	 */

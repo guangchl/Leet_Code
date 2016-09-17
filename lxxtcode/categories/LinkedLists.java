@@ -5,8 +5,6 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.HashSet;
-import java.util.List;
-import java.util.PriorityQueue;
 import java.util.Set;
 import java.util.Stack;
 
@@ -560,61 +558,6 @@ public class LinkedLists {
             current.next = current.next.next;
             current = current.next;
             prev = prev.next;
-        }
-
-        return dummy.next;
-    }
-
-    /**
-     * Merge k Sorted Lists
-     *
-     * Merge k sorted linked lists and return it as one sorted list. Analyze and
-     * describe its complexity.
-     *
-     * @param lists:
-     *            a list of ListNode
-     * @return: The head of one sorted list.
-     */
-    @tags.DivideAndConquer
-    @tags.LinkedList
-    @tags.PriorityQueue
-    @tags.Heap
-    @tags.Company.Airbnb
-    @tags.Company.Facebook
-    @tags.Company.Google
-    @tags.Company.LinkedIn
-    @tags.Company.Twitter
-    @tags.Company.Uber
-    public ListNode mergeKLists(List<ListNode> lists) {
-        if (lists == null || lists.size() == 0) {
-            return null;
-        }
-
-        // construct min heap
-        PriorityQueue<ListNode> pq = new PriorityQueue<ListNode>(lists.size(),
-                new Comparator<ListNode>() {
-                    @Override
-                    public int compare(ListNode n1, ListNode n2) {
-                        return n1.val - n2.val;
-                    }
-                });
-
-        // insert head node of each list
-        for (ListNode list : lists) {
-            if (list != null) {
-                pq.offer(list);
-            }
-        }
-
-        // merge
-        ListNode dummy = new ListNode(0);
-        ListNode prev = dummy;
-        while (!pq.isEmpty()) {
-            prev.next = pq.poll();
-            prev = prev.next;
-            if (prev.next != null) {
-                pq.offer(prev.next);
-            }
         }
 
         return dummy.next;

@@ -56,6 +56,49 @@ public class DataStructure {
     // ---------------------------------------------------------------------- //
 
     /**
+     * Happy Number.
+     *
+     * Write an algorithm to determine if a number is happy. A happy number is a
+     * number defined by the following process: Starting with any positive
+     * integer, replace the number by the sum of the squares of its digits, and
+     * repeat the process until the number equals 1 (where it will stay), or it
+     * loops endlessly in a cycle which does not include 1. Those numbers for
+     * which this process ends in 1 are happy numbers.
+     *
+     * Example: 19 is a happy number. 1^2 + 9^2 = 82, 8^2 + 2^2 = 68, 6^2 + 8^2
+     * = 100, 1^2 + 0^2 + 0^2 = 1.
+     *
+     * @param n
+     *            an integer
+     * @return true if this is a happy number or false
+     */
+    @tags.HashTable
+    @tags.Math
+    @tags.Status.OK
+    public boolean isHappy(int n) {
+        if (n <= 0) {
+            return false;
+        }
+
+        Set<Integer> visited = new HashSet<>();
+        while (n != 1) {
+            if (visited.contains(n)) {
+                return false;
+            }
+            visited.add(n);
+
+            int sum = 0;
+            while (n != 0) {
+                sum += (n % 10) * (n % 10);
+                n /= 10;
+            }
+            n = sum;
+        }
+
+        return true;
+    }
+
+    /**
      * Hash Function.
      *
      * In data structure Hash, hash function is used to convert a string(or any
@@ -98,70 +141,6 @@ public class DataStructure {
         }
 
         return (int) result;
-    }
-
-    /**
-     * Merge k Sorted Arrays.
-     *
-     * Given k sorted integer arrays, merge them into one sorted array.
-     *
-     * Example: Given 3 sorted arrays: [ [1, 3, 5, 7], [2, 4, 6], [0, 8, 9, 10,
-     * 11] ]. return [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11].
-     *
-     * Time complexity: O(N log k). N is the total number of integers, k is the
-     * number of arrays.
-     *
-     * @param arrays
-     *            k sorted integer arrays
-     * @return a sorted array
-     */
-    @tags.PriorityQueue
-    @tags.Heap
-    public List<Integer> mergekSortedArrays(int[][] arrays) {
-        if (arrays == null || arrays.length == 0) {
-            return Collections.emptyList();
-        }
-
-        int m = arrays.length;
-
-        class Element {
-            int row;
-            int column;
-            int val;
-
-            Element(int row, int column, int val) {
-                this.row = row;
-                this.column = column;
-                this.val = val;
-            }
-        }
-
-        PriorityQueue<Element> pq = new PriorityQueue<>(m,
-                new Comparator<Element>() {
-                    @Override
-                    public int compare(Element e1, Element e2) {
-                        return e1.val - e2.val;
-                    }
-                });
-
-        for (int i = 0; i < m; i++) {
-            if (arrays[i] != null && arrays[i].length != 0) {
-                Element e = new Element(i, 0, arrays[i][0]);
-                pq.offer(e);
-            }
-        }
-
-        List<Integer> sorted = new ArrayList<>();
-        while (!pq.isEmpty()) {
-            Element e = pq.poll();
-            sorted.add(e.val);
-            int column = e.column + 1;
-            if (column < arrays[e.row].length) {
-                pq.offer(new Element(e.row, column, arrays[e.row][column]));
-            }
-        }
-
-        return sorted;
     }
 
     /**
@@ -344,6 +323,7 @@ public class DataStructure {
      */
     @tags.Array
     @tags.HashTable
+    @tags.Status.SuperHard
     public int longestConsecutive(int[] num) {
         if (num == null || num.length == 0) {
             return 0;
@@ -359,11 +339,11 @@ public class DataStructure {
             int left = set.iterator().next(), right = left;
             set.remove(left);
 
-            while (!set.isEmpty() && set.contains(left - 1)) {
+            while (set.contains(left - 1)) {
                 left--;
                 set.remove(left);
             }
-            while (!set.isEmpty() && set.contains(right + 1)) {
+            while (set.contains(right + 1)) {
                 right++;
                 set.remove(right);
             }
@@ -463,6 +443,247 @@ public class DataStructure {
     }
 
     // ---------------------------------------------------------------------- //
+    // --------------------------- Priority Queue --------------------------- //
+    // ---------------------------------------------------------------------- //
+
+    /**
+     * Merge k Sorted Lists.
+     *
+     * Merge k sorted linked lists and return it as one sorted list. Analyze and
+     * describe its complexity.
+     *
+     * @param lists:
+     *            a list of ListNode
+     * @return: The head of one sorted list.
+     */
+    @tags.DivideAndConquer
+    @tags.LinkedList
+    @tags.PriorityQueue
+    @tags.Heap
+    @tags.Company.Airbnb
+    @tags.Company.Facebook
+    @tags.Company.Google
+    @tags.Company.LinkedIn
+    @tags.Company.Twitter
+    @tags.Company.Uber
+    @tags.Status.Easy
+    public ListNode mergeKLists(List<ListNode> lists) {
+        if (lists == null || lists.size() == 0) {
+            return null;
+        }
+
+        // construct min heap
+        PriorityQueue<ListNode> pq = new PriorityQueue<ListNode>(lists.size(),
+                new Comparator<ListNode>() {
+                    @Override
+                    public int compare(ListNode n1, ListNode n2) {
+                        return n1.val - n2.val;
+                    }
+                });
+
+        // insert head node of each list
+        for (ListNode list : lists) {
+            if (list != null) {
+                pq.offer(list);
+            }
+        }
+
+        // merge
+        ListNode dummy = new ListNode(0);
+        ListNode prev = dummy;
+        while (!pq.isEmpty()) {
+            prev.next = pq.poll();
+            prev = prev.next;
+            if (prev.next != null) {
+                pq.offer(prev.next);
+            }
+        }
+
+        return dummy.next;
+    }
+
+    /**
+     * Merge k Sorted Arrays.
+     *
+     * Given k sorted integer arrays, merge them into one sorted array.
+     *
+     * Example: Given 3 sorted arrays: [ [1, 3, 5, 7], [2, 4, 6], [0, 8, 9, 10,
+     * 11] ]. return [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11].
+     *
+     * Time complexity: O(N log k). N is the total number of integers, k is the
+     * number of arrays.
+     *
+     * @param arrays
+     *            k sorted integer arrays
+     * @return a sorted array
+     */
+    @tags.PriorityQueue
+    @tags.Heap
+    public List<Integer> mergekSortedArrays(int[][] arrays) {
+        if (arrays == null || arrays.length == 0) {
+            return Collections.emptyList();
+        }
+
+        int m = arrays.length;
+
+        class Element {
+            int row;
+            int column;
+            int val;
+
+            Element(int row, int column, int val) {
+                this.row = row;
+                this.column = column;
+                this.val = val;
+            }
+        }
+
+        PriorityQueue<Element> pq = new PriorityQueue<>(m,
+                new Comparator<Element>() {
+                    @Override
+                    public int compare(Element e1, Element e2) {
+                        return e1.val - e2.val;
+                    }
+                });
+
+        for (int i = 0; i < m; i++) {
+            if (arrays[i] != null && arrays[i].length != 0) {
+                Element e = new Element(i, 0, arrays[i][0]);
+                pq.offer(e);
+            }
+        }
+
+        List<Integer> sorted = new ArrayList<>();
+        while (!pq.isEmpty()) {
+            Element e = pq.poll();
+            sorted.add(e.val);
+            int column = e.column + 1;
+            if (column < arrays[e.row].length) {
+                pq.offer(new Element(e.row, column, arrays[e.row][column]));
+            }
+        }
+
+        return sorted;
+    }
+
+    /**
+     * Data Stream Median.
+     *
+     * Numbers keep coming, return the median of numbers at every time a new
+     * number added.
+     *
+     * Example: For numbers coming list: [1, 2, 3, 4, 5], return [1, 1, 2, 2,
+     * 3]. For numbers coming list: [4, 5, 1, 3, 2, 6, 0], return [4, 4, 4, 3,
+     * 3, 3, 3]. For numbers coming list: [2, 20, 100], return [2, 2, 20].
+     *
+     * Challenge: Total run time in O(nlogn).
+     *
+     * @param nums:
+     *            A list of integers.
+     * @return: the median of numbers
+     */
+    @tags.Heap
+    @tags.PriorityQueue
+    @tags.Source.LintCode
+    @tags.Company.Google
+    @tags.Status.NeedPractice
+    public int[] medianII(int[] nums) {
+        if (nums == null || nums.length == 0) {
+            return null;
+        }
+
+        int n = nums.length;
+        PriorityQueue<Integer> minHeap = new PriorityQueue<>(n / 2 + 1);
+        PriorityQueue<Integer> maxHeap = new PriorityQueue<>(n / 2 + 1,
+                new Comparator<Integer>() {
+                    @Override
+                    public int compare(Integer i1, Integer i2) {
+                        return i2 - i1;
+                    }
+                });
+
+        int[] medians = new int[n];
+        for (int i = 0; i < nums.length; i++) {
+            if (minHeap.size() == maxHeap.size()) {
+                minHeap.offer(nums[i]);
+                maxHeap.offer(minHeap.poll());
+            } else {
+                maxHeap.offer(nums[i]);
+                minHeap.offer(maxHeap.poll());
+            }
+            medians[i] = maxHeap.peek();
+        }
+
+        return medians;
+    }
+
+    /**
+     * Sliding Window Median.
+     *
+     * Given an array of n integer, and a moving window(size k), move the window
+     * at each iteration from the start of the array, find the median of the
+     * element inside the window at each moving. (If there are even numbers in
+     * the array, return the N/2-th number after sorting the element in the
+     * window. )
+     *
+     * Example: For array [1,2,7,8,5], moving window size k = 3. return [2,7,7].
+     * At first the window is at the start of the array like this: [ | 1,2,7 |
+     * ,8,5] , return the median 2; then the window move one step forward. [1, |
+     * 2,7,8 | ,5], return the median 7; then the window move one step forward
+     * again. [1,2, | 7,8,5 | ], return the median 7;
+     *
+     * Challenge: O(nlog(n)) time.
+     *
+     * @param nums:
+     *            A list of integers.
+     * @return: The median of the element inside the window at each moving.
+     */
+    @tags.Heap
+    @tags.PriorityQueue
+    @tags.Source.LintCode
+    @tags.Status.NeedPractice
+    public ArrayList<Integer> medianSlidingWindow(int[] nums, int k) {
+        ArrayList<Integer> medians = new ArrayList<>();
+        if (nums == null || nums.length == 0 || nums.length < k) {
+            return medians;
+        }
+
+        int n = nums.length;
+        PriorityQueue<Integer> more = new PriorityQueue<>();
+        PriorityQueue<Integer> less = new PriorityQueue<>(n / 2 + 1,
+                new Comparator<Integer>() {
+                    @Override
+                    public int compare(Integer i1, Integer i2) {
+                        return i2 - i1;
+                    }
+                });
+
+        // init 2 min heap with balanced count
+        for (int i = 0; i < k; i++) {
+            more.offer(nums[i]);
+        }
+        for (int i = 0; i < (k + 1) / 2; i++) {
+            less.offer(more.poll());
+        }
+
+        // sliding
+        medians.add(less.peek());
+        for (int i = k; i < n; i++) {
+            if (less.remove(nums[i - k])) {
+                more.offer(nums[i]);
+                less.offer(more.poll());
+            } else {
+                more.remove(nums[i - k]);
+                less.offer(nums[i]);
+                more.offer(less.poll());
+            }
+            medians.add(less.peek());
+        }
+
+        return medians;
+    }
+
+    // ---------------------------------------------------------------------- //
     // ----------------------- Implement Queue/Stack ------------------------ //
     // ---------------------------------------------------------------------- //
 
@@ -482,6 +703,7 @@ public class DataStructure {
      */
     @tags.Stack
     @tags.Queue
+    @tags.Status.OK
     public class QueueTwoStack {
         private Stack<Integer> stack1;
         private Stack<Integer> stack2;
@@ -670,6 +892,7 @@ public class DataStructure {
      * @return true if num is an ugly number or false
      */
     @tags.Math
+    @tags.Status.NeedPractice
     public boolean isUgly(int num) {
         if (num <= 0) {
             return false;
@@ -705,6 +928,7 @@ public class DataStructure {
     @tags.PriorityQueue
     @tags.DynamicProgramming
     @tags.Source.LintCode
+    @tags.Status.NeedPractice
     public int nthUglyNumber(int n) {
         List<Integer> uglyNums = new ArrayList<>();
         uglyNums.add(1);
@@ -714,20 +938,16 @@ public class DataStructure {
             int n2 = uglyNums.get(ptr2) * 2;
             int n3 = uglyNums.get(ptr3) * 3;
             int n5 = uglyNums.get(ptr5) * 5;
-            if (n2 <= n3 && n2 <= n5) {
-                if (n2 != uglyNums.get(uglyNums.size() - 1)) {
-                    uglyNums.add(n2);
-                }
+            int min = Math.min(n2, n3);
+            min = Math.min(min, n5);
+            uglyNums.add(min);
+            if (min == n2) {
                 ptr2++;
-            } else if (n3 <= n5) {
-                if (n3 != uglyNums.get(uglyNums.size() - 1)) {
-                    uglyNums.add(n3);
-                }
+            }
+            if (min == n3) {
                 ptr3++;
-            } else {
-                if (n5 != uglyNums.get(uglyNums.size() - 1)) {
-                    uglyNums.add(n5);
-                }
+            }
+            if (min == n5) {
                 ptr5++;
             }
         }
@@ -759,6 +979,7 @@ public class DataStructure {
     @tags.Math
     @tags.Heap
     @tags.Company.Google
+    @tags.Status.NeedPractice
     public int nthSuperUglyNumber(int n, int[] primes) {
         int k = primes.length;
         int[] ptrs = new int[k];
@@ -1107,6 +1328,7 @@ public class DataStructure {
     @tags.Company.Google
     @tags.Company.Uber
     @tags.Company.Zenefits
+    @tags.Status.NeedPractice
     public class MinStack {
         Stack<Integer> stack;
         Stack<Integer> minStack;
@@ -1149,12 +1371,15 @@ public class DataStructure {
      *
      * Example: Given height = [2,1,5,6,2,3], return 10.
      *
+     * What a elegant solution!
+     *
      * @param height:
      *            A list of integer
      * @return: The area of largest rectangle in the histogram
      */
     @tags.Stack
     @tags.Array
+    @tags.Status.SuperHard
     public int largestRectangleArea(int[] height) {
         if (height == null || height.length == 0) {
             return 0;
@@ -1316,12 +1541,107 @@ public class DataStructure {
     }
 
     // ---------------------------------------------------------------------- //
+    // -------------------------------- Trie -------------------------------- //
+    // ---------------------------------------------------------------------- //
+
+    /**
+     * Word Search II.
+     *
+     * Given a matrix of lower alphabets and a dictionary. Find all words in the
+     * dictionary that can be found in the matrix. A word can start from any
+     * position in the matrix and go left/right/up/down to the adjacent
+     * position.
+     *
+     * Example: Given matrix: ["doaf","agai","dcan"], and dictionary: {"dog",
+     * "dad", "dgdg", "can", "again"}, return {"dog", "dad", "can", "again"}.
+     *
+     * Challenge: Using trie to implement your algorithm.
+     *
+     * @param board:
+     *            A list of lists of character
+     * @param words:
+     *            A list of string
+     * @return: A list of string
+     */
+    @tags.Trie
+    @tags.Source.LintCode
+    @tags.Company.Airbnb
+    @tags.Status.SuperHard
+    public ArrayList<String> wordSearchII(char[][] board,
+            ArrayList<String> words) {
+        ArrayList<String> result = new ArrayList<>();
+        if (board == null || board.length == 0 || board[0].length == 0) {
+            return result;
+        }
+
+        // load dictionary in Trie tree
+        Trie root = new Trie();
+        for (String word : words) {
+            addToTrie(word, root);
+        }
+
+        // search the board
+        for (int i = 0; i < board.length; i++) {
+            for (int j = 0; j < board[0].length; j++) {
+                searchWord(board, i, j, root, result, new StringBuilder());
+            }
+        }
+
+        return result;
+    }
+
+    private void addToTrie(String word, Trie root) {
+        for (int i = 0; i < word.length(); i++) {
+            int index = word.charAt(i) - 'a';
+            if (root.letters[index] == null) {
+                root.letters[index] = new Trie();
+            }
+            root = root.letters[index];
+        }
+        root.isWord = true;
+    }
+
+    private void searchWord(char[][] board, int i, int j, Trie root,
+            ArrayList<String> result, StringBuilder sb) {
+        if (i < 0 || i == board.length || j < 0 || j == board[0].length) {
+            return;
+        }
+
+        char c = board[i][j];
+        int pos = c - 'a';
+        if (pos < 0 || pos >= 26 || root.letters[pos] == null) {
+            return;
+        }
+        root = root.letters[pos];
+
+        sb.append(c);
+        board[i][j] = '0';
+        if (root.isWord && !result.contains(sb.toString())) {
+            result.add(sb.toString());
+        }
+
+        searchWord(board, i - 1, j, root, result, sb);
+        searchWord(board, i + 1, j, root, result, sb);
+        searchWord(board, i, j - 1, root, result, sb);
+        searchWord(board, i, j + 1, root, result, sb);
+
+        sb.deleteCharAt(sb.length() - 1);
+        board[i][j] = c;
+    }
+
+    class Trie {
+        Trie[] letters = new Trie[26];
+        boolean isWord;
+    }
+
+    // ---------------------------------------------------------------------- //
     // ------------------------------ Unit Tests ---------------------------- //
     // ---------------------------------------------------------------------- //
 
     @Test
     public void test() {
         hashCodeTest();
+        isUglyTest();
         LFUCacheTest();
         largestRectangleAreaTest();
     }
@@ -1334,6 +1654,11 @@ public class DataStructure {
         key = "Wrong answer or accepted?".toCharArray();
         hashSize = 1000000007;
         Assert.assertEquals(382528955, hashCode(key, hashSize));
+    }
+
+    private void isUglyTest() {
+        Assert.assertTrue(isUgly(8));
+        Assert.assertFalse(isUgly(14));
     }
 
     private void LFUCacheTest() {
