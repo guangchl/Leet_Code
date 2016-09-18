@@ -111,6 +111,7 @@ public class LinkedLists {
     @tags.Company.Yahoo
     @tags.Company.Yelp
     @tags.Company.Zenefits
+    @tags.Status.Easy
     public ListNode reverse(ListNode head) {
         ListNode newHead = null;
 
@@ -120,6 +121,30 @@ public class LinkedLists {
             newHead = head;
             head = next;
         }
+
+        return newHead;
+    }
+
+    /**
+     * Reverse Linked List.
+     *
+     * Reverse a single linked list - recursive.
+     */
+    @tags.LinkedList
+    @tags.Recursion
+    @tags.Source.LeetCode
+    @tags.Source.LintCode
+    @tags.Company.Facebook
+    @tags.Company.Uber
+    @tags.Status.Easy
+    public ListNode reverseList(ListNode head) {
+        if (head == null || head.next == null) {
+            return head;
+        }
+
+        ListNode newHead = reverseList(head.next);
+        head.next.next = head;
+        head.next = null;
 
         return newHead;
     }
@@ -141,6 +166,7 @@ public class LinkedLists {
      * @return: The head of the reversed ListNode
      */
     @tags.LinkedList
+    @tags.Status.NeedPractice
     public ListNode reverseBetween(ListNode head, int m, int n) {
         ListNode dummy = new ListNode(0);
         dummy.next = head;
@@ -164,29 +190,6 @@ public class LinkedLists {
         }
 
         return dummy.next;
-    }
-
-    /**
-     * Reverse Linked List.
-     *
-     * Reverse a single linked list - recursive.
-     */
-    @tags.LinkedList
-    @tags.Recursion
-    @tags.Source.LeetCode
-    @tags.Source.LintCode
-    @tags.Company.Facebook
-    @tags.Company.Uber
-    public ListNode reverseList(ListNode head) {
-        if (head == null || head.next == null) {
-            return head;
-        }
-
-        ListNode newHead = reverseList(head.next);
-        head.next.next = head;
-        head.next = null;
-
-        return newHead;
     }
 
     /**

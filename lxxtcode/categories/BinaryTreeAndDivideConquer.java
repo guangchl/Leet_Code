@@ -1002,7 +1002,7 @@ public class BinaryTreeAndDivideConquer {
      * @return : Root of a tree
      */
     @tags.BinaryTree
-    @tags.Status.SuperHard
+    @tags.Status.NeedPractice
     public TreeNode buildTreePreIn(int[] preorder, int[] inorder) {
         int len = preorder.length;
         return buildTreePreIn(preorder, 0, len - 1, inorder, 0, len - 1);
@@ -1044,7 +1044,7 @@ public class BinaryTreeAndDivideConquer {
      * @return : Root of a tree
      */
     @tags.BinaryTree
-    @tags.Status.SuperHard
+    @tags.Status.NeedPractice
     public TreeNode buildTreeInPost(int[] inorder, int[] postorder) {
         int len = postorder.length;
         return buildTreeInPost(postorder, 0, len - 1, inorder, 0, len - 1);

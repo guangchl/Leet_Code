@@ -132,22 +132,16 @@ public class DynamicProgramming {
     @tags.DynamicProgramming
     @tags.Status.OK
     public int climbStairs(int n) {
-        // OJ doesn't test this case, should ask interviewer
-        if (n == 0) {
-            return 1;
-        }
+        // Good question to ask interviewer about edge cases
 
         // just like fibonacci
-        int a = 1;
-        int b = 1;
-
-        while (n-- > 1) {
-            int temp = a + b;
+        int a = 1, b = 1;
+        while (n-- > 0) {
+            int c = a + b;
             a = b;
-            b = temp;
+            b = c;
         }
-
-        return b;
+        return a;
     }
 
     /**

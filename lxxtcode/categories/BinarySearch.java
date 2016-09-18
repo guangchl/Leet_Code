@@ -159,6 +159,7 @@ public class BinarySearch {
      */
     @tags.Matrix
     @tags.BinarySearch
+    @tags.Status.Easy
     public boolean searchMatrix(int[][] matrix, int target) {
         if (matrix == null || matrix.length == 0 || matrix[0] == null
                 || matrix[0].length == 0) {
@@ -170,15 +171,14 @@ public class BinarySearch {
 
         while (start <= end) {
             int mid = (start + end) >>> 1;
-            int row = mid / n;
-            int col = mid % n;
+            int row = mid / n, col = mid % n;
 
-            if (matrix[row][col] == target) {
-                return true;
+            if (matrix[row][col] > target) {
+                end = mid - 1;
             } else if (matrix[row][col] < target) {
                 start = mid + 1;
             } else {
-                end = mid - 1;
+                return true;
             }
         }
 
@@ -211,6 +211,7 @@ public class BinarySearch {
     @tags.Company.Amazon
     @tags.Company.Apple
     @tags.Company.Google
+    @tags.Status.Easy
     public int searchMatrix2(int[][] matrix, int target) {
         if (matrix == null || matrix.length == 0 || matrix[0] == null
                 || matrix[0].length == 0) {
@@ -800,6 +801,7 @@ public class BinarySearch {
      * @return: the minimum number in the array
      */
     @tags.BinarySearch
+    @tags.Status.OK
     public int findMin(int[] num) {
         if (num == null || num.length == 0) {
             throw new IllegalArgumentException();
@@ -837,6 +839,7 @@ public class BinarySearch {
      */
     @tags.BinarySearch
     @tags.DivideAndConquer
+    @tags.Status.OK
     public int findMinWithDup(int[] num) {
         if (num == null || num.length == 0) {
             throw new IllegalArgumentException();

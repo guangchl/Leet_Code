@@ -24,6 +24,88 @@ public class BasicAndStringAndMathAndGreedy {
     // ---------------------------------------------------------------------- //
 
     /**
+     * Fizz Buzz.
+     *
+     * Given number n. Print number from 1 to n. But: when number is divided by
+     * 3, print "fizz". when number is divided by 5, print "buzz". when number
+     * is divided by both 3 and 5, print "fizz buzz".
+     *
+     * Example: If n = 15, you should return: [ "1", "2", "fizz", "4", "buzz",
+     * "fizz", "7", "8", "fizz", "buzz", "11", "fizz", "13", "14", "fizz buzz" ]
+     *
+     * @param n:
+     *            As description.
+     * @return: A list of strings.
+     */
+    @tags.Enumeration
+    @tags.BasicImplementation
+    @tags.Status.OK
+    public ArrayList<String> fizzBuzz(int n) {
+        ArrayList<String> result = new ArrayList<>();
+
+        for (int i = 1; i <= n; i++) {
+            if (i % 15 == 0) {
+                result.add("fizz buzz");
+            } else if (i % 3 == 0) {
+                result.add("fizz");
+            } else if (i % 5 == 0) {
+                result.add("buzz");
+            } else {
+                result.add(String.valueOf(i));
+            }
+        }
+
+        return result;
+    }
+
+    /**
+     * Fibonacci - O(n) solution.
+     *
+     * Find the Nth number in Fibonacci sequence.
+     *
+     * A Fibonacci sequence is defined as: The first two numbers are 0 and 1.
+     * The i th number is the sum of i-1 th number and i-2 th number. The first
+     * ten numbers in Fibonacci sequence is: 0, 1, 1, 2, 3, 5, 8, 13, 21, 34 ...
+     *
+     * Notice: The Nth fibonacci number won't exceed the max value of signed
+     * 32-bit integer in the test cases.
+     *
+     * Example: Given 1, return 0. Given 2, return 1. Given 10, return 34.
+     *
+     * @param n:
+     *            an integer
+     * @return an integer f(n)
+     */
+    @tags.Enumeration
+    @tags.Math
+    @tags.NonRecursion
+    @tags.Status.Easy
+    public static int fib4(int n) {
+        int a = 0;
+        int b = 1;
+
+        while (n-- > 0) {
+            int temp = a + b;
+            a = b;
+            b = temp;
+        }
+
+        return a;
+    }
+
+    /** Fibonacci - best O(1) solution. */
+    @tags.Enumeration
+    @tags.Math
+    @tags.NonRecursion
+    @tags.Status.SuperHard
+    public static int fib5(int n) {
+        double a = Math.sqrt(5);
+
+        return (int) (1 / a * Math.pow((a + 1) / 2, n)
+                - 1 / a * Math.pow((1 - a) / 2, n));
+    }
+
+    /**
      * Implement strStr().
      *
      * Returns a pointer to the first occurrence of needle in haystack, or null
@@ -125,6 +207,54 @@ public class BasicAndStringAndMathAndGreedy {
         return strs[0];
     }
 
+    /**
+     * Space Replacement.
+     *
+     * Write a method to replace all spaces in a string with %20. The string is
+     * given in a characters array, you can assume it has enough space for
+     * replacement and you are given the true length of the string. You code
+     * should also return the new length of the string after replacement.
+     *
+     * Notice: If you are using Java or Python£¬please use characters array
+     * instead of string.
+     *
+     * Example: Given "Mr John Smith", length = 13. The string after replacement
+     * should be "Mr%20John%20Smith", you need to change the string in-place and
+     * return the new length 17.
+     *
+     * Challenge: Do it in-place.
+     *
+     * @param string:
+     *            An array of Char
+     * @param length:
+     *            The true length of the string
+     * @return: The true length of new string
+     */
+    @tags.String
+    @tags.Source.CrackingTheCodingInterview
+    public int replaceBlank(char[] string, int length) {
+        int newLen = 0;
+        for (int i = 0; i < length; i++) {
+            if (string[i] == ' ') {
+                newLen += 3;
+            } else {
+                newLen++;
+            }
+        }
+
+        for (int i = length - 1, len = newLen; i >= 0; i--) {
+            if (string[i] == ' ') {
+                string[--len] = '0';
+                string[--len] = '2';
+                string[--len] = '%';
+            } else {
+                string[--len] = string[i];
+            }
+        }
+
+        return newLen;
+    }
+
     // ---------------------------------------------------------------------- //
     // -------------------------------- Greedy ------------------------------ //
     // ---------------------------------------------------------------------- //
@@ -170,6 +300,34 @@ public class BasicAndStringAndMathAndGreedy {
     // ---------------------------------------------------------------------- //
     // --------------------------------- MATH ------------------------------- //
     // ---------------------------------------------------------------------- //
+
+    /**
+     * Count 1 in Binary.
+     *
+     * Count how many 1 in binary representation of a 32-bit integer.
+     *
+     * Example: Given 32, return 1. Given 5, return 2. Given 1023, return 9.
+     *
+     * Challenge: If the integer is n bits with m 1 bits. Can you do it in O(m)
+     * time?
+     *
+     * @param num:
+     *            an integer
+     * @return: an integer, the number of ones in num
+     */
+    @tags.Binary
+    @tags.BitManipulation
+    @tags.Status.NeedPractice
+    public int countOnes(int num) {
+        int count = 0;
+        while (num != 0) {
+            if (num % 2 != 0) {
+                count++;
+            }
+            num >>>= 1;
+        }
+        return count;
+    }
 
     /**
      * Flip Bits.
