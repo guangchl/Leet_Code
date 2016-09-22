@@ -1,16 +1,39 @@
 package categories;
 
+import java.util.AbstractMap;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.Comparator;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
+import java.util.PriorityQueue;
 import java.util.Set;
 
 import org.junit.Assert;
 import org.junit.Test;
 
 public class DynamicProgramming {
+
+    // ---------------------------------------------------------------------- //
+    // ------------------------------- MODELS ------------------------------- //
+    // ---------------------------------------------------------------------- //
+
+    /** Definition for binary tree */
+    public class TreeNode {
+        int val;
+        TreeNode left;
+        TreeNode right;
+
+        TreeNode(int x) {
+            val = x;
+        }
+    }
+
+    // ---------------------------------------------------------------------- //
+    // ------------------------------ PROBLEMS ------------------------------ //
+    // ---------------------------------------------------------------------- //
 
     /**
      * Unique Paths.
@@ -442,7 +465,7 @@ public class DynamicProgramming {
      */
     @tags.String
     @tags.DynamicProgramming
-    @tags.Status.SuperHard
+    @tags.Status.Hard
     public int numDistinct(String S, String T) {
         // TODO: get used to this implicit recurrence relation
         // Take away from this problem is draw the matrix first if the only
@@ -465,290 +488,6 @@ public class DynamicProgramming {
             }
         }
         return nums[S.length()][T.length()];
-    }
-
-    /**
-     * Word Break.
-     *
-     * Given a string s and a dictionary of words dict, determine if s can be
-     * break into a space-separated sequence of one or more dictionary words.
-     *
-     * For example, given s = "leetcode", dict = ["leet", "code"]. Return true
-     * because "leetcode" can be segmented as "leet code".
-     *
-     * Bottom up DP seems quick useful.
-     *
-     * @param s:
-     *            A string s
-     * @param dict:
-     *            A dictionary of words dict
-     */
-    @tags.String
-    @tags.DynamicProgramming
-    public boolean wordBreak(String s, Set<String> dict) {
-        if (s == null || dict == null)
-            return false;
-
-        // wb[i] = breakable before char at i
-        boolean[] wb = new boolean[s.length() + 1];
-        wb[0] = true;
-
-        // find the longest word in dict
-        int maxLen = 0;
-        for (String word : dict) {
-            maxLen = Math.max(maxLen, word.length());
-        }
-
-        for (int i = 1; i < wb.length; i++) {
-            for (int j = i - 1; j >= 0 && i - j <= maxLen; j--) {
-                if (wb[j] && dict.contains(s.substring(j, i))) {
-                    wb[i] = true;
-                    break;
-                }
-            }
-        }
-
-        return wb[wb.length - 1];
-    }
-
-    /**
-     * Word Break - another solution.
-     *
-     * Greedy?
-     */
-    @tags.String
-    @tags.DynamicProgramming
-    public boolean wordBreak2(String s, Set<String> dict) {
-        if (s == null || dict == null)
-            return false;
-
-        int n = s.length();
-        boolean[] wb = new boolean[n + 1]; // wb[i] = breakable before char at i
-        wb[0] = true;
-
-        int maxLen = 0;
-        for (String word : dict) {
-            maxLen = Math.max(maxLen, word.length());
-        }
-
-        for (int i = 0; i <= n; i++) {
-            if (wb[i]) {
-                for (int j = i + 1; j <= n && j - i <= maxLen; j++) {
-                    if (!wb[j] && dict.contains(s.substring(i, j))) {
-                        wb[j] = true;
-                    }
-                }
-            }
-        }
-
-        return wb[n];
-    }
-
-    /**
-     * Word Break
-     *
-     * Bottom up DP solution seems quick useful
-     *
-     * @param s:
-     *            A string s
-     * @param dict:
-     *            A dictionary of words dict
-     */
-    @tags.String
-    @tags.DynamicProgramming
-    public boolean wordBreakBottomUp(String s, Set<String> dict) {
-        if (s == null || dict == null)
-            return false;
-
-        int len = s.length();
-        boolean[] dp = new boolean[len + 1];
-        dp[len] = true;
-
-        for (int i = len - 1; i >= 0; i--) {
-            for (int j = i; j < len; j++) {
-                String str = s.substring(i, j + 1);
-                if (dict.contains(str) && dp[j + 1]) {
-                    dp[i] = true;
-                    break;
-                }
-            }
-        }
-        return dp[0];
-    }
-
-    /**
-     * Palindrome Partitioning.
-     *
-     * Given a string s, partition s such that every substring of the partition
-     * is a palindrome. Return all possible palindrome partitioning of s.
-     *
-     * Example: Given s = "aab", return: [ ["aa","b"], ["a","a","b"] ].
-     *
-     * @param s:
-     *            A string
-     * @return: A list of lists of string
-     */
-    @tags.Backtracking
-    @tags.DFS
-    public List<List<String>> partition(String s) {
-        int n = s.length();
-        boolean[][] isPal = new boolean[n][n];
-        for (int i = n - 1; i >= 0; i--) {
-            for (int j = i; j < n; j++) {
-                if (i == j) {
-                    isPal[i][j] = true;
-                } else if (j - i == 1) {
-                    isPal[i][j] = s.charAt(i) == s.charAt(j);
-                } else {
-                    isPal[i][j] = isPal[i + 1][j - 1]
-                            && s.charAt(i) == s.charAt(j);
-                }
-            }
-        }
-
-        List<List<String>> result = new ArrayList<>();
-        List<String> path = new ArrayList<>();
-        partition(isPal, s, path, 0, result);
-        return result;
-    }
-
-    private void partition(boolean[][] isPal, String s, List<String> path,
-            int pos, List<List<String>> result) {
-        if (pos == s.length()) {
-            result.add(new ArrayList<>(path));
-        }
-        for (int i = pos; i < s.length(); i++) {
-            if (isPal[pos][i]) {
-                path.add(s.substring(pos, i + 1));
-                partition(isPal, s, path, i + 1, result);
-                path.remove(path.size() - 1);
-            }
-        }
-    }
-
-    /**
-     * Palindrome Partitioning II.
-     *
-     * Given a string s, cut s into some substrings such that every substring is
-     * a palindrome. Return the minimum cuts needed for a palindrome
-     * partitioning of s.
-     *
-     * Example: Given s = "aab", Return 1 since the palindrome partitioning
-     * ["aa", "b"] could be produced using 1 cut.
-     *
-     * @param s
-     *            a string
-     * @return an integer
-     */
-    @tags.DynamicProgramming
-    public int minCut(String s) {
-        int n = s.length();
-        int[] minCut = new int[n + 1];
-        for (int i = 0; i < n; i++) {
-            minCut[i] = n;
-        }
-        boolean[][] isPal = new boolean[n][n];
-
-        for (int i = n - 1; i >= 0; i--) {
-            for (int j = n - 1; j >= i; j--) {
-                // find palindrome
-                if (i == j) {
-                    isPal[i][j] = true;
-                } else if (j - i == 1) {
-                    isPal[i][j] = s.charAt(i) == s.charAt(j);
-                } else {
-                    isPal[i][j] = isPal[i + 1][j - 1]
-                            && s.charAt(i) == s.charAt(j);
-                }
-
-                // evaluate minCut
-                if (isPal[i][j]) {
-                    minCut[i] = Math.min(minCut[i], 1 + minCut[j + 1]);
-                }
-            }
-        }
-
-        return minCut[0] - 1;
-    }
-
-    /**
-     * Palindrome Partitioning II - better solution.
-     */
-    @tags.DynamicProgramming
-    public int minCut2(String s) {
-        int len = s.length();
-        boolean[][] isPal = new boolean[len][len];
-        int[] dp = new int[len + 1];
-
-        for (int i = 0; i <= len; i++)
-            dp[i] = len - 1 - i;
-
-        for (int i = len - 2; i >= 0; i--) {
-            for (int j = i; j < len; j++) {
-                if (s.charAt(i) == s.charAt(j)
-                        && (j <= i + 2 || isPal[i + 1][j - 1])) {
-                    isPal[i][j] = true;
-                    dp[i] = Math.min(dp[i], dp[j + 1] + 1);
-                }
-            }
-        }
-        return dp[0];
-    }
-
-    /**
-     * Longest Palindromic Substring.
-     *
-     * Given a string S, find the longest palindromic substring in S. You may
-     * assume that the maximum length of S is 1000, and there exists one unique
-     * longest palindromic substring.
-     *
-     * Example: Given the string = "abcdzdcab", return "cdzdc".
-     *
-     * Challenge: O(n2) time is acceptable. Can you do it in O(n) time.
-     *
-     * There is an O(n) solution with Manacher¡¯s Algorithm.
-     *
-     * @param s
-     *            input string
-     * @return the longest palindromic substring
-     */
-    @tags.String
-    public String longestPalindrome(String s) {
-        int maxLen = 0;
-        String pal = "";
-        for (int i = 0; i < s.length() - maxLen / 2; i++) {
-            // left middle of even number characters
-            int left = i, right = i + 1;
-            int len = 0;
-            while (left >= 0 && right < s.length()
-                    && s.charAt(left) == s.charAt(right)) {
-                len += 2;
-                left--;
-                right++;
-            }
-            if (len > maxLen) {
-                maxLen = len;
-                pal = s.substring(++left, right);
-            }
-
-            // middle of odd number characters
-            left = i - 1;
-            right = i + 1;
-            len = 1;
-            while (left >= 0 && right < s.length()
-                    && s.charAt(left) == s.charAt(right)) {
-                len += 2;
-                left--;
-                right++;
-            }
-
-            if (len > maxLen) {
-                maxLen = len;
-                pal = s.substring(++left, right);
-            }
-        }
-
-        return pal;
     }
 
     /**
@@ -993,32 +732,326 @@ public class DynamicProgramming {
      */
     @tags.String
     @tags.DynamicProgramming
+    @tags.Company.Facebook
+    @tags.Company.Microsoft
+    @tags.Company.Uber
     public int numDecodings(String s) {
         if (s == null || s.length() == 0) {
             return 0;
         }
 
-        int len = s.length();
-        int[] dp = new int[len + 1];
-        dp[len] = 1;
-        if (s.charAt(len - 1) != '0') {
-            dp[len - 1] = 1;
-        }
+        int n = s.length();
+        int[] ways = new int[n + 1];
+        ways[n] = 1;
+        ways[n - 1] = s.charAt(n - 1) != '0' ? 1 : 0;
 
-        for (int i = len - 2; i >= 0; i--) {
-            int n10 = s.charAt(i) - '0';
-            int n1 = s.charAt(i + 1) - '0';
-            if (n10 != 0) {
-                if (n10 * 10 + n1 <= 26) {
-                    dp[i] = dp[i + 2];
+        for (int i = n - 2; i >= 0; i--) {
+            if (s.charAt(i) != '0') {
+                // single digit
+                ways[i] = ways[i + 1];
+
+                // double digit
+                int num = Integer.parseInt(s.substring(i, i + 2));
+                if (num >= 1 && num <= 26) {
+                    ways[i] += ways[i + 2];
                 }
-                dp[i] += dp[i + 1];
             }
-
         }
 
-        return dp[0];
+        return ways[0];
     }
+
+    /**
+     * Minimum Adjustment Cost
+     *
+     * Given an integer array, adjust each integers so that the difference of
+     * every adjacent integers are not greater than a given number target. If
+     * the array before adjustment is A, the array after adjustment is B, you
+     * should minimize the sum of |A[i]-B[i]|
+     *
+     * Notice: You can assume each number in the array is a positive integer and
+     * not greater than 100.
+     *
+     * Example: Given [1,4,2,3] and target = 1, one of the solutions is
+     * [2,3,2,3], the adjustment cost is 2 and it's minimal. Return 2.
+     *
+     * @param A:
+     *            An integer array.
+     * @param target:
+     *            An integer.
+     */
+    @tags.DynamicProgramming
+    @tags.Backpack
+    @tags.Source.LintCode
+    @tags.Status.Hard
+    public int MinAdjustmentCost(ArrayList<Integer> A, int target) {
+        if (A == null || target < 0) {
+            return 0;
+        }
+
+        int n = A.size();
+        int[][] costs = new int[n + 1][100 + 1];
+
+        for (int i = n - 1; i >= 0; i--) {
+            for (int j = 1; j <= 100; j++) {
+                int lower = Math.max(1, j - target);
+                int upper = Math.min(100, j + target);
+                costs[i][j] = costs[i + 1][upper];
+                for (int k = lower; k < upper; k++) {
+                    costs[i][j] = Math.min(costs[i][j], costs[i + 1][k]);
+                }
+                costs[i][j] += Math.abs(A.get(i) - j);
+            }
+        }
+
+        int min = costs[0][1];
+        for (int i = 1; i <= 100; i++) {
+            min = Math.min(min, costs[0][i]);
+        }
+
+        return min;
+    }
+
+    /**
+     * Perfect Squares.
+     *
+     * Given a positive integer n, find the least number of perfect square
+     * numbers (for example, 1, 4, 9, 16, ...) which sum to n.
+     *
+     * For example, given n = 12, return 3 because 12 = 4 + 4 + 4; given n = 13,
+     * return 2 because 13 = 4 + 9.
+     *
+     * @param n a positive integer
+     * @return an integer
+     */
+    @tags.DynamicProgramming
+    @tags.BFS
+    @tags.Math
+    @tags.Company.Google
+    @tags.Status.NeedPractice
+    public int numSquares(int n) {
+        int[] dp = new int[n + 1];
+
+        for (int i = 1; i <= n; i++) {
+            dp[i] = dp[i - 1] + 1;
+            for (int j = 1; j * j <= i; j++) {
+                dp[i] = Math.min(dp[i], dp[i - j * j] + 1);
+            }
+        }
+
+        return dp[n];
+    }
+
+    /** Perfect Squares - pure math solution. */
+    public int numSquares2(int n) {
+        // Write your code here
+        while (n % 4 == 0)
+            n /= 4;
+        if (n % 8 == 7)
+            return 4;
+        for (int i = 0; i * i <= n; ++i) {
+            int j = (int) Math.sqrt(n * 1.0 - i * i);
+            if (i * i + j * j == n) {
+                int res = 0;
+                if (i > 0)
+                    res += 1;
+                if (j > 0)
+                    res += 1;
+                return res;
+            }
+        }
+        return 3;
+    }
+
+    /**
+     * Dices Sum.
+     *
+     * Throw n dices, the sum of the dices' faces is S. Given n, find the all
+     * possible value of S along with its probability.
+     *
+     * Example: Given n = 1, return [ [1, 0.17], [2, 0.17], [3, 0.17], [4,
+     * 0.17], [5, 0.17], [6, 0.17]].
+     *
+     * Do the division at the end to avoid difference made by precision lost,
+     * while use BigDecimal is another way.
+     *
+     * @param n
+     *            an integer
+     * @return a list of Map.Entry<sum, probability>
+     */
+    @tags.DynamicProgramming
+    @tags.Math
+    @tags.Probability
+    public List<Map.Entry<Integer, Double>> dicesSum(int n) {
+        // init
+        double[] sumsCount = new double[6 * n];
+        for (int i = 0; i < 6; i++) {
+            sumsCount[i] = 1;
+        }
+
+        // roll dice n times
+        for (int i = 1; i < n; i++) {
+            for (int j = 6 * i - 1; j >= i - 1; j--) {
+                for (int k = 1; k <= 6; k++) {
+                    sumsCount[j + k] += sumsCount[j];
+                }
+                sumsCount[j] = 0;
+            }
+        }
+
+        List<Map.Entry<Integer, Double>> result = new ArrayList<>();
+        double total = Math.pow(6, n);
+        for (int i = n - 1; i < sumsCount.length; i++) {
+            result.add(
+                    new AbstractMap.SimpleEntry<>(i + 1, sumsCount[i] / total));
+        }
+        return result;
+    }
+
+    // ---------------------------------------------------------------------- //
+    // ----------------------------- Word Break ----------------------------- //
+    // ---------------------------------------------------------------------- //
+
+    /**
+     * Word Break.
+     *
+     * Given a string s and a dictionary of words dict, determine if s can be
+     * break into a space-separated sequence of one or more dictionary words.
+     *
+     * For example, given s = "leetcode", dict = ["leet", "code"]. Return true
+     * because "leetcode" can be segmented as "leet code".
+     *
+     * Bottom up DP seems quick useful.
+     *
+     * @param s:
+     *            A string s
+     * @param dict:
+     *            A dictionary of words dict
+     */
+    @tags.String
+    @tags.DynamicProgramming
+    @tags.Company.Amazon
+    @tags.Company.Bloomberg
+    @tags.Company.Facebook
+    @tags.Company.Google
+    @tags.Company.PocketGems
+    @tags.Company.Uber
+    @tags.Company.Yahoo
+    public boolean wordBreak(String s, Set<String> wordDict) {
+        if (s == null || wordDict == null)
+            return false;
+
+        int len = s.length();
+        boolean[] canBreak = new boolean[len + 1];
+        canBreak[len] = true;
+
+        // find the longest word in dict
+        int maxLen = 0;
+        for (String word : wordDict) {
+            maxLen = Math.max(maxLen, word.length());
+        }
+
+        for (int i = len - 1; i >= 0; i--) {
+            for (int j = i + 1; j <= len && j - i <= maxLen; j++) {
+                if (canBreak[j] && wordDict.contains(s.substring(i, j))) {
+                    canBreak[i] = true;
+                    break;
+                }
+            }
+        }
+
+        return canBreak[0];
+    }
+
+    /** Word Break - DFS solution (TLE). */
+    public boolean wordBreakDFS(String s, Set<String> wordDict) {
+        return wordBreak(s, 0, wordDict);
+    }
+
+    private boolean wordBreak(String s, int pos, Set<String> wordDict) {
+        if (pos == s.length()) {
+            return true;
+        }
+
+        for (int i = pos; i < s.length(); i++) {
+            String word = s.substring(pos, i + 1);
+            if (wordDict.contains(word) && wordBreak(s, i + 1, wordDict)) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    /**
+     * Word Break II
+     *
+     * Given a string s and a dictionary of words dict, add spaces in s to
+     * construct a sentence where each word is a valid dictionary word.
+     *
+     * Return all such possible sentences.
+     *
+     * For example, given s = "catsanddog", dict = ["cat", "cats", "and",
+     * "sand", "dog"].
+     *
+     * A solution is ["cats and dog", "cat sand dog"].
+     */
+    @tags.DynamicProgramming
+    @tags.Backtracking
+    @tags.Company.Dropbox
+    @tags.Company.Google
+    @tags.Company.Snapchat
+    @tags.Company.Twitter
+    @tags.Company.Uber
+    public List<String> wordBreakII(String s, Set<String> wordDict) {
+        List<String> result = new ArrayList<>();
+        if (s == null || s.length() == 0 || wordDict == null
+                || wordDict.size() == 0) {
+            return result;
+        }
+
+        // init dp list
+        int len = s.length();
+        List<List<Integer>> dp = new ArrayList<>();
+        for (int i = 0; i <= len; i++) {
+            dp.add(new ArrayList<Integer>());
+        }
+
+        // DP to find all possible link
+        for (int i = len - 1; i >= 0; i--) {
+            List<Integer> list = new ArrayList<>();
+            for (int j = i + 1; j <= len; j++) {
+                if ((j == len || !dp.get(j).isEmpty())
+                        && wordDict.contains(s.substring(i, j))) {
+                    list.add(j);
+                }
+            }
+            dp.get(i).addAll(list);
+        }
+
+        // no result found
+        if (dp.get(0).isEmpty()) {
+            return result;
+        }
+
+        wordBreak(s, dp, 0, result, "");
+
+        return result;
+    }
+
+    public void wordBreak(String s, List<List<Integer>> dp, int pos,
+            List<String> result, String path) {
+        if (pos == s.length()) {
+            result.add(path.trim());
+            return;
+        }
+        for (Integer next : dp.get(pos)) {
+            wordBreak(s, dp, next, result, path + " " + s.substring(pos, next));
+        }
+    }
+
+    // ---------------------------------------------------------------------- //
+    // ------------------------------ Backpack ------------------------------ //
+    // ---------------------------------------------------------------------- //
 
     /**
      * Backpack.
@@ -1043,7 +1076,7 @@ public class DynamicProgramming {
     @tags.DynamicProgramming
     @tags.Backpack
     @tags.Source.LintCode
-    @tags.Status.SuperHard
+    @tags.Status.Hard
     public int backPack(int m, int[] A) {
         if (m <= 0 || A == null || A.length == 0) {
             return 0;
@@ -1163,56 +1196,9 @@ public class DynamicProgramming {
         return max;
     }
 
-    /**
-     * Minimum Adjustment Cost
-     *
-     * Given an integer array, adjust each integers so that the difference of
-     * every adjacent integers are not greater than a given number target. If
-     * the array before adjustment is A, the array after adjustment is B, you
-     * should minimize the sum of |A[i]-B[i]|
-     *
-     * Notice: You can assume each number in the array is a positive integer and
-     * not greater than 100.
-     *
-     * Example: Given [1,4,2,3] and target = 1, one of the solutions is
-     * [2,3,2,3], the adjustment cost is 2 and it's minimal. Return 2.
-     *
-     * @param A:
-     *            An integer array.
-     * @param target:
-     *            An integer.
-     */
-    @tags.DynamicProgramming
-    @tags.Backpack
-    @tags.Source.LintCode
-    @tags.Status.SuperHard
-    public int MinAdjustmentCost(ArrayList<Integer> A, int target) {
-        if (A == null || target < 0) {
-            return 0;
-        }
-
-        int n = A.size();
-        int[][] costs = new int[n + 1][100 + 1];
-
-        for (int i = n - 1; i >= 0; i--) {
-            for (int j = 1; j <= 100; j++) {
-                int lower = Math.max(1, j - target);
-                int upper = Math.min(100, j + target);
-                costs[i][j] = costs[i + 1][upper];
-                for (int k = lower; k < upper; k++) {
-                    costs[i][j] = Math.min(costs[i][j], costs[i + 1][k]);
-                }
-                costs[i][j] += Math.abs(A.get(i) - j);
-            }
-        }
-
-        int min = costs[0][1];
-        for (int i = 1; i <= 100; i++) {
-            min = Math.min(min, costs[0][i]);
-        }
-
-        return min;
-    }
+    // ---------------------------------------------------------------------- //
+    // --------------- Wildcard / regular expression matching --------------- //
+    // ---------------------------------------------------------------------- //
 
     /**
      * Wildcard Matching.
@@ -1277,14 +1263,15 @@ public class DynamicProgramming {
     }
 
     /**
-     * Wildcard Matching.
+     * Wildcard Matching - DFS solution.
      *
      * This will exceed the time limit, the reason is multiple stars. In the
      * back tracking method below (isMatch3), once new star is found and
      * matched, the back track pointer will be moved forward, thus the program
      * won't go down the earlier back tracking branches.
      *
-     * DFS solution.
+     * Multiple stars is bad not only when they are continuous, but also when
+     * they are separated.
      */
     @tags.Greedy
     @tags.String
@@ -1294,6 +1281,7 @@ public class DynamicProgramming {
     @tags.DFS
     @tags.Company.Facebook
     @tags.Company.Google
+    @tags.Status.NeedPractice
     public boolean isMatch2(String s, String p) {
         if (s == null || p == null) {
             return true;
@@ -1352,6 +1340,7 @@ public class DynamicProgramming {
     @tags.DFS
     @tags.Company.Facebook
     @tags.Company.Google
+    @tags.Status.NeedPractice
     public boolean isMatch3(String s, String p) {
         if (s == null || p == null)
             return false;
@@ -1545,6 +1534,590 @@ public class DynamicProgramming {
     }
 
     // ---------------------------------------------------------------------- //
+    // ----------------------------- Palindrome ----------------------------- //
+    // ---------------------------------------------------------------------- //
+
+    /**
+     * Palindrome Partitioning.
+     *
+     * Given a string s, partition s such that every substring of the partition
+     * is a palindrome. Return all possible palindrome partitioning of s.
+     *
+     * Example: Given s = "aab", return: [ ["aa","b"], ["a","a","b"] ].
+     *
+     * @param s:
+     *            A string
+     * @return: A list of lists of string
+     */
+    @tags.Backtracking
+    @tags.DFS
+    public List<List<String>> partition(String s) {
+        int n = s.length();
+        boolean[][] isPal = new boolean[n][n];
+        for (int i = n - 1; i >= 0; i--) {
+            for (int j = i; j < n; j++) {
+                if (i == j) {
+                    isPal[i][j] = true;
+                } else if (j - i == 1) {
+                    isPal[i][j] = s.charAt(i) == s.charAt(j);
+                } else {
+                    isPal[i][j] = isPal[i + 1][j - 1]
+                            && s.charAt(i) == s.charAt(j);
+                }
+            }
+        }
+
+        List<List<String>> result = new ArrayList<>();
+        List<String> path = new ArrayList<>();
+        partition(isPal, s, path, 0, result);
+        return result;
+    }
+
+    private void partition(boolean[][] isPal, String s, List<String> path,
+            int pos, List<List<String>> result) {
+        if (pos == s.length()) {
+            result.add(new ArrayList<>(path));
+        }
+        for (int i = pos; i < s.length(); i++) {
+            if (isPal[pos][i]) {
+                path.add(s.substring(pos, i + 1));
+                partition(isPal, s, path, i + 1, result);
+                path.remove(path.size() - 1);
+            }
+        }
+    }
+
+    /**
+     * Palindrome Partitioning II.
+     *
+     * Given a string s, cut s into some substrings such that every substring is
+     * a palindrome. Return the minimum cuts needed for a palindrome
+     * partitioning of s.
+     *
+     * Example: Given s = "aab", Return 1 since the palindrome partitioning
+     * ["aa", "b"] could be produced using 1 cut.
+     *
+     * @param s
+     *            a string
+     * @return an integer
+     */
+    @tags.DynamicProgramming
+    public int minCut(String s) {
+        int n = s.length();
+        int[] minCut = new int[n + 1];
+        for (int i = 0; i < n; i++) {
+            minCut[i] = n;
+        }
+        boolean[][] isPal = new boolean[n][n];
+
+        for (int i = n - 1; i >= 0; i--) {
+            for (int j = n - 1; j >= i; j--) {
+                // find palindrome
+                if (i == j) {
+                    isPal[i][j] = true;
+                } else if (j - i == 1) {
+                    isPal[i][j] = s.charAt(i) == s.charAt(j);
+                } else {
+                    isPal[i][j] = isPal[i + 1][j - 1]
+                            && s.charAt(i) == s.charAt(j);
+                }
+
+                // evaluate minCut
+                if (isPal[i][j]) {
+                    minCut[i] = Math.min(minCut[i], 1 + minCut[j + 1]);
+                }
+            }
+        }
+
+        return minCut[0] - 1;
+    }
+
+    /**
+     * Palindrome Partitioning II - better solution.
+     */
+    @tags.DynamicProgramming
+    public int minCut2(String s) {
+        int len = s.length();
+        boolean[][] isPal = new boolean[len][len];
+        int[] dp = new int[len + 1];
+
+        for (int i = 0; i <= len; i++)
+            dp[i] = len - 1 - i;
+
+        for (int i = len - 2; i >= 0; i--) {
+            for (int j = i; j < len; j++) {
+                if (s.charAt(i) == s.charAt(j)
+                        && (j <= i + 2 || isPal[i + 1][j - 1])) {
+                    isPal[i][j] = true;
+                    dp[i] = Math.min(dp[i], dp[j + 1] + 1);
+                }
+            }
+        }
+        return dp[0];
+    }
+
+    /**
+     * Longest Palindromic Substring.
+     *
+     * Given a string S, find the longest palindromic substring in S. You may
+     * assume that the maximum length of S is 1000, and there exists one unique
+     * longest palindromic substring.
+     *
+     * Example: Given the string = "abcdzdcab", return "cdzdc".
+     *
+     * Challenge: O(n2) time is acceptable. Can you do it in O(n) time.
+     *
+     * There is an O(n) solution with Manacher¡¯s Algorithm.
+     *
+     * @param s
+     *            input string
+     * @return the longest palindromic substring
+     */
+    @tags.String
+    public String longestPalindrome(String s) {
+        int maxLen = 0;
+        String pal = "";
+        for (int i = 0; i < s.length() - maxLen / 2; i++) {
+            // left middle of even number characters
+            int left = i, right = i + 1;
+            int len = 0;
+            while (left >= 0 && right < s.length()
+                    && s.charAt(left) == s.charAt(right)) {
+                len += 2;
+                left--;
+                right++;
+            }
+            if (len > maxLen) {
+                maxLen = len;
+                pal = s.substring(++left, right);
+            }
+
+            // middle of odd number characters
+            left = i - 1;
+            right = i + 1;
+            len = 1;
+            while (left >= 0 && right < s.length()
+                    && s.charAt(left) == s.charAt(right)) {
+                len += 2;
+                left--;
+                right++;
+            }
+
+            if (len > maxLen) {
+                maxLen = len;
+                pal = s.substring(++left, right);
+            }
+        }
+
+        return pal;
+    }
+
+    /**
+     * Shortest Palindrome.
+     *
+     * Given a string S, you are allowed to convert it to a palindrome by adding
+     * characters in front of it. Find and return the shortest palindrome you
+     * can find by performing this transformation.
+     *
+     * For example: Given "aacecaaa", return "aaacecaaa". Given "abcd", return
+     * "dcbabcd".
+     *
+     * @param s
+     * @return
+     */
+    @tags.String
+    @tags.Company.Google
+    @tags.Company.PocketGems
+    @tags.Status.OK
+    public String shortestPalindrome(String s) {
+        if (s == null || s.length() < 2) {
+            return s;
+        }
+
+        int n = s.length();
+        int start = 0, end = n - 1;
+
+        while (start < end) {
+            if (isPalindrome(s, start, end)) {
+                break;
+            }
+            end--;
+        }
+
+        return new StringBuilder().append(s.substring(end + 1)).reverse()
+                .append(s).toString();
+    }
+
+    private boolean isPalindrome(String s, int start, int end) {
+        while (start < end) {
+            if (s.charAt(start++) != s.charAt(end--)) {
+                return false;
+            }
+        }
+        return true;
+    }
+
+    /**
+     * Palindrome Permutation.
+     *
+     * Given a string, determine if a permutation of the string could form a
+     * palindrome.
+     *
+     * For example, "code" -> False, "aab" -> True, "carerac" -> True.
+     *
+     * Hint: Consider the palindromes of odd vs even length. What difference do
+     * you notice?
+     *
+     * @param s
+     * @return
+     */
+    @tags.HashTable
+    @tags.Company.Bloomberg
+    @tags.Company.Google
+    @tags.Company.Uber
+    public boolean canPermutePalindrome(String s) {
+        if (s == null || s.length() < 2) {
+            return true;
+        }
+
+        Set<Character> set = new HashSet<>();
+        for (int i = 0; i < s.length(); i++) {
+            char c = s.charAt(i);
+            if (set.contains(c)) {
+                set.remove(c);
+            } else {
+                set.add(c);
+            }
+        }
+
+        return set.size() < 2;
+    }
+
+    /**
+     * Nearest Palindrome.
+     *
+     * Find the closest palindrome number to the input.
+     *
+     * Example£º input 9, ouput 9. input 98, output 99. input 100, output 101.
+     *
+     * @param s
+     * @return
+     */
+    @tags.String
+    @tags.Company.Thumbtack
+    @tags.Status.Hard
+    public int nearestPalindrome(int n) {
+        // TODO: this is not correct.
+        if (n < 10) {
+            return n;
+        }
+
+        StringBuilder num = new StringBuilder(String.valueOf(n));
+        int start = 0, end = num.length() - 1;
+        while (start < end) {
+            num.setCharAt(end--, num.charAt(start++));
+        }
+
+        return Integer.parseInt(num.toString());
+    }
+
+    // ---------------------------------------------------------------------- //
+    // --------------------- House Robber / Paint House --------------------- //
+    // ---------------------------------------------------------------------- //
+
+    /**
+     * House Robber.
+     *
+     * You are a professional robber planning to rob houses along a street. Each
+     * house has a certain amount of money stashed, the only constraint stopping
+     * you from robbing each of them is that adjacent houses have security
+     * system connected and it will automatically contact the police if two
+     * adjacent houses were broken into on the same night. Given a list of
+     * non-negative integers representing the amount of money of each house,
+     * determine the maximum amount of money you can rob tonight without
+     * alerting the police.
+     *
+     * Example: Given [3, 8, 4], return 8.
+     *
+     * Challenge: O(n) time and O(1) memory.
+     *
+     * @param A:
+     *            An array of non-negative integers. return: The maximum amount
+     *            of money you can rob tonight
+     */
+    @tags.DynamicProgramming
+    @tags.Company.Airbnb
+    @tags.Company.LinkedIn
+    @tags.Status.OK
+    public long houseRobber(int[] A) {
+        if (A == null || A.length == 0) {
+            return 0;
+        }
+
+        int n = A.length;
+        long[] max = new long[n + 1];
+        max[n - 1] = A[n - 1];
+        for (int i = n - 2; i >= 0; i--) {
+            max[i] = Math.max(max[i + 1], max[i + 2] + A[i]);
+        }
+        return max[0];
+    }
+
+    /**
+     * House Robber II.
+     *
+     * After robbing those houses on that street, the thief has found himself a
+     * new place for his thievery so that he will not get too much attention.
+     * This time, all houses at this place are arranged in a circle. That means
+     * the first house is the neighbor of the last one. Meanwhile, the security
+     * system for these houses remain the same as for those in the previous
+     * street. Given a list of non-negative integers representing the amount of
+     * money of each house, determine the maximum amount of money you can rob
+     * tonight without alerting the police.
+     *
+     * Notice: This is an extension of House Robber.
+     *
+     * Example: nums = [3,6,4], return 6.
+     *
+     * @param nums:
+     *            An array of non-negative integers.
+     * @return: The maximum amount of money you can rob tonight
+     */
+    @tags.DynamicProgramming
+    @tags.Company.Microsoft
+    @tags.Status.NeedPractice
+    public int houseRobberII(int[] nums) {
+        if (nums == null || nums.length == 0) {
+            return 0;
+        }
+
+        // only one house
+        int n = nums.length;
+        if (n == 1) {
+            return nums[0];
+        }
+
+        // forward order excluding first house
+        int[] noFirst = new int[n];
+        noFirst[1] = nums[1];
+        for (int i = 2; i < n; i++) {
+            noFirst[i] = Math.max(noFirst[i - 1], noFirst[i - 2] + nums[i]);
+        }
+
+        // backward order excluding last house
+        int[] noLast = new int[n];
+        noLast[n - 2] = nums[n - 2];
+        for (int i = n - 3; i >= 0; i--) {
+            noLast[i] = Math.max(noLast[i + 1], noLast[i + 2] + nums[i]);
+        }
+
+        return Math.max(noFirst[n - 1], noLast[0]);
+    }
+
+    /**
+     * House Robber III.
+     *
+     * The thief has found himself a new place for his thievery again. There is
+     * only one entrance to this area, called the "root." Besides the root, each
+     * house has one and only one parent house. After a tour, the smart thief
+     * realized that "all houses in this place forms a binary tree". It will
+     * automatically contact the police if two directly-linked houses were
+     * broken into on the same night.
+     *
+     * Determine the maximum amount of money the thief can rob tonight without
+     * alerting the police.
+     *
+     * @param root:
+     *            The root of binary tree.
+     * @return: The maximum amount of money you can rob tonight
+     */
+    @tags.DFS
+    @tags.Tree
+    @tags.Company.Uber
+    @tags.Status.Hard
+    public int houseRobberIII(TreeNode root) {
+        return Math.max(dp(root)[0], dp(root)[1]);
+    }
+
+    private int[] dp(TreeNode root) {
+        // result[0] -> rob root, result[1] -> don't rob root
+        int[] result = new int[2];
+        if (root == null) {
+            return result;
+        }
+
+        int[] left = dp(root.left);
+        int[] right = dp(root.right);
+
+        result[0] = root.val + left[1] + right[1];
+        result[1] = Math.max(left[0], left[1]) + Math.max(right[0], right[1]);
+
+        return result;
+    }
+
+    /**
+     * Paint Fence.
+     *
+     * There is a fence with n posts, each post can be painted with one of the k
+     * colors. You have to paint all the posts such that no more than two
+     * adjacent fence posts have the same color. Return the total number of ways
+     * you can paint the fence.
+     *
+     * Notice: n and k are non-negative integers.
+     *
+     * Example: Given n=3, k=2 return 6.
+     *
+     * @param n
+     *            non-negative integer, n posts
+     * @param k
+     *            non-negative integer, k colors
+     * @return an integer, the total number of ways
+     */
+    @tags.DynamicProgramming
+    @tags.Company.Google
+    public int numWays(int n, int k) {
+        if (n <= 0 || k <= 0) {
+            return 0;
+        } else if (n == 1) { // easy to forget
+            return k;
+        }
+
+        // init dp array
+        // cannot count = new int[n + 1] and count[n] = 1
+        int[] count = new int[n];
+        count[n - 1] = k;
+        count[n - 2] = k * k;
+
+        for (int i = n - 3; i >= 0; i--) {
+            // start with 2 different colors + start with 2 same colors
+            count[i] = count[i + 1] * (k - 1) + count[i + 2] * (k - 1);
+        }
+
+        return count[0];
+    }
+
+    /**
+     * Paint House.
+     *
+     * There are a row of n houses, each house can be painted with one of the
+     * three colors: red, blue or green. The cost of painting each house with a
+     * certain color is different. You have to paint all the houses such that no
+     * two adjacent houses have the same color. The cost of painting each house
+     * with a certain color is represented by a n x 3 cost matrix. For example,
+     * costs[0][0] is the cost of painting house 0 with color red; costs[1][2]
+     * is the cost of painting house 1 with color green, and so on... Find the
+     * minimum cost to paint all houses.
+     *
+     * Notice: All costs are positive integers.
+     *
+     * Example: Given costs = [[14,2,11],[11,14,5],[14,3,10]], return 10. House
+     * 0 is blue, house 1 is green, house 2 is blue, 2 + 5 + 3 = 10.
+     *
+     * @param costs
+     *            n x 3 cost matrix
+     * @return an integer, the minimum cost to paint all houses
+     */
+    @tags.DynamicProgramming
+    @tags.Company.LinkedIn
+    public int minCost(int[][] costs) {
+        if (costs == null || costs.length == 0) {
+            return 0;
+        }
+        int n = costs.length;
+        int[][] dp = new int[n + 1][3];
+        for (int i = n - 1; i >= 0; i--) {
+            for (int j = 0; j < 3; j++) {
+                dp[i][j] = costs[i][j] + Math.min(dp[i + 1][(j + 1) % 3],
+                        dp[i + 1][(j + 2) % 3]);
+            }
+        }
+
+        int min = dp[0][0];
+        min = Math.min(min, dp[0][1]);
+        min = Math.min(min, dp[0][2]);
+        return min;
+    }
+
+    /**
+     * Paint House II - O(nk).
+     *
+     * There are a row of n houses, each house can be painted with one of the k
+     * colors. The cost of painting each house with a certain color is
+     * different. You have to paint all the houses such that no two adjacent
+     * houses have the same color. The cost of painting each house with a
+     * certain color is represented by a n x k cost matrix. For example,
+     * costs[0][0] is the cost of painting house 0 with color 0; costs[1][2] is
+     * the cost of painting house 1 with color 2, and so on... Find the minimum
+     * cost to paint all houses.
+     *
+     * Notice: All costs are positive integers.
+     *
+     * Example: Given n = 3, k = 3, costs = [[14,2,11],[11,14,5],[14,3,10]]
+     * return 10. house 0 is color 2, house 1 is color 3, house 2 is color 2, 2
+     * + 5 + 3 = 10.
+     *
+     * Challenge: Could you solve it in O(nk)?
+     *
+     * @param costs
+     *            n x k cost matrix
+     * @return an integer, the minimum cost to paint all houses
+     */
+    public int minCostII(int[][] costs) {
+        if (costs == null || costs.length == 0 || costs[0].length == 0) {
+            return 0;
+        }
+
+        int n = costs.length, k = costs[0].length;
+        int[][] dp = new int[n][k];
+        PriorityQueue<Integer> pq = new PriorityQueue<>(3,
+                Collections.reverseOrder());
+
+        // init
+        for (int i = 0; i < k; i++) {
+            dp[n - 1][i] = costs[n - 1][i];
+            pq.offer(dp[n - 1][i]);
+            if (pq.size() == 3) {
+                pq.poll();
+            }
+        }
+
+        // put min 2 numbers in min heap
+        PriorityQueue<Integer> min = new PriorityQueue<>(2);
+        while (!pq.isEmpty()) {
+            min.offer(pq.poll());
+        }
+
+        // bottom up dp
+        for (int i = n - 2; i >= 0; i--) {
+            PriorityQueue<Integer> newMin = new PriorityQueue<>(3,
+                    Collections.reverseOrder());
+            for (int j = 0; j < k; j++) {
+                if (dp[i + 1][j] == min.peek()) {
+                    int tmp = min.poll();
+                    dp[i][j] = costs[i][j] + min.peek();
+                    min.offer(tmp);
+                } else {
+                    dp[i][j] = costs[i][j] + min.peek();
+                }
+
+                // add min for next round
+                newMin.offer(dp[i][j]);
+                if (newMin.size() == 3) {
+                    newMin.poll();
+                }
+            }
+
+            // put min 2 numbers in min heap
+            min.clear();
+            while (!newMin.isEmpty()) {
+                min.offer(newMin.poll());
+            }
+        }
+
+        return min.peek();
+    }
+
+    // ---------------------------------------------------------------------- //
     // ----------------------------- UNIT TESTS ----------------------------- //
     // ---------------------------------------------------------------------- //
 
@@ -1567,6 +2140,8 @@ public class DynamicProgramming {
         System.out.println("Regular expression: " + isMatchRegular2(s, p));
 
         partitionTests();
+
+        wordBreakIITest();
     }
 
     private void partitionTests() {
@@ -1586,5 +2161,13 @@ public class DynamicProgramming {
         });
 
         Assert.assertEquals(expected, result);
+    }
+
+    private void wordBreakIITest() {
+        String s = "catsanddog";
+        Set<String> wordDict = new HashSet<>();
+        wordDict.addAll(Arrays.asList("cat","cats","and","sand","dog"));
+
+        Assert.assertEquals(2, wordBreakII(s, wordDict).size());
     }
 }

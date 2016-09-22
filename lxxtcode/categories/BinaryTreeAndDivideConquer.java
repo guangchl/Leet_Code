@@ -2,8 +2,11 @@ package categories;
 
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Map;
+import java.util.NoSuchElementException;
 import java.util.Queue;
 import java.util.Stack;
 
@@ -32,13 +35,23 @@ public class BinaryTreeAndDivideConquer {
     }
 
     /** Definition for singly-linked list. */
-    public class ListNode {
+    class ListNode {
         int val;
         ListNode next;
 
         public ListNode(int x) {
             val = x;
             next = null;
+        }
+    }
+
+    /** Definition for binary tree with next pointer. */
+    public class TreeLinkNode {
+        int val;
+        TreeLinkNode left, right, next;
+
+        TreeLinkNode(int x) {
+            val = x;
         }
     }
 
@@ -89,6 +102,7 @@ public class BinaryTreeAndDivideConquer {
     @tags.Tree
     @tags.BinaryTree
     @tags.BinaryTreeTraversal
+    @tags.Status.Easy
     public ArrayList<Integer> preorderTraversalIter(TreeNode root) {
         ArrayList<Integer> result = new ArrayList<>();
         Stack<TreeNode> stack = new Stack<>();
@@ -122,6 +136,7 @@ public class BinaryTreeAndDivideConquer {
     @tags.Tree
     @tags.BinaryTree
     @tags.BinaryTreeTraversal
+    @tags.Status.Hard
     public ArrayList<Integer> postorderTraversal(TreeNode root) {
         ArrayList<Integer> result = new ArrayList<>();
         Stack<TreeNode> stack = new Stack<>();
@@ -163,6 +178,7 @@ public class BinaryTreeAndDivideConquer {
     @tags.BinaryTree
     @tags.BinaryTreeTraversal
     @tags.Company.Microsoft
+    @tags.Status.OK
     public ArrayList<Integer> inorderTraversal(TreeNode root) {
         ArrayList<Integer> result = new ArrayList<>();
         Stack<TreeNode> stack = new Stack<>();
@@ -210,6 +226,7 @@ public class BinaryTreeAndDivideConquer {
     @tags.Company.LinkedIn
     @tags.Company.Microsoft
     @tags.Company.Uber
+    @tags.Status.OK
     public ArrayList<ArrayList<Integer>> levelOrder(TreeNode root) {
         ArrayList<ArrayList<Integer>> result = new ArrayList<>();
         Queue<TreeNode> queue = new LinkedList<>();
@@ -227,7 +244,7 @@ public class BinaryTreeAndDivideConquer {
                 }
             }
 
-            if (level.size() == 0) {
+            if (level.isEmpty()) {
                 break;
             }
 
@@ -321,9 +338,133 @@ public class BinaryTreeAndDivideConquer {
         return result;
     }
 
+    /**
+     * Binary Tree Vertical Order Traversal.
+     *
+     * Given a binary tree, return the vertical order traversal of its nodes'
+     * values. (ie, from top to bottom, column by column).
+     *
+     * If two nodes are in the same row and column, the order should be from
+     * left to right.
+     *
+     * @param root
+     * @return
+     */
+    @tags.HashTable
+    @tags.Company.Facebook
+    @tags.Company.Google
+    @tags.Company.Snapchat
+    public List<List<Integer>> verticalOrder(TreeNode root) {
+        List<List<Integer>> result = new ArrayList<>();
+        Map<Integer, List<Integer>> map = new HashMap<>();
+        int[] minMax = new int[2]; // left most and right most
+
+        class NodePos {
+            TreeNode node;
+            int pos;
+
+            public NodePos(TreeNode node, int pos) {
+                this.node = node;
+                this.pos = pos;
+            }
+        }
+
+        Queue<NodePos> queue = new LinkedList<>();
+        queue.add(new NodePos(root, 0));
+
+        // bfs to traverse every node level by level and left to right
+        while (!queue.isEmpty()) {
+            Queue<NodePos> next = new LinkedList<>();
+
+            for (NodePos node : queue) {
+                if (node.node != null) {
+                    if (!map.containsKey(node.pos)) {
+                        map.put(node.pos, new ArrayList<Integer>());
+                        minMax[0] = Math.min(minMax[0], node.pos);
+                        minMax[1] = Math.max(minMax[1], node.pos);
+                    }
+
+                    map.get(node.pos).add(node.node.val);
+
+                    next.offer(new NodePos(node.node.left, node.pos - 1));
+                    next.offer(new NodePos(node.node.right, node.pos + 1));
+                }
+            }
+
+            queue = next;
+        }
+
+        // add list from map to result, from left to right
+        for (int i = minMax[0]; i <= minMax[1]; i++) {
+            if (map.containsKey(i)) {
+                result.add(map.get(i));
+            }
+        }
+
+        return result;
+    }
+
     // ---------------------------------------------------------------------- //
     // ------------------------------ PROBLEMS ------------------------------ //
     // ---------------------------------------------------------------------- //
+
+    /**
+     * Sum of Left Leaves.
+     *
+     *Find the sum of all left leaves in a given binary tree.
+     *
+     * @param root
+     * @return
+     */
+    @tags.Tree
+    @tags.Company.Facebook
+    public int sumOfLeftLeaves(TreeNode root) {
+        if (root == null) {
+            return 0;
+        }
+
+        return sumOfLeftLeaves(root, false);
+    }
+
+    private int sumOfLeftLeaves(TreeNode node, boolean isLeft) {
+        if (node.left == null && node.right == null) {
+            return isLeft ? node.val : 0;
+        }
+
+        int sum = 0;
+
+        if (node.left != null) {
+            sum += sumOfLeftLeaves(node.left, true);
+        }
+        if (node.right != null) {
+            sum += sumOfLeftLeaves(node.right, false);
+        }
+
+        return sum;
+    }
+
+    /**
+     * Clone Binary Tree.
+     *
+     * For the given binary tree, return a deep copy of it.
+     *
+     * @param root:
+     *            The root of binary tree
+     * @return root of new tree
+     */
+    @tags.BinaryTree
+    @tags.Recursion
+    @tags.Status.Easy
+    public TreeNode cloneTree(TreeNode root) {
+        if (root == null) {
+            return null;
+        }
+
+        TreeNode clone = new TreeNode(root.val);
+        clone.left = cloneTree(root.left);
+        clone.right = cloneTree(root.right);
+        return clone;
+    }
 
     /**
      * Binary Tree Paths.
@@ -394,6 +535,7 @@ public class BinaryTreeAndDivideConquer {
     @tags.Company.LinkedIn
     @tags.Company.Uber
     @tags.Company.Yahoo
+    @tags.Status.Easy
     public int maxDepth(TreeNode root) {
         if (root == null) {
             return 0;
@@ -525,30 +667,33 @@ public class BinaryTreeAndDivideConquer {
      */
     @tags.BinaryTree
     @tags.BinaryTreeTraversal
+    @tags.Status.Easy
     public List<List<Integer>> binaryTreePathSum(TreeNode root, int target) {
         List<List<Integer>> result = new ArrayList<>();
-        dfsBTPS(result, root, new ArrayList<Integer>(), 0, target);
+        if (root != null) {
+            binaryTreePathSum(root, target, result, new ArrayList<Integer>());
+        }
+
         return result;
     }
 
-    private void dfsBTPS(List<List<Integer>> result, TreeNode node, List<Integer> path, int sum, int target) {
-        if (node != null) {
-            sum += node.val;
-            path.add(node.val);
+    private void binaryTreePathSum(TreeNode root, int target,
+            List<List<Integer>> result, List<Integer> path) {
+        target -= root.val;
+        path.add(root.val);
 
-            if (node.left == null && node.right == null) {
-                if (sum == target) {
-                    result.add(new ArrayList<>(path));
-                }
-            }
-            if (node.left != null) {
-                dfsBTPS(result, node.left, path, sum, target);
-            }
-            if (node.right != null) {
-                dfsBTPS(result, node.right, path, sum, target);
-            }
-            path.remove(path.size() - 1);
+        if (root.left == null && root.right == null && target == 0) {
+            result.add(new ArrayList<>(path));
         }
+
+        if (root.left != null) {
+            binaryTreePathSum(root.left, target, result, path);
+        }
+        if (root.right != null) {
+            binaryTreePathSum(root.right, target, result, path);
+        }
+
+        path.remove(path.size() - 1);
     }
 
     /**
@@ -628,238 +773,6 @@ public class BinaryTreeAndDivideConquer {
             return left && right;
         }
         return false;
-    }
-
-    /**
-     * Lowest Common Ancestor.
-     *
-     * Given the root and two nodes in a Binary Tree. Find the lowest common
-     * ancestor(LCA) of the two nodes. The lowest common ancestor is the node
-     * with largest depth which is the ancestor of both nodes.
-     *
-     * @param root:
-     *            The root of the binary search tree.
-     * @param A
-     *            and B: two nodes in a Binary.
-     * @return: Return the least common ancestor(LCA) of the two nodes.
-     */
-    @tags.BinaryTree
-    @tags.Company.Facebook
-    @tags.Company.LinkedIn
-    public TreeNode lowestCommonAncestor(TreeNode root, TreeNode A, TreeNode B) {
-        if (root == null || root == A || root == B) {
-            return root;
-        }
-
-        // divide
-        TreeNode left = lowestCommonAncestor(root.left, A, B);
-        TreeNode right = lowestCommonAncestor(root.right, A, B);
-
-        // conquer: merge A and B at the LCA
-        if (left != null && right != null) {
-            return root;
-        }
-
-        // send A or B upward
-        if (left != null) {
-            return left;
-        }
-        if (right != null) {
-            return right;
-        }
-
-        // nothing found yet
-        return null;
-    }
-
-    /**
-     * Lowest Common Ancestor II.
-     *
-     * Given the root and two nodes in a Binary Tree. Find the lowest common
-     * ancestor(LCA) of the two nodes.
-     *
-     * The lowest common ancestor is the node with largest depth which is the
-     * ancestor of both nodes.
-     *
-     * The node has an extra attribute parent which point to the father of
-     * itself. The root's parent is null.
-     *
-     * @param root:
-     *            The root of the tree
-     * @param A,
-     *            B: Two node in the tree
-     * @return: The lowest common ancestor of A and B
-     */
-    @tags.BinaryTree
-    @tags.Source.LintCode
-    public ParentTreeNode lowestCommonAncestorII(ParentTreeNode root,
-                                                 ParentTreeNode A,
-                                                 ParentTreeNode B) {
-        int heightA = getHeight(A);
-        int heightB = getHeight(B);
-
-        while (heightA > heightB) {
-            A = A.parent;
-            heightA--;
-        }
-
-        while (heightB > heightA) {
-            B = B.parent;
-            heightB--;
-        }
-
-        while (A != B) {
-            A = A.parent;
-            B = B.parent;
-        }
-
-        return A;
-    }
-
-    private int getHeight(ParentTreeNode node) {
-        int height = 0;
-        while (node != null) {
-            node = node.parent;
-            height++;
-        }
-        return height;
-    }
-
-    /**
-     * Tweaked Identical Binary Tree.
-     *
-     * Check two given binary trees are identical or not. Assuming any number of
-     * tweaks are allowed. A tweak is defined as a swap of the children of one
-     * node in the tree.
-     *
-     * Notice: There is no two nodes with the same value in the tree.
-     *
-     * @param a, b, the root of binary trees.
-     * @return true if they are tweaked identical, or false.
-     */
-    @tags.BinaryTree
-    public boolean isTweakedIdentical(TreeNode a, TreeNode b) {
-        if (a == null && b == null) {
-            return true;
-        }
-        if (a == null || b == null || a.val != b.val) {
-            return false;
-        }
-
-        if ((isTweakedIdentical(a.left, b.left) && isTweakedIdentical(a.right, b.right))
-            || (isTweakedIdentical(a.left, b.right) && isTweakedIdentical(a.right, b.left))) {
-            return true;
-        }
-        return false;
-    }
-
-    /**
-     * Identical Binary Tree (Same Tree).
-     *
-     * Check if two binary trees are identical. Identical means the two binary
-     * trees have the same structure and every identical position has the same
-     * value.
-     *
-     * @param a,b
-     *            the root of binary trees.
-     * @return true if they are identical, or false.
-     */
-    @tags.BinaryTree
-    @tags.Recursion
-    public boolean isIdentical(TreeNode a, TreeNode b) {
-        if (a == null && b == null) {
-            return true;
-        } else if (a != null && b != null && a.val == b.val) {
-            return isIdentical(a.left, b.left) && isIdentical(a.right, b.right);
-        }
-        return false;
-    }
-
-    /**
-     * Subtree.
-     *
-     * You have two every large binary trees: T1, with millions of nodes, and
-     * T2, with hundreds of nodes. Create an algorithm to decide if T2 is a
-     * subtree of T1.
-     *
-     * Notice: A tree T2 is a subtree of T1 if there exists a node n in T1 such
-     * that the subtree of n is identical to T2. That is, if you cut off the
-     * tree at node n, the two trees would be identical.
-     *
-     * @param T1,
-     *            T2: The roots of binary tree.
-     * @return: True if T2 is a subtree of T1, or false.
-     */
-    @tags.BinaryTree
-    @tags.Recursion
-    public boolean isSubtree(TreeNode T1, TreeNode T2) {
-        if (isIdentical(T1, T2)) {
-            return true;
-        }
-        if (T1 != null) {
-            return isSubtree(T1.left, T2) || isSubtree(T1.right, T2);
-        }
-        return false;
-    }
-
-    /**
-     * Symmetric Binary Tree.
-     *
-     * Given a binary tree, check whether it is a mirror of itself (i.e.,
-     * symmetric around its center).
-     *
-     * @param root,
-     *            the root of binary tree.
-     * @return true if it is a mirror of itself, or false.
-     */
-    @tags.BinaryTree
-    public boolean isSymmetricRec(TreeNode root) {
-        if (root == null) {
-            return true;
-        }
-
-        return isTweaked(root.left, root.right);
-    }
-
-    private boolean isTweaked(TreeNode a, TreeNode b) {
-        if (a == null && b == null) {
-            return true;
-        }
-        if (a == null || b == null || a.val != b.val) {
-            return false;
-        }
-
-        return isTweaked(a.left, b.right) && isTweaked(a.right, b.left);
-    }
-
-    /**
-     * Symmetric Binary Tree - iterative solution.
-     */
-    @tags.BinaryTree
-    public boolean isSymmetricIter(TreeNode root) {
-        if (root == null) return true;
-
-        Queue<TreeNode> queue = new LinkedList<>();
-        queue.offer(root.left);
-        queue.offer(root.right);
-
-        while (!queue.isEmpty()) {
-            TreeNode left = queue.poll();
-            TreeNode right = queue.poll();
-
-            if (left == null && right == null) {
-                continue;
-            } else if (left == null || right == null || left.val != right.val) {
-                return false;
-            }
-
-            queue.offer(left.left);
-            queue.offer(right.right);
-            queue.offer(left.right);
-            queue.offer(right.left);
-        }
-
-        return true;
     }
 
     /**
@@ -1130,88 +1043,6 @@ public class BinaryTreeAndDivideConquer {
     }
 
     /**
-     * Binary Tree Serialization.
-     *
-     * Design an algorithm and write code to serialize and deserialize a binary
-     * tree. Writing the tree to a file is called 'serialization' and reading
-     * back from the file to reconstruct the exact same binary tree is
-     * 'deserialization'.
-     *
-     * There is no limit of how you deserialize or serialize a binary tree, you
-     * only need to make sure you can serialize a binary tree to a string and
-     * deserialize this string to the original structure.
-     */
-    @tags.BinaryTree
-    @tags.Company.Microsoft
-    @tags.Company.Yahoo
-
-    /**
-     * This method will be invoked first, you should design your own algorithm 
-     * to serialize a binary tree which denote by a root node to a string which
-     * can be easily deserialized by your own "deserialize" method later.
-     */
-    public String serialize(TreeNode root) {
-        Queue<TreeNode> queue = new LinkedList<>();
-        queue.offer(root);
-        StringBuilder sb = new StringBuilder();
-
-        while (!queue.isEmpty()) {
-            for (int i = 0; i < queue.size(); i++) {
-                TreeNode node = queue.poll();
-                if (node == null) {
-                    sb.append('#');
-                } else {
-                    sb.append(node.val);
-                    queue.offer(node.left);
-                    queue.offer(node.right);
-                }
-                sb.append(',');
-            }
-        }
-
-        return sb.substring(0, sb.length() - 1);
-    }
-
-    /**
-     * This method will be invoked second, the argument data is what exactly you
-     * serialized at method "serialize", that means the data is not given by
-     * system, it's given by your own serialize method. So the format of data is
-     * designed by yourself, and deserialize it here as you serialize it in
-     * "serialize" method.
-     */
-    public TreeNode deserialize(String data) {
-        String[] nodes = data.split(",");
-        int index = 0;
-
-        TreeNode root = null;
-        if (!nodes[index].equals("#")) {
-            root = new TreeNode(Integer.parseInt(nodes[index]));
-        }
-        index++;
-
-        Queue<TreeNode> queue = new LinkedList<>();
-        queue.offer(root);
-
-        while (!queue.isEmpty()) {
-            TreeNode node = queue.poll();
-            if (node != null) {
-                if (!nodes[index].equals("#")) {
-                    node.left = new TreeNode(Integer.parseInt(nodes[index]));
-                }
-                index++;
-                if (!nodes[index].equals("#")) {
-                    node.right = new TreeNode(Integer.parseInt(nodes[index]));
-                }
-                index++;
-                queue.offer(node.left);
-                queue.offer(node.right);
-            }
-        }
-
-        return root;
-    }
-
-    /**
      * Remove Node in Binary Search Tree.
      *
      * Given a root of Binary Search Tree with unique value for each node.
@@ -1227,7 +1058,7 @@ public class BinaryTreeAndDivideConquer {
      */
     @tags.BinarySearchTree
     @tags.Source.LintCode
-    @tags.Status.SuperHard
+    @tags.Status.Hard
     public TreeNode removeNode(TreeNode root, int value) {
         // find parent of the node to remove
         TreeNode prev = null;
@@ -1296,57 +1127,75 @@ public class BinaryTreeAndDivideConquer {
      *       4   5    
      * Returns [4, 5, 3], [2], [1].
      */
+    @tags.Tree
     @tags.DFS
     @tags.BinaryTree
     @tags.Source.LeetCode
+    @tags.Company.LinkedIn
+    @tags.Status.Easy
     public List<List<Integer>> findLeaves(TreeNode root) {
-        // TODO: locked problem from LeetCode
-        return null;
+        List<List<Integer>> result = new ArrayList<>();
+        height(root, result);
+        return result;
+    }
+
+    private int height(TreeNode root, List<List<Integer>> result) {
+        if (root == null) {
+            return -1;
+        }
+        int height = Math.max(height(root.left, result),
+                height(root.right, result)) + 1;
+        if (height == result.size()) {
+            result.add(new ArrayList<Integer>());
+        }
+        result.get(height).add(root.val);
+        return height;
     }
 
     /**
-     * Binary Search Tree Iterator
+     * Binary Search Tree Iterator.
      *
      * Design an iterator over a binary search tree with the following rules: 1.
      * Elements are visited in ascending order (i.e. an in-order traversal). 2.
      * next() and hasNext() queries run in O(1) time in average.
      */
+    @tags.Design
+    @tags.Stack
+    @tags.Tree
     @tags.BinaryTree
     @tags.NonRecursion
     @tags.BinarySearchTree
     @tags.Company.Facebook
     @tags.Company.Google
     @tags.Company.LinkedIn
+    @tags.Company.Microsoft
+    @tags.Status.OK
     class BSTIterator {
+        Stack<TreeNode> stack = new Stack<>();
         TreeNode current;
-        Stack<TreeNode> stack = new Stack<TreeNode>();
 
-        // @param root: The root of binary tree.
+        /** @param root: The root of binary tree. */
         public BSTIterator(TreeNode root) {
-            this.current = root;
+            current = root;
         }
 
-        // @return: True if there has next node, or false
+        /** @return: true if the iteration has more elements. */
         public boolean hasNext() {
-            if (current != null || !stack.isEmpty()) {
-                return true;
-            }
-            return false;
-        }
-
-        // @return: return next node
-        public TreeNode next() {
             while (current != null) {
                 stack.push(current);
                 current = current.left;
             }
+            return !stack.isEmpty();
+        }
 
-            TreeNode min = stack.pop();
-            if (min.right != null) {
-                current = min.right;
+        /** @return: the next element in the iteration. */
+        public TreeNode next() {
+            if (hasNext()) {
+                TreeNode next = stack.pop();
+                current = next.right;
+                return next;
             }
-
-            return min;
+            throw new NoSuchElementException();
         }
     }
 
@@ -1430,6 +1279,653 @@ public class BinaryTreeAndDivideConquer {
         }
 
         return trees;
+    }
+
+    /**
+     * Closest Binary Search Tree Value.
+     *
+     * Given a non-empty binary search tree and a target value, find the value
+     * in the BST that is closest to the target.
+     *
+     * Note: Given target value is a floating point. You are guaranteed to have
+     * only one unique value in the BST that is closest to the target.
+     *
+     * @param root
+     * @param target
+     * @return
+     */
+    @tags.Tree
+    @tags.BinarySearch
+    @tags.Company.Google
+    @tags.Company.Microsoft
+    @tags.Company.Snapchat
+    @tags.Status.NeedPractice
+    public int closestValue(TreeNode root, double target) {
+        double diff = Math.abs(root.val - target);
+        int closest = root.val;
+        while (root != null) {
+            if (root.val == target) {
+                return root.val;
+            }
+
+            double newDiff = Math.abs(root.val - target);
+            if (newDiff < diff) {
+                diff = newDiff;
+                closest = root.val;
+            }
+
+            if (root.val > target) {
+                root = root.left;
+            } else if (root.val < target) {
+                root = root.right;
+            }
+        }
+
+        return closest;
+    }
+
+    /**
+     * Binary Tree Upside Down.
+     *
+     * Given a binary tree where all the right nodes are either leaf nodes with
+     * a sibling (a left node that shares the same parent node) or empty, flip
+     * it upside down and turn it into a tree where the original right nodes
+     * turned into left leaf nodes. Return the new root.
+     *
+     * For example: Given a binary tree {1,2,3,4,5}, return the root of the
+     * binary tree [4,5,2,#,#,3,1].
+     *
+     * @param root
+     * @return
+     */
+    @tags.Tree
+    @tags.Company.LinkedIn
+    public TreeNode upsideDownBinaryTree(TreeNode root) {
+        if (root == null || (root.left == null && root.right == null)) {
+            return root;
+        }
+
+        TreeNode left = upsideDownBinaryTree(root.left);
+        root.left.left = root.right;
+        root.left.right = root;
+        root.left = root.right = null;
+
+        return left;
+    }
+
+    /**
+     * Factor Combinations.
+     *
+     * Numbers can be regarded as product of its factors. For example, 8 = 2 x 2
+     * x 2 = 2 x 4. Write a function that takes an integer n and return all
+     * possible combinations of its factors.
+     *
+     * Note: You may assume that n is always positive. Factors should be greater
+     * than 1 and less than n.
+     *
+     * Examples: input: 1 output: []. input: 37 output: []. input: 12 output:
+     * [[2,6],[2,2,3],[3,4]]. input: 32 output:
+     * [[2,16],[2,2,8],[2,2,2,4],[2,2,2,2,2],[2,4,4],[4,8]].
+     *
+     * @param n
+     * @return
+     */
+    @tags.Backtracking
+    @tags.Company.LinkedIn
+    @tags.Company.Uber
+    public List<List<Integer>> getFactors(int n) {
+        List<List<Integer>> result = new ArrayList<>();
+        getFactors(n, result, new ArrayList<Integer>());
+        return result;
+    }
+
+    private void getFactors(int n, List<List<Integer>> result, List<Integer> path) {
+        if (n == 1) {
+            if (path.size() > 1) {
+                result.add(new ArrayList<>(path));
+            }
+            return;
+        }
+
+        int last = path.isEmpty() ? 2 : path.get(path.size() - 1);
+        for (int i = last; i <= n; i++) {
+            if (n % i == 0) {
+                path.add(i);
+                getFactors(n / i, result, path);
+                path.remove(path.size() - 1);
+            }
+        }
+    }
+
+    // ---------------------------------------------------------------------- //
+    // ----------------------- Lowest Common Ancestor ----------------------- //
+    // ---------------------------------------------------------------------- //
+
+    /**
+     * Lowest Common Ancestor.
+     *
+     * Given the root and two nodes in a Binary Tree. Find the lowest common
+     * ancestor(LCA) of the two nodes. The lowest common ancestor is the node
+     * with largest depth which is the ancestor of both nodes.
+     *
+     * @param root:
+     *            The root of the binary search tree.
+     * @param A
+     *            and B: two nodes in a Binary.
+     * @return: Return the least common ancestor(LCA) of the two nodes.
+     */
+    @tags.Tree
+    @tags.BinaryTree
+    @tags.Company.Amazon
+    @tags.Company.Apple
+    @tags.Company.Facebook
+    @tags.Company.LinkedIn
+    @tags.Company.Microsoft
+    @tags.Status.NeedPractice
+    public TreeNode lowestCommonAncestor(TreeNode root, TreeNode A, TreeNode B) {
+        if (root == null || root == A || root == B) {
+            return root;
+        }
+
+        // divide
+        TreeNode left = lowestCommonAncestor(root.left, A, B);
+        TreeNode right = lowestCommonAncestor(root.right, A, B);
+
+        // conquer: merge A and B at the LCA
+        if (left != null && right != null) {
+            return root;
+        }
+
+        // send A or B upward
+        if (left != null) {
+            return left;
+        }
+        if (right != null) {
+            return right;
+        }
+
+        // nothing found yet
+        return null;
+    }
+
+    /**
+     * Lowest Common Ancestor II.
+     *
+     * Given the root and two nodes in a Binary Tree. Find the lowest common
+     * ancestor(LCA) of the two nodes.
+     *
+     * The lowest common ancestor is the node with largest depth which is the
+     * ancestor of both nodes.
+     *
+     * The node has an extra attribute parent which point to the father of
+     * itself. The root's parent is null.
+     *
+     * @param root:
+     *            The root of the tree
+     * @param A,
+     *            B: Two node in the tree
+     * @return: The lowest common ancestor of A and B
+     */
+    @tags.BinaryTree
+    @tags.Source.LintCode
+    public ParentTreeNode lowestCommonAncestorII(ParentTreeNode root,
+                                                 ParentTreeNode A,
+                                                 ParentTreeNode B) {
+        int heightA = getHeight(A);
+        int heightB = getHeight(B);
+
+        while (heightA > heightB) {
+            A = A.parent;
+            heightA--;
+        }
+
+        while (heightB > heightA) {
+            B = B.parent;
+            heightB--;
+        }
+
+        while (A != B) {
+            A = A.parent;
+            B = B.parent;
+        }
+
+        return A;
+    }
+
+    private int getHeight(ParentTreeNode node) {
+        int height = 0;
+        while (node != null) {
+            node = node.parent;
+            height++;
+        }
+        return height;
+    }
+
+    // ---------------------------------------------------------------------- //
+    // ------------------------- Next Right Pointer ------------------------- //
+    // ---------------------------------------------------------------------- //
+
+    /**
+     * Populating Next Right Pointers in Each Node.
+     *
+     * Given a binary tree
+     *
+     * struct TreeLinkNode { TreeLinkNode *left; TreeLinkNode *right;
+     * TreeLinkNode *next; } Populate each next pointer to point to its next
+     * right node. If there is no next right node, the next pointer should be
+     * set to NULL.
+     *
+     * Initially, all next pointers are set to NULL.
+     *
+     * Note:
+     * You may only use constant extra space. You may assume that it is a
+     * perfect binary tree (ie, all leaves are at the same level, and every
+     * parent has two children).
+     *
+     * For example, Given the following perfect binary tree,
+     *        1
+     *      /  \
+     *     2    3
+     *    / \  / \
+     *   4  5  6  7
+     *
+     * After calling your function, the tree should look like:
+     *
+     *        1 -> NULL
+     *      /  \
+     *     2 -> 3 -> NULL
+     *    / \  / \
+     *   4->5->6->7 -> NULL
+     *
+     * @param root
+     */
+    @tags.DFS
+    @tags.Tree
+    @tags.Company.Microsoft
+    @tags.Status.NeedPractice
+    public void connect(TreeLinkNode root) {
+        if (root == null) {
+            return;
+        }
+
+        // connect left and right
+        if (root.left != null) {
+            root.left.next = root.right;
+        }
+
+        // connect right to next using root.next
+        if (root.right != null && root.next != null) {
+            root.right.next = root.next.left;
+        }
+
+        connect(root.left);
+        connect(root.right);
+    }
+
+    /**
+     * Populating Next Right Pointers in Each Node II.
+     *
+     * Follow up for problem "Populating Next Right Pointers in Each Node". What
+     * if the given tree could be any binary tree? Would your previous solution
+     * still work?
+     *
+     * Note: You may only use constant extra space.
+     *
+     * For example, Given the following binary tree,
+     *         1
+     *       /  \
+     *      2    3
+     *     / \    \
+     *    4   5    7
+     * After calling your function, the tree should look like:
+     *         1 -> NULL
+     *       /  \
+     *      2 -> 3 -> NULL
+     *     / \    \
+     *    4-> 5 -> 7 -> NULL
+     *
+     * @param root
+     */
+    @tags.Tree
+    @tags.DFS
+    @tags.Company.Bloomberg
+    @tags.Company.Facebook
+    @tags.Company.Microsoft
+    @tags.Status.NeedPractice
+    public void connectII(TreeLinkNode root) {
+        // can be solved with tail recursion
+
+        TreeLinkNode lastLevel = root;
+
+        while (lastLevel != null) {
+            TreeLinkNode dummy = new TreeLinkNode(0);
+            TreeLinkNode prev = dummy;
+
+            // traverse last level by next pointer
+            while (lastLevel != null) {
+                if (lastLevel.left != null) {
+                    prev.next = lastLevel.left;
+                    prev = prev.next;
+                }
+                if (lastLevel.right != null) {
+                    prev.next = lastLevel.right;
+                    prev = prev.next;
+                }
+
+                lastLevel = lastLevel.next;
+            }
+
+            lastLevel = dummy.next;
+        }
+    }
+
+    // ---------------------------------------------------------------------- //
+    // --------------------- Binary Tree Serialization ---------------------- //
+    // ---------------------------------------------------------------------- //
+
+    /**
+     * Binary Tree Serialization.
+     *
+     * Design an algorithm and write code to serialize and deserialize a binary
+     * tree. Writing the tree to a file is called 'serialization' and reading
+     * back from the file to reconstruct the exact same binary tree is
+     * 'deserialization'.
+     *
+     * There is no limit of how you deserialize or serialize a binary tree, you
+     * only need to make sure you can serialize a binary tree to a string and
+     * deserialize this string to the original structure.
+     */
+    @tags.Tree
+    @tags.Design
+    @tags.BinaryTree
+    @tags.Company.Amazon
+    @tags.Company.Bloomberg
+    @tags.Company.Facebook
+    @tags.Company.Google
+    @tags.Company.LinkedIn
+    @tags.Company.Microsoft
+    @tags.Company.Uber
+    @tags.Company.Yahoo
+    @tags.Status.Hard
+    public class Codec {
+
+        /**
+         * This method will be invoked first, you should design your own
+         * algorithm to serialize a binary tree which denote by a root node to a
+         * string which can be easily deserialized by your own "deserialize"
+         * method later.
+         */
+        public String serialize(TreeNode root) {
+            Queue<TreeNode> queue = new LinkedList<>();
+            queue.offer(root);
+            StringBuilder sb = new StringBuilder();
+
+            while (!queue.isEmpty()) {
+                for (int i = 0; i < queue.size(); i++) {
+                    TreeNode node = queue.poll();
+                    if (node == null) {
+                        sb.append('#');
+                    } else {
+                        sb.append(node.val);
+                        queue.offer(node.left);
+                        queue.offer(node.right);
+                    }
+                    sb.append(',');
+                }
+            }
+
+            return sb.substring(0, sb.length() - 1);
+        }
+
+        /**
+         * This method will be invoked second, the argument data is what exactly
+         * you serialized at method "serialize", that means the data is not
+         * given by system, it's given by your own serialize method. So the
+         * format of data is designed by yourself, and deserialize it here as
+         * you serialize it in "serialize" method.
+         */
+        public TreeNode deserialize(String data) {
+            String[] nodes = data.split(",");
+            int index = 0;
+
+            TreeNode root = null;
+            if (!nodes[index].equals("#")) {
+                root = new TreeNode(Integer.parseInt(nodes[index]));
+            }
+            index++;
+
+            Queue<TreeNode> queue = new LinkedList<>();
+            queue.offer(root);
+
+            while (!queue.isEmpty()) {
+                TreeNode node = queue.poll();
+                if (node != null) {
+                    if (!nodes[index].equals("#")) {
+                        node.left = new TreeNode(
+                                Integer.parseInt(nodes[index]));
+                    }
+                    index++;
+                    if (!nodes[index].equals("#")) {
+                        node.right = new TreeNode(
+                                Integer.parseInt(nodes[index]));
+                    }
+                    index++;
+                    queue.offer(node.left);
+                    queue.offer(node.right);
+                }
+            }
+
+            return root;
+        }
+    }
+
+    /** Binary Tree Serialization - DFS solution. */
+    @tags.BinaryTree
+    @tags.Company.Microsoft
+    @tags.Company.Yahoo
+    @tags.Status.Hard
+
+    public String serializeDFS(TreeNode root) {
+        StringBuilder sb = new StringBuilder();
+        Stack<TreeNode> stack = new Stack<>();
+        stack.push(root);
+
+        while (!stack.isEmpty()) {
+            TreeNode node = stack.pop();
+            if (node == null) {
+                sb.append('#');
+            } else {
+                sb.append(node.val);
+                stack.push(node.right);
+                stack.push(node.left);
+            }
+            sb.append(',');
+        }
+
+        return sb.substring(0, sb.length() - 1);
+    }
+
+    public TreeNode deserializeDFS(String data) {
+        String[] nodes = data.split(",");
+        TreeNode root = null;
+        if (!nodes[0].equals("#")) {
+            root = new TreeNode(Integer.parseInt(nodes[0]));
+        }
+
+        Stack<TreeNode> stack = new Stack<>();
+        TreeNode current = root;
+        for (int i = 1; i < nodes.length; i++) {
+            TreeNode next = nodes[i].equals("#") ? null
+                    : new TreeNode(Integer.parseInt(nodes[i]));
+            if (current != null) {
+                current.left = next;
+                stack.push(current);
+                current = next;
+            } else {
+                stack.peek().right = next;
+                stack.pop();
+                current = next;
+            }
+        }
+        return root;
+    }
+
+    // ---------------------------------------------------------------------- //
+    // ---------------------- Same, Symmetric, Tweaked ---------------------- //
+    // ---------------------------------------------------------------------- //
+
+    /**
+     * Same Tree (Identical Binary Tree).
+     *
+     * Given two binary trees, write a function to check if they are equal or
+     * not. Two binary trees are considered equal if they are structurally
+     * identical and the nodes have the same value.
+     *
+     * @param a,b
+     *            the root of binary trees.
+     * @return true if they are identical, or false.
+     */
+    @tags.Tree
+    @tags.BinaryTree
+    @tags.DFS
+    @tags.Recursion
+    @tags.Company.Bloomberg
+    @tags.Status.Easy
+    public boolean isSameTree(TreeNode p, TreeNode q) {
+        if (p == null && q == null) {
+            return true;
+        } else if (p == null || q == null) {
+            return false;
+        }
+
+        return p.val == q.val && isSameTree(p.left, q.left)
+                && isSameTree(p.right, q.right);
+    }
+
+    /**
+     * Subtree.
+     *
+     * You have two every large binary trees: T1, with millions of nodes, and
+     * T2, with hundreds of nodes. Create an algorithm to decide if T2 is a
+     * subtree of T1.
+     *
+     * Notice: A tree T2 is a subtree of T1 if there exists a node n in T1 such
+     * that the subtree of n is identical to T2. That is, if you cut off the
+     * tree at node n, the two trees would be identical.
+     *
+     * @param T1,
+     *            T2: The roots of binary tree.
+     * @return: True if T2 is a subtree of T1, or false.
+     */
+    @tags.BinaryTree
+    @tags.Recursion
+    @tags.Status.NeedPractice
+    public boolean isSubtree(TreeNode T1, TreeNode T2) {
+        if (isSameTree(T1, T2)) {
+            return true;
+        }
+        if (T1 != null) {
+            return isSubtree(T1.left, T2) || isSubtree(T1.right, T2);
+        }
+        return false;
+    }
+
+    /**
+     * Tweaked Identical Binary Tree.
+     *
+     * Check two given binary trees are identical or not. Assuming any number of
+     * tweaks are allowed. A tweak is defined as a swap of the children of one
+     * node in the tree.
+     *
+     * Notice: There is no two nodes with the same value in the tree.
+     *
+     * @param a, b, the root of binary trees.
+     * @return true if they are tweaked identical, or false.
+     */
+    @tags.BinaryTree
+    public boolean isTweakedIdentical(TreeNode a, TreeNode b) {
+        if (a == null && b == null) {
+            return true;
+        }
+        if (a == null || b == null || a.val != b.val) {
+            return false;
+        }
+
+        if ((isTweakedIdentical(a.left, b.left) && isTweakedIdentical(a.right, b.right))
+            || (isTweakedIdentical(a.left, b.right) && isTweakedIdentical(a.right, b.left))) {
+            return true;
+        }
+        return false;
+    }
+
+    /**
+     * Symmetric Binary Tree.
+     *
+     * Given a binary tree, check whether it is a mirror of itself (i.e.,
+     * symmetric around its center).
+     *
+     * @param root,
+     *            the root of binary tree.
+     * @return true if it is a mirror of itself, or false.
+     */
+    @tags.Tree
+    @tags.BinaryTree
+    @tags.DFS
+    @tags.Company.Bloomberg
+    @tags.Company.LinkedIn
+    @tags.Company.Microsoft
+    @tags.Status.NeedPractice
+    public boolean isSymmetricRec(TreeNode root) {
+        if (root == null) {
+            return true;
+        }
+
+        return isTweaked(root.left, root.right);
+    }
+
+    private boolean isTweaked(TreeNode a, TreeNode b) {
+        if (a == null && b == null) {
+            return true;
+        }
+        if (a == null || b == null || a.val != b.val) {
+            return false;
+        }
+
+        return isTweaked(a.left, b.right) && isTweaked(a.right, b.left);
+    }
+
+    /** Symmetric Binary Tree - iterative solution. */
+    @tags.Tree
+    @tags.BinaryTree
+    @tags.BFS
+    @tags.Company.Bloomberg
+    @tags.Company.LinkedIn
+    @tags.Company.Microsoft
+    @tags.Status.NeedPractice
+    public boolean isSymmetricIter(TreeNode root) {
+        if (root == null) return true;
+
+        Queue<TreeNode> queue = new LinkedList<>();
+        queue.offer(root.left);
+        queue.offer(root.right);
+
+        while (!queue.isEmpty()) {
+            TreeNode left = queue.poll();
+            TreeNode right = queue.poll();
+
+            if (left == null && right == null) {
+                continue;
+            } else if (left == null || right == null || left.val != right.val) {
+                return false;
+            }
+
+            queue.offer(left.left);
+            queue.offer(right.right);
+            queue.offer(left.right);
+            queue.offer(right.left);
+        }
+
+        return true;
     }
 
     // ------------------------------ OLD ------------------------------------

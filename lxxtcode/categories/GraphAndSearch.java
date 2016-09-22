@@ -43,6 +43,22 @@ public class GraphAndSearch {
         }
     }
 
+    /** Definition for Point. */
+    class Point {
+        int x;
+        int y;
+
+        Point() {
+            x = 0;
+            y = 0;
+        }
+
+        Point(int a, int b) {
+            x = a;
+            y = b;
+        }
+    }
+
     // ---------------------------------------------------------------------- //
     // ------------------------------ PROBLEMS ------------------------------ //
     // ---------------------------------------------------------------------- //
@@ -221,6 +237,251 @@ public class GraphAndSearch {
     }
 
     /**
+     * Letter Combinations of a Phone Number.
+     *
+     * Given a digit string, return all possible letter combinations that the
+     * number could represent. A mapping of digit to letters (just like on the
+     * telephone buttons) is given below.
+     *
+     * Example: Input:Digit string "23", Output: ["ad", "ae", "af", "bd", "be",
+     * "bf", "cd", "ce", "cf"].
+     *
+     * Note: Although the above answer is in lexicographical order, your answer
+     * could be in any order you want.
+     *
+     * @param digits
+     * @return
+     */
+    @tags.String
+    @tags.Backtracking
+    @tags.Company.Amazon
+    @tags.Company.Dropbox
+    @tags.Company.Facebook
+    @tags.Company.Google
+    @tags.Company.Uber
+    @tags.Status.NeedPractice
+    public List<String> letterCombinations(String digits) {
+        List<String> result = new ArrayList<>();
+        if (digits == null || digits.length() == 0) {
+            return result;
+        }
+
+        // check illegal character
+        int[] nums = new int[digits.length()];
+        for (int i = 0; i < digits.length(); i++) {
+            nums[i] = digits.charAt(i) - '0';
+            if (nums[i] < 2 || nums[i] > 9) {
+                return result;
+            }
+        }
+
+        // digit to char mapping
+        char[][] map = { { 'a', 'b', 'c' }, { 'd', 'e', 'f' },
+                { 'g', 'h', 'i' }, { 'j', 'k', 'l' }, { 'm', 'n', 'o' },
+                { 'p', 'q', 'r', 's' }, { 't', 'u', 'v' },
+                { 'w', 'x', 'y', 'z' } };
+
+        // dfs
+        letterCombinations(nums, 0, map, new StringBuilder(), result);
+        return result;
+    }
+
+    private void letterCombinations(int[] digits, int pos, char[][] map,
+            StringBuilder path, List<String> result) {
+        if (pos == digits.length) {
+            result.add(path.toString());
+            return;
+        }
+
+        int index = digits[pos] - 2;
+        for (char c : map[index]) {
+            path.append(c);
+            letterCombinations(digits, pos + 1, map, path, result);
+            path.deleteCharAt(path.length() - 1);
+        }
+    }
+
+    /**
+     * Walls and Gates.
+     *
+     * You are given a m x n 2D grid initialized with these three possible
+     * values. -1 - A wall or an obstacle. 0 - A gate. INF - Infinity means an
+     * empty room. We use the value 231 - 1 = 2147483647 to represent INF as you
+     * may assume that the distance to a gate is less than 2147483647. Fill each
+     * empty room with the distance to its nearest gate. If it is impossible to
+     * reach a gate, it should be filled with INF.
+     */
+    @tags.BFS
+    @tags.Company.Facebook
+    @tags.Company.Google
+    public void wallsAndGates(int[][] rooms) {
+        if (rooms == null || rooms.length == 0 || rooms[0].length == 0) {
+            return;
+        }
+
+        int m = rooms.length, n = rooms[0].length;
+        for (int i = 0; i < m; i++) {
+            for (int j = 0; j < n; j++) {
+                if (rooms[i][j] == 0) {
+                    bfs(rooms, i, j, 0);
+                }
+            }
+        }
+    }
+
+    private void bfs(int[][] rooms, int i, int j, int dist) {
+        int m = rooms.length, n = rooms[0].length;
+
+        // index out of range
+        if (i < 0 || i >= m || j < 0 || j >= n) {
+            return;
+        }
+
+        // end of traversal
+        if (rooms[i][j] == -1 || (rooms[i][j] <= dist && dist != 0)) {
+            return;
+        }
+
+        rooms[i][j] = dist;
+        dist++;
+
+        // traverse neighbors (left, down, right, up)
+        int[] xs = { 0, 1, 0, -1 };
+        int[] ys = { -1, 0, 1, 0 };
+        for (int k = 0; k < 4; k++) {
+            bfs(rooms, i + xs[k], j + ys[k], dist);
+        }
+    }
+
+    // ---------------------------------------------------------------------- //
+    // ------------------------------ N-Queens ------------------------------ //
+    // ---------------------------------------------------------------------- //
+
+    /**
+     * N-Queens.
+     *
+     * The n-queens puzzle is the problem of placing n queens on an n¡Án
+     * chessboard such that no two queens attack each other. Given an integer n,
+     * return all distinct solutions to the n-queens puzzle. Each solution
+     * contains a distinct board configuration of the n-queens' placement, where
+     * 'Q' and '.' both indicate a queen and an empty space respectively.
+     *
+     * Get all distinct N-Queen solutions.
+     *
+     * Example: There exist two distinct solutions to the 4-queens puzzle: [ //
+     * Solution 1 [".Q..", "...Q", "Q...", "..Q." ], // Solution 2 ["..Q.",
+     * "Q...", "...Q", ".Q.." ] ].
+     *
+     * Challenge: Can you do it without recursion?
+     *
+     * @param n:
+     *            The number of queens
+     * @return: All distinct solutions For example, A string '...Q' shows a
+     *          queen on forth position
+     */
+    @tags.Recursion
+    @tags.DFS
+    @tags.Backtracking
+    @tags.Status.NeedPractice
+    public ArrayList<ArrayList<String>> solveNQueens(int n) {
+        // optimization 1: boolean array record visited column and 2 diagonals
+        // optimization 2: bit manipulation instead of boolean array
+        // optimization 3: enumerate all possible position without conflict
+        // optimization 4: https://zhuanlan.zhihu.com/p/22846106?refer=maigo,
+        // https://www.bittiger.io/classpage/jtDRXnKrncyioBLgs
+
+        ArrayList<ArrayList<String>> result = new ArrayList<>();
+        solveNQueens(n, result, new ArrayList<Integer>());
+        return result;
+    }
+
+    private void solveNQueens(int n, ArrayList<ArrayList<String>> result,
+            List<Integer> list) {
+        if (list.size() == n) {
+            result.add(translateNQueens(list));
+            return;
+        }
+
+        for (int i = 0; i < n; i++) {
+            if (isValid(list, i)) {
+                list.add(i);
+                solveNQueens(n, result, list);
+                list.remove(list.size() - 1);
+            }
+        }
+    }
+
+    private boolean isValid(List<Integer> list, int newCol) {
+        int newRow = list.size();
+        for (int row = 0; row < newRow; row++) {
+            int col = list.get(row);
+            if (col == newCol || newRow - row == Math.abs(col - newCol)) {
+                return false;
+            }
+        }
+        return true;
+    }
+
+    private ArrayList<String> translateNQueens(List<Integer> list) {
+        ArrayList<String> board = new ArrayList<>();
+        StringBuilder sb = new StringBuilder();
+        for (int i = 0; i < list.size(); i++) {
+            sb.append('.');
+        }
+        for (int i = 0; i < list.size(); i++) {
+            int index = list.get(i);
+            sb.setCharAt(index, 'Q');
+            board.add(sb.toString());
+            sb.setCharAt(index, '.');
+        }
+        return board;
+    }
+
+    /**
+     * N-Queens II.
+     *
+     * Follow up for N-Queens problem. Now, instead outputting board
+     * configurations, return the total number of distinct solutions.
+     *
+     * Calculate the total number of distinct N-Queen solutions.
+     *
+     * Example: For n=4, there are 2 distinct solutions.
+     *
+     * @param n:
+     *            The number of queens.
+     * @return: The total number of distinct solutions.
+     */
+    @tags.Recursion
+    @tags.DFS
+    @tags.Backtracking
+    @tags.Company.Zenefits
+    @tags.Status.OK
+    public int totalNQueens(int n) {
+        List<Integer> list = new ArrayList<>();
+        return totalNQueens(n, list);
+    }
+
+    private int totalNQueens(int n, List<Integer> list) {
+        if (list.size() == n) {
+            return 1;
+        }
+
+        int count = 0;
+        for (int i = 0; i < n; i++) {
+            if (isValid(list, i)) {
+                list.add(i);
+                count += totalNQueens(n, list);
+                list.remove(list.size() - 1);
+            }
+        }
+        return count;
+    }
+
+    // ---------------------------------------------------------------------- //
+    // ------------------------ Topological Sorting ------------------------- //
+    // ---------------------------------------------------------------------- //
+
+    /**
      * Topological Sorting.
      *
      * Given an directed graph, a topological order of the graph nodes is
@@ -238,11 +499,13 @@ public class GraphAndSearch {
      *            A list of Directed graph node
      * @return: Any topological order for the given graph.
      */
+    @tags.Graph
+    @tags.TopologicalSort
     @tags.BFS
     @tags.DFS
     @tags.Source.GeeksForGeeks
     @tags.Source.LintCode
-    @tags.Status.SuperHard
+    @tags.Status.Hard
     public ArrayList<DirectedGraphNode> topSort(
             ArrayList<DirectedGraphNode> graph) {
         Map<DirectedGraphNode, Integer> refCount = new HashMap<>();
@@ -278,6 +541,361 @@ public class GraphAndSearch {
         }
 
         return result;
+    }
+
+    /**
+     * Alien Dictionary.
+     *
+     * There is a new alien language which uses the latin alphabet. However, the
+     * order among letters are unknown to you. You receive a list of words from
+     * the dictionary, where words are sorted lexicographically by the rules of
+     * this new language. Derive the order of letters in this language.
+     *
+     * For example, Given the following words in dictionary, { "wrt", "wrf",
+     * "er", "ett", "rftt" ] The correct order is: "wertf".
+     *
+     * Note: You may assume all letters are in lowercase. If the order is
+     * invalid, return an empty string. There may be multiple valid order of
+     * letters, return any one of them is fine.
+     *
+     * @param words
+     * @return
+     */
+    @tags.Graph
+    @tags.TopologicalSort
+    @tags.Company.Airbnb
+    @tags.Company.Facebook
+    @tags.Company.Google
+    @tags.Company.PocketGems
+    @tags.Company.Snapchat
+    @tags.Company.Twitter
+    @tags.Status.Hard
+    public String alienOrder(String[] words) {
+        Map<Character, Set<Character>> graph = new HashMap<>();
+        Map<Character, Integer> refCount = new HashMap<>();
+
+        // construct the graph
+        for (int i = 1; i < words.length; i++) {
+            String w1 = words[i - 1], w2 = words[i];
+            int ptr1 = 0, ptr2 = 0;
+            for (; ptr1 < w1.length() && ptr2 < w2.length(); ptr1++, ptr2++) {
+                if (w1.charAt(ptr1) != w2.charAt(ptr2)) {
+                    break;
+                }
+            }
+            if (ptr1 < w1.length() && ptr2 < w2.length()) {
+                char c1 = w1.charAt(ptr1), c2 = w2.charAt(ptr2);
+                if (graph.containsKey(c1)) {
+                    graph.get(c1).add(c2);
+                } else {
+                    Set<Character> set = new HashSet<>();
+                    set.add(c2);
+                    graph.put(c1, set);
+                }
+            }
+        }
+
+        // init ref count
+        for (String word : words) {
+            for (int i = 0; i < word.length(); i++) {
+                refCount.put(word.charAt(i), 0);
+            }
+        }
+
+        // calculate ref count
+        for (Character c : graph.keySet()) {
+            for (Character cc : graph.get(c)) {
+                refCount.put(cc, refCount.get(cc) + 1);
+            }
+        }
+
+        // topological sorting
+        Queue<Character> queue = new LinkedList<>();
+        for (Character c : refCount.keySet()) {
+            if (refCount.get(c) == 0) {
+                queue.offer(c);
+            }
+        }
+
+        StringBuilder sb = new StringBuilder();
+        while (!queue.isEmpty()) {
+            char c = queue.poll();
+            sb.append(c);
+            if (graph.containsKey(c)) {
+                for (Character neighbor : graph.get(c)) {
+                    int count = refCount.get(neighbor) - 1;
+                    if (count == 0) {
+                        queue.offer(neighbor);
+                    }
+                    refCount.put(neighbor, count);
+                }
+            }
+        }
+
+        if (sb.length() < refCount.size()) {
+            return "";
+        }
+        return sb.toString();
+    }
+
+    /**
+     * Course Schedule.
+     *
+     * There are a total of n courses you have to take, labeled from 0 to n - 1.
+     * Some courses may have prerequisites, for example to take course 0 you
+     * have to first take course 1, which is expressed as a pair: [0,1] Given
+     * the total number of courses and a list of prerequisite pairs, is it
+     * possible for you to finish all courses?
+     *
+     * For example:
+     *
+     * 2, [[1,0]]. There are a total of 2 courses to take. To take course 1 you
+     * should have finished course 0. So it is possible.
+     *
+     * 2, [[1,0],[0,1]]. There are a total of 2 courses to take. To take course
+     * 1 you should have finished course 0, and to take course 0 you should also
+     * have finished course 1. So it is impossible.
+     *
+     * Note: The input prerequisites is a graph represented by a list of edges,
+     * not adjacency matrices. Read more about how a graph is represented.
+     *
+     * Hints: This problem is equivalent to finding if a cycle exists in a
+     * directed graph. If a cycle exists, no topological ordering exists and
+     * therefore it will be impossible to take all courses. Topological sort
+     * could also be done via BFS.
+     *
+     * @param numCourses
+     * @param prerequisites
+     * @return
+     */
+    @tags.Graph
+    @tags.TopologicalSort
+    @tags.BFS
+    @tags.DFS
+    @tags.Company.Apple
+    @tags.Company.Yelp
+    @tags.Company.Zenefits
+    public boolean canFinish(int numCourses, int[][] prerequisites) {
+        Map<Integer, Set<Integer>> graph = new HashMap<>();
+        Map<Integer, Integer> refCount = new HashMap<>();
+
+        // build the graph and record the ref count
+        for (int[] pair : prerequisites) {
+            int first = pair[1], then = pair[0];
+            if (graph.containsKey(first)) {
+                graph.get(first).add(then);
+            } else {
+                Set<Integer> set = new HashSet<>();
+                set.add(then);
+                graph.put(first, set);
+            }
+
+            // put every course in refCount
+            refCount.put(first, 0);
+            refCount.put(then, 0);
+        }
+
+        // calculate ref count
+        for (Integer i : graph.keySet()) {
+            for (Integer neighbor : graph.get(i)) {
+                refCount.put(neighbor, refCount.get(neighbor) + 1);
+            }
+        }
+
+        // not enough courses
+        if (refCount.size() > numCourses) {
+            return false;
+        }
+
+        // topological sort
+
+        Queue<Integer> queue = new LinkedList<>();
+        for (Integer i : refCount.keySet()) {
+            if (refCount.get(i) == 0) {
+                queue.offer(i);
+            }
+        }
+
+        // count course can be traversed
+        int count = 0;
+        while (!queue.isEmpty()) {
+            int course = queue.poll();
+            count++;
+
+            if (graph.containsKey(course)) {
+                for (Integer i : graph.get(course)) {
+                    refCount.put(i, refCount.get(i) - 1);
+                    if (refCount.get(i) == 0) {
+                        queue.offer(i);
+                    }
+                }
+            }
+        }
+
+        return count == refCount.size();
+    }
+
+    /**
+     * Course Schedule II.
+     *
+     * There are a total of n courses you have to take, labeled from 0 to n - 1.
+     * Some courses may have prerequisites, for example to take course 0 you
+     * have to first take course 1, which is expressed as a pair: [0,1]. Given
+     * the total number of courses and a list of prerequisite pairs, return the
+     * ordering of courses you should take to finish all courses. There may be
+     * multiple correct orders, you just need to return one of them. If it is
+     * impossible to finish all courses, return an empty array.
+     *
+     * For example: 2, [[1,0]]. There are a total of 2 courses to take. To take
+     * course 1 you should have finished course 0. So the correct course order
+     * is [0,1]. 4, [[1,0],[2,0],[3,1],[3,2]]. There are a total of 4 courses to
+     * take. To take course 3 you should have finished both courses 1 and 2.
+     * Both courses 1 and 2 should be taken after you finished course 0. So one
+     * correct course order is [0,1,2,3]. Another correct ordering is[0,2,1,3].
+     *
+     * Note: The input prerequisites is a graph represented by a list of edges,
+     * not adjacency matrices. Read more about how a graph is represented.
+     *
+     * Hints: This problem is equivalent to finding the topological order in a
+     * directed graph. If a cycle exists, no topological ordering exists and
+     * therefore it will be impossible to take all courses. Topological Sort via
+     * DFS - A great video tutorial (21 minutes) on Coursera explaining the
+     * basic concepts of Topological Sort. Topological sort could also be done
+     * via BFS.
+     */
+    @tags.Graph
+    @tags.TopologicalSort
+    @tags.BFS
+    @tags.DFS
+    @tags.Company.Facebook
+    @tags.Company.Zenefits
+    @tags.Status.NeedPractice
+    public int[] findOrder(int numCourses, int[][] prerequisites) {
+        // directed graph need both graph and refCount
+        // while undirected graph only need graph since link is double sided
+        Map<Integer, Set<Integer>> graph = new HashMap<>();
+        Map<Integer, Integer> refCount = new HashMap<>();
+        for (int i = 0; i < numCourses; i++) {
+            graph.put(i, new HashSet<Integer>());
+            refCount.put(i, 0);
+        }
+
+        // construct the graph
+        for (int[] pair : prerequisites) {
+            graph.get(pair[1]).add(pair[0]);
+        }
+
+        // calculate ref count
+        for (Integer node : graph.keySet()) {
+            for (Integer next : graph.get(node)) {
+                refCount.put(next, refCount.get(next) + 1);
+            }
+        }
+
+        Queue<Integer> queue = new LinkedList<>();
+        for (Integer node : refCount.keySet()) {
+            if (refCount.get(node) == 0) {
+                queue.offer(node);
+            }
+        }
+
+        int[] result = new int[numCourses];
+        int index = 0;
+        while (!queue.isEmpty()) {
+            int node = queue.poll();
+            result[index++] = node;
+
+            for (Integer next : graph.get(node)) {
+                if (refCount.get(next) == 1) {
+                    queue.offer(next);
+                }
+                refCount.put(next, refCount.get(next) - 1);
+            }
+        }
+
+        if (index != numCourses) {
+            return new int[0];
+        }
+        return result;
+    }
+
+    /**
+     * Minimum Height Trees.
+     *
+     * For a undirected graph with tree characteristics, we can choose any node
+     * as the root. The result graph is then a rooted tree. Among all possible
+     * rooted trees, those with minimum height are called minimum height trees
+     * (MHTs). Given such a graph, write a function to find all the MHTs and
+     * return a list of their root labels.
+     *
+     * Format: The graph contains n nodes which are labeled from 0 to n - 1. You
+     * will be given the number n and a list of undirected edges (each edge is a
+     * pair of labels). You can assume that no duplicate edges will appear in
+     * edges. Since all edges are undirected, [0, 1] is the same as [1, 0] and
+     * thus will not appear together in edges.
+     *
+     * Example 1: Given n = 4, edges = [[1, 0], [1, 2], [1, 3]], return [1].
+     *
+     * Example 2: Given n = 6, edges = [[0, 3], [1, 3], [2, 3], [4, 3], [5, 4]],
+     * return [3, 4].
+     *
+     * @param n
+     * @param edges
+     * @return
+     */
+    @tags.Graph
+    @tags.BFS
+    @tags.Company.Google
+    @tags.Status.Hard
+    public List<Integer> findMinHeightTrees(int n, int[][] edges) {
+        if (n == 1) {
+            Integer[] single = { 0 };
+            return Arrays.asList(single);
+        }
+
+        // directed graph need both graph and refCount
+        // while undirected graph only need graph since link is double sided
+
+        // construct the graph
+        Map<Integer, Set<Integer>> graph = new HashMap<>();
+        for (int i = 0; i < n; i++) {
+            graph.put(i, new HashSet<Integer>());
+        }
+        for (int[] edge : edges) {
+            graph.get(edge[0]).add(edge[1]);
+            graph.get(edge[1]).add(edge[0]);
+        }
+
+        Set<Integer> level = new HashSet<>();
+        // find the leaves
+        for (Integer node : graph.keySet()) {
+            if (graph.get(node).size() == 1) {
+                level.add(node);
+            }
+        }
+
+        // BFS to find the longest path
+        while (true) {
+            Set<Integer> next = new HashSet<>();
+
+            // add all neighbors with 2 links to next level
+            for (Integer node : level) {
+                for (Integer neighbor : graph.get(node)) {
+                    if (graph.get(neighbor).size() == 2) {
+                        next.add(neighbor);
+                    }
+                    graph.get(neighbor).remove(node);
+                }
+                graph.remove(node);
+            }
+
+            // return if no new level
+            if (next.size() == 0) {
+                return new ArrayList<>(level);
+            }
+
+            level = next;
+        }
     }
 
     // ---------------------------------------------------------------------- //
@@ -657,7 +1275,7 @@ public class GraphAndSearch {
     @tags.Company.LinkedIn
     @tags.Company.Snapchat
     @tags.Company.Yelp
-    @tags.Status.SuperHard
+    @tags.Status.Hard
     public int ladderLength(String start, String end, Set<String> dict) {
         if (start.equals(end)) {
             return 1;
@@ -675,8 +1293,10 @@ public class GraphAndSearch {
 
             for (String word : queue) {
                 char[] letters = word.toCharArray();
+
                 for (int i = 0; i < letters.length; i++) {
                     char old = letters[i];
+
                     for (char c = 'a'; c <= 'z'; c++) {
                         if (c != old) {
                             letters[i] = c;
@@ -694,6 +1314,8 @@ public class GraphAndSearch {
                             }
                         }
                     }
+
+                    // back tracking
                     letters[i] = old;
                 }
             }
@@ -738,7 +1360,7 @@ public class GraphAndSearch {
     @tags.String
     @tags.Company.Amazon
     @tags.Company.Yelp
-    @tags.Status.SuperHard
+    @tags.Status.Hard
     public List<List<String>> findLadders(String start, String end,
             Set<String> dict) {
         Queue<String> queue = new LinkedList<>();
@@ -1349,6 +1971,55 @@ public class GraphAndSearch {
     }
 
     /**
+     * String Permutation.
+     *
+     * Given two strings, write a method to decide if one is a permutation of
+     * the other.
+     *
+     * Example: abcd is a permutation of bcad, but abbe is not a permutation of
+     * abe.
+     *
+     * @param A a string
+     * @param B a string
+     * @return a boolean
+     */
+    @tags.String
+    @tags.Permutation
+    @tags.Status.NeedPractice
+    public boolean stringPermutation(String A, String B) {
+        if (A == null && B == null) {
+            return true;
+        } else if (A == null || B == null) {
+            return false;
+        }
+
+        int len = A.length();
+        if (len != B.length()) {
+            return false;
+        }
+
+        Map<Character, Integer> letters = new HashMap<>();
+        for (int i = 0; i < len; i++) {
+            char c = A.charAt(i);
+            if (letters.containsKey(c)) {
+                letters.put(c, letters.get(c) + 1);
+            } else {
+                letters.put(c, 1);
+            }
+        }
+
+        for (int i = 0; i < len; i++) {
+            char c = B.charAt(i);
+            if (!letters.containsKey(c) || letters.get(c) == 0) {
+                return false;
+            }
+            letters.put(c, letters.get(c) - 1);
+        }
+
+        return true;
+    }
+
+    /**
      * String Permutation II.
      *
      * Given a string, find all permutations of it without duplicates.
@@ -1395,119 +2066,6 @@ public class GraphAndSearch {
         }
     }
 
-    /**
-     * N-Queens.
-     *
-     * The n-queens puzzle is the problem of placing n queens on an n¡Án
-     * chessboard such that no two queens attack each other. Given an integer n,
-     * return all distinct solutions to the n-queens puzzle. Each solution
-     * contains a distinct board configuration of the n-queens' placement, where
-     * 'Q' and '.' both indicate a queen and an empty space respectively.
-     *
-     * Get all distinct N-Queen solutions.
-     *
-     * Example: There exist two distinct solutions to the 4-queens puzzle: [ //
-     * Solution 1 [".Q..", "...Q", "Q...", "..Q." ], // Solution 2 ["..Q.",
-     * "Q...", "...Q", ".Q.." ] ].
-     *
-     * Challenge: Can you do it without recursion?
-     *
-     * @param n:
-     *            The number of queens
-     * @return: All distinct solutions For example, A string '...Q' shows a
-     *          queen on forth position
-     */
-    @tags.Recursion
-    @tags.DFS
-    @tags.Backtracking
-    @tags.Status.NeedPractice
-    public ArrayList<ArrayList<String>> solveNQueens(int n) {
-        ArrayList<ArrayList<String>> result = new ArrayList<>();
-        solveNQueens(n, result, new ArrayList<Integer>());
-        return result;
-    }
-
-    private void solveNQueens(int n, ArrayList<ArrayList<String>> result,
-            List<Integer> list) {
-        if (list.size() == n) {
-            result.add(translateNQueens(list));
-            return;
-        }
-
-        for (int i = 0; i < n; i++) {
-            if (isValid(list, i)) {
-                list.add(i);
-                solveNQueens(n, result, list);
-                list.remove(list.size() - 1);
-            }
-        }
-    }
-
-    private boolean isValid(List<Integer> list, int newCol) {
-        int newRow = list.size();
-        for (int row = 0; row < newRow; row++) {
-            int col = list.get(row);
-            if (col == newCol || newRow - row == Math.abs(col - newCol)) {
-                return false;
-            }
-        }
-        return true;
-    }
-
-    private ArrayList<String> translateNQueens(List<Integer> list) {
-        ArrayList<String> board = new ArrayList<>();
-        StringBuilder sb = new StringBuilder();
-        for (int i = 0; i < list.size(); i++) {
-            sb.append('.');
-        }
-        for (int i = 0; i < list.size(); i++) {
-            int index = list.get(i);
-            sb.setCharAt(index, 'Q');
-            board.add(sb.toString());
-            sb.setCharAt(index, '.');
-        }
-        return board;
-    }
-
-    /**
-     * N-Queens II.
-     *
-     * Follow up for N-Queens problem. Now, instead outputting board
-     * configurations, return the total number of distinct solutions.
-     *
-     * Calculate the total number of distinct N-Queen solutions.
-     *
-     * Example: For n=4, there are 2 distinct solutions.
-     *
-     * @param n:
-     *            The number of queens.
-     * @return: The total number of distinct solutions.
-     */
-    @tags.Recursion
-    @tags.DFS
-    @tags.Backtracking
-    @tags.Company.Zenefits
-    @tags.Status.OK
-    public int totalNQueens(int n) {
-        List<Integer> list = new ArrayList<>();
-        return totalNQueens(n, list);
-    }
-
-    private int totalNQueens(int n, List<Integer> list) {
-        if (list.size() == n) {
-            return 1;
-        }
-
-        int count = 0;
-        for (int i = 0; i < n; i++) {
-            if (isValid(list, i)) {
-                list.add(i);
-                count += totalNQueens(n, list);
-                list.remove(list.size() - 1);
-            }
-        }
-        return count;
-    }
 
     /**
      * Permutations.
@@ -1558,6 +2116,8 @@ public class GraphAndSearch {
     /** Permutation - iterative solution. */
     @tags.Permutation
     @tags.Company.LinkedIn
+    @tags.Company.Microsoft
+    @tags.Status.OK
     public ArrayList<ArrayList<Integer>> permute(int[] num) {
         ArrayList<ArrayList<Integer>> permutations = new ArrayList<ArrayList<Integer>>();
 
@@ -1645,6 +2205,7 @@ public class GraphAndSearch {
     @tags.Permutation
     @tags.Company.Microsoft
     @tags.Company.LinkedIn
+    @tags.Status.OK
     public ArrayList<ArrayList<Integer>> permuteUniqueIterative(int[] num) {
         ArrayList<ArrayList<Integer>> permutations = new ArrayList<ArrayList<Integer>>();
 
@@ -1661,8 +2222,8 @@ public class GraphAndSearch {
             for (ArrayList<Integer> permutation : permutations) {
                 int from = permutation.lastIndexOf(i) + 1;
                 for (int j = from; j < permutation.size() + 1; j++) {
-                    ArrayList<Integer> newPermutation = new ArrayList<Integer>();
-                    newPermutation.addAll(permutation);
+                    ArrayList<Integer> newPermutation = new ArrayList<Integer>(
+                            permutation);
                     newPermutation.add(j, i);
                     update.add(newPermutation);
                 }
@@ -1672,6 +2233,130 @@ public class GraphAndSearch {
         }
 
         return permutations;
+    }
+
+    /**
+     * Generate Parentheses.
+     *
+     * Given n pairs of parentheses, write a function to generate all
+     * combinations of well-formed parentheses.
+     *
+     * For example, given n = 3, a solution set is:
+     * "((()))", "(()())", "(())()", "()(())", "()()()"
+     */
+    @tags.String
+    @tags.Recursion
+    @tags.Backtracking
+    @tags.Company.Google
+    @tags.Company.Zenefits
+    @tags.Status.NeedPractice
+    public ArrayList<String> generateParenthesis(int n) {
+        ArrayList<String> result = new ArrayList<String>();
+        StringBuffer sb = new StringBuffer();
+        parenthesisRecursive(n, n, sb, result);
+        return result;
+    }
+
+    public void parenthesisRecursive(int openStock, int closeStock,
+            StringBuffer sb, ArrayList<String> result) {
+        // if no "(" and ")" left, done with one combination
+        if (openStock == 0 && closeStock == 0) {
+            result.add(sb.toString());
+            return;
+        }
+
+        // if still have "(" in stock
+        if (openStock > 0) {
+            sb.append("(");
+            parenthesisRecursive(openStock - 1, closeStock, sb, result);
+            sb.deleteCharAt(sb.length() - 1);
+        }
+
+        // if still have ")" in stock and in a valid position
+        if (closeStock > openStock) {
+            sb.append(")");
+            parenthesisRecursive(openStock, closeStock - 1, sb, result);
+            sb.deleteCharAt(sb.length() - 1);
+        }
+    }
+
+    /**
+     * Remove Invalid Parentheses.
+     *
+     * Remove the minimum number of invalid parentheses in order to make the
+     * input string valid. Return all possible results.
+     *
+     * Note: The input string may contain letters other than the parentheses (
+     * and ).
+     *
+     * Examples:
+     *
+     * "()())()" -> ["()()()", "(())()"]
+     *
+     * "(a)())()" -> ["(a)()()", "(a())()"]
+     *
+     * ")(" -> [""]
+     */
+    @tags.BFS
+    @tags.DFS
+    @tags.Company.Facebook
+    @tags.Status.Hard
+    public List<String> removeInvalidParentheses(String s) {
+        List<String> result = new ArrayList<>();
+        Set<String> visited = new HashSet<>();
+        Queue<String> queue = new LinkedList<>();
+        queue.offer(s);
+        visited.add(s);
+
+        // BFS
+        while (!queue.isEmpty()) {
+            Queue<String> next = new LinkedList<>();
+
+            while (!queue.isEmpty()) {
+                String p = queue.poll();
+
+                if (isValid(p)) {
+                    result.add(p);
+                } else {
+                    for (int i = 0; i < p.length(); i++) {
+                        if (p.charAt(i) == '(' || p.charAt(i) == ')') {
+                            // remove character at i, add to next level
+                            String q = p.substring(0, i)
+                                    + p.substring(i + 1, p.length());
+                            if (!visited.contains(q)) {
+                                visited.add(q);
+                                next.offer(q);
+                            }
+                        }
+                    }
+                }
+            }
+
+            if (!result.isEmpty()) {
+                return result;
+            }
+
+            queue = next;
+        }
+
+        return result;
+    }
+
+    private boolean isValid(String s) {
+        int count = 0;
+        for (char c : s.toCharArray()) {
+            if (c == '(') {
+                count++;
+            } else if (c == ')') {
+                count--;
+            }
+
+            if (count < 0) {
+                return false;
+            }
+        }
+
+        return count == 0;
     }
 
     // ---------------------------------------------------------------------- //
@@ -1919,13 +2604,204 @@ public class GraphAndSearch {
         traverseAndMark(board, row, col + 1);
     }
 
+    /**
+     * Number of Islands.
+     *
+     * Given a boolean 2D matrix, find the number of islands.
+     *
+     * Notice: 0 is represented as the sea, 1 is represented as the island. If
+     * two 1 is adjacent, we consider them in the same island. We only consider
+     * up/down/left/right adjacent.
+     *
+     * Example: Given graph: [ [1, 1, 0, 0, 0], [0, 1, 0, 0, 1], [0, 0, 0, 1,
+     * 1], [0, 0, 0, 0, 0], [0, 0, 0, 0, 1] ] return 3.
+     *
+     * @param grid
+     *            a boolean 2D matrix
+     * @return an integer
+     */
+    @tags.DFS
+    @tags.BFS
+    @tags.UnionFind
+    @tags.Company.Amazon
+    @tags.Company.Facebook
+    @tags.Company.Google
+    @tags.Company.Microsoft
+    @tags.Company.Zenefits
+    @tags.Status.NeedPractice
+    public int numIslands(boolean[][] grid) {
+        // time: O(mn), since you will only traverse each tile 4 times
+
+        if (grid == null || grid.length == 0 || grid[0].length == 0) {
+            return 0;
+        }
+
+        int m = grid.length, n = grid[0].length;
+        int count = 0;
+        for (int i = 0; i < m; i++) {
+            for (int j = 0; j < n; j++) {
+                if (grid[i][j]) {
+                    dfs(grid, m, n, i, j);
+                    count++;
+                }
+            }
+        }
+
+        return count;
+    }
+
+    private void dfs(boolean[][] grid, int m, int n, int x, int y) {
+        if (x < 0 || x >= m || y < 0 || y >= n || !grid[x][y]) {
+            return;
+        }
+
+        grid[x][y] = false;
+
+        dfs(grid, m, n, x - 1, y);
+        dfs(grid, m, n, x + 1, y);
+        dfs(grid, m, n, x, y - 1);
+        dfs(grid, m, n, x, y + 1);
+    }
+
+    /** Number of Islands - Union find. */
+    @tags.DFS
+    @tags.BFS
+    @tags.UnionFind
+    @tags.Company.Amazon
+    @tags.Company.Facebook
+    @tags.Company.Google
+    @tags.Company.Microsoft
+    @tags.Company.Zenefits
+    @tags.Status.NeedPractice
+    public int numIslands(char[][] grid) {
+        // TODO find the big O complexity
+        if (grid == null || grid.length == 0 || grid[0].length == 0) {
+            return 0;
+        }
+
+        int m = grid.length, n = grid[0].length;
+        int[] leader = new int[m * n];
+
+        // traverse and perform union find
+        for (int i = 0; i < m; i++) {
+            for (int j = 0; j < n; j++) {
+                int index = i * n + j;
+                if (grid[i][j] == '1') {
+                    leader[index] = index;
+                    int[] is = { 0, -1 };
+                    int[] js = { -1, 0 };
+                    for (int k = 0; k < 2; k++) {
+                        int x = i + is[k], y = j + js[k];
+                        if (x >= 0 && x < m && y >= 0 && y < n
+                                && grid[x][y] == '1') {
+                            int xy = x * n + y;
+                            leader[leader[index]] = find(leader, xy);
+                        }
+                    }
+                } else {
+                    leader[index] = -1;
+                }
+            }
+        }
+
+        Set<Integer> set = new HashSet<>();
+        for (int i = 0; i < m * n; i++) {
+            if (leader[i] != -1) {
+                leader[i] = find(leader, i);
+                set.add(leader[i]);
+            }
+        }
+        return set.size();
+    }
+
+    /**
+     * Number of Islands II.
+     *
+     * Given a n,m which means the row and column of the 2D matrix and an array
+     * of pair A( size k). Originally, the 2D matrix is all 0 which means there
+     * is only sea in the matrix. The list pair has k operator and each operator
+     * has two integer A[i].x, A[i].y means that you can change the grid
+     * matrix[A[i].x][A[i].y] from sea to island. Return how many island are
+     * there in the matrix after each operator.
+     *
+     * Notice: 0 is represented as the sea, 1 is represented as the island. If
+     * two 1 is adjacent, we consider them in the same island. We only consider
+     * up/down/left/right adjacent.
+     *
+     * Example: Given n = 3, m = 3, array of pair A = [(0,0),(0,1),(2,2),(2,1)].
+     * return [1,1,2,2].
+     *
+     * Challenge: Can you do it in time complexity O(k log mn), where k is the
+     * length of the positions.
+     *
+     * @param n
+     *            an integer
+     * @param m
+     *            an integer
+     * @param operators
+     *            an array of point
+     * @return an integer array
+     */
+    @tags.UnionFind
+    @tags.Company.Google
+    @tags.Status.NeedPractice
+    public List<Integer> numIslands2(int n, int m, Point[] operators) {
+        // TODO find the big O complexity
+
+        List<Integer> result = new ArrayList<>();
+        if (n < 1 || m < 1 || operators == null || operators.length < 1) {
+            return result;
+        }
+
+        int[] leader = new int[n * m];
+        for (int i = 0; i < n * m; i++) {
+            leader[i] = -1;
+        }
+        int count = 0;
+
+        for (Point p : operators) {
+            int index = p.x * m + p.y;
+            if (leader[index] == -1) {
+                count++;
+                leader[index] = index;
+                int[] is = {0, -1, 0, 1};
+                int[] js = {-1, 0, 1, 0};
+                for (int k = 0; k < 4; k++) {
+                    int i = p.x + is[k], j = p.y + js[k];
+                    int neighbor = i * m + j;
+                    if (i >= 0 && i < n && j >= 0 && j < m && leader[neighbor] != -1) {
+                        // merge neighbor to the point, make this point leader
+                        int nleader = find(leader, neighbor);
+                        if (nleader != index) {
+                            leader[nleader] = index;
+                            count--;
+                        }
+                    }
+                }
+            }
+            result.add(count);
+        }
+        return result;
+    }
+
     // ---------------------------------------------------------------------- //
     // ----------------------------- UNIT TESTS ----------------------------- //
     // ---------------------------------------------------------------------- //
 
     @Test
     public void tests() {
+        canFinishTests();
         wordLaddersTests();
+    }
+
+    private void canFinishTests() {
+        int numCourses = 10;
+        int[][] prerequisites = {{5,8},{3,5},{1,9},{4,5},{0,2},{1,9},{7,8},{4,9}};
+        Assert.assertTrue(canFinish(numCourses, prerequisites));
+
+        int numCourses2 = 4;
+        int[][] prerequisites2 = {{0,1},{3,1},{1,3},{3,2}};
+        Assert.assertFalse(canFinish(numCourses2, prerequisites2));
     }
 
     private void wordLaddersTests() {

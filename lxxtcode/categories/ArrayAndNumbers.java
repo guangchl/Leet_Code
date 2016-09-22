@@ -10,7 +10,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.PriorityQueue;
 import java.util.Set;
-import java.util.Stack;
 
 import org.junit.Test;
 import org.junit.Assert;
@@ -39,49 +38,66 @@ public class ArrayAndNumbers {
     // ---------------------------------------------------------------------- //
 
     /**
-     * Merge Intervals.
+     * Plus One.
      *
-     * Given a collection of intervals, merge all overlapping intervals.
+     * Given a non-negative number represented as an array of digits, plus one
+     * to the number. The digits are stored such that the most significant digit
+     * is at the head of the list.
      *
-     * Example: Given intervals => merged intervals:
-     * [[2,3],[2,2],[3,3],[1,3],[5,7],[2,2],[4,6]] => [[1,3],[4,7]].
+     * Example: Given [1,2,3] which represents 123, return [1,2,4]. Given
+     * [9,9,9] which represents 999, return [1,0,0,0].
      *
-     * Challenge: O(n log n) time and O(1) extra space.
-     *
-     * @param intervals,
-     *            a collection of intervals
-     * @return: A new sorted interval list.
+     * @param digits
+     *            a number represented as an array of digits
+     * @return the result
      */
     @tags.Array
-    @tags.Sort
+    @tags.Math
     @tags.Company.Google
-    @tags.Company.LinkedIn
+    @tags.Status.OK
+    public int[] plusOne(int[] digits) {
+        ArrayList<Integer> list = new ArrayList<>();
+        int carry = 1;
+
+        for (int i = digits.length - 1; i >= 0; i--) {
+            int digit = digits[i];
+            digit += carry;
+            carry = digit > 9 ? digit / 10 : 0;
+
+            digit = digit % 10;
+            list.add(digit);
+        }
+
+        if (carry > 0) {
+            list.add(carry);
+        }
+
+        int[] result = new int[list.size()];
+        for (int i = list.size() - 1, j = 0; i >= 0; i--) {
+            result[j++] = list.get(i);
+        }
+
+        return result;
+    }
+
+    /** Plus One - absolutely awesome solution. */
+    @tags.Array
+    @tags.Math
+    @tags.Company.Google
     @tags.Status.NeedPractice
-    public List<Interval> merge(List<Interval> intervals) {
-        List<Interval> result = new ArrayList<>();
-        if (intervals == null || intervals.size() == 0) {
-            return result;
-        }
-
-        Collections.sort(intervals, new Comparator<Interval>() {
-            @Override
-            public int compare(Interval i1, Interval i2) {
-                return i1.start - i2.start;
-            }
-        });
-
-        Interval current = intervals.get(0);
-        current = new Interval(current.start, current.end);
-        for (int i = 1; i < intervals.size(); i++) {
-            if (current.end >= intervals.get(i).start) {
-                current.end = Math.max(current.end, intervals.get(i).end);
+    public int[] plusOne2(int[] digits) {
+        for (int i = digits.length - 1; i >= 0; i--) {
+            if (digits[i] < 9) {
+                digits[i]++;
+                return digits;
             } else {
-                result.add(current);
-                current = intervals.get(i);
+                digits[i] = 0;
             }
         }
 
-        result.add(current);
+        int[] result = new int[digits.length + 1];
+        result[0] = 1;
+
         return result;
     }
 
@@ -189,7 +205,7 @@ public class ArrayAndNumbers {
     }
 
     /**
-     * Merge Sorted Array
+     * Merge Sorted Array.
      *
      * Given two sorted integer arrays A and B, merge B into A as one sorted
      * array.
@@ -209,21 +225,25 @@ public class ArrayAndNumbers {
      * @return: void
      */
     @tags.Array
+    @tags.TwoPointers
     @tags.SortedArray
+    @tags.Company.Bloomberg
     @tags.Company.Facebook
+    @tags.Company.Microsoft
+    @tags.Status.OK
     public void mergeSortedArray(int[] A, int m, int[] B, int n) {
         if (A == null || B == null || A.length < m + n) {
             return;
         }
 
-        while (m > 0 || n > 0) {
-            if (n == 0 || (m > 0 && A[m - 1] >= B[n - 1])) {
-                A[m + n - 1] = A[m - 1];
-                m--;
-            } else {
-                A[m + n - 1] = B[n - 1];
-                n--;
-            }
+        while (m > 0 && n > 0) {
+            A[m + n - 1] = A[m - 1] > B[n - 1] ? A[--m] : B[--n];
+        }
+
+        // if numbers left in nums2
+        while (n > 0) {
+            A[n - 1] = B[n - 1];
+            n--;
         }
     }
 
@@ -262,7 +282,7 @@ public class ArrayAndNumbers {
     }
 
     /**
-     * Product of Array Exclude Itself.
+     * Product of Array Exclude Itself (Product of Array Except Self).
      *
      * Given an integers array A. Define B[i] = A[0] * ... * A[i-1] * A[i+1] *
      * ... * A[n-1], calculate B WITHOUT divide operation.
@@ -277,11 +297,13 @@ public class ArrayAndNumbers {
     @tags.Array
     @tags.ForwardBackwardTraversal
     @tags.Source.LintCode
+    @tags.Source.LeetCode
     @tags.Company.Amazon
     @tags.Company.Apple
     @tags.Company.Facebook
     @tags.Company.LinkedIn
     @tags.Company.Microsoft
+    @tags.Status.NeedPractice
     public ArrayList<Long> productExcludeItself(ArrayList<Integer> A) {
         if (A == null || A.size() == 0) {
             return new ArrayList<>();
@@ -289,28 +311,21 @@ public class ArrayAndNumbers {
 
         int n = A.size();
 
-        long[] forward = new long[n];
-        forward[0] = A.get(0);
+        long[] before = new long[n]; // product before i
+        before[0] = 1;
         for (int i = 1; i < n; i++) {
-            forward[i] = forward[i - 1] * A.get(i);
+            before[i] = before[i - 1] * A.get(i - 1);
         }
 
-        long[] backward = new long[n];
-        backward[n - 1] = A.get(n - 1);
+        long[] after = new long[n]; // product after i
+        after[n - 1] = 1;
         for (int i = n - 2; i >= 0; i--) {
-            backward[i] = backward[i + 1] * A.get(i);
+            after[i] = after[i + 1] * A.get(i + 1);
         }
-        
+
         ArrayList<Long> result = new ArrayList<>();
         for (int i = 0; i < n; i++) {
-            long left = 1, right = 1;
-            if (i != 0) {
-                left = forward[i - 1];
-            }
-            if (i != n - 1) {
-                right = backward[i + 1];
-            }
-            result.add(left * right);
+            result.add(before[i] * after[i]);
         }
         return result;
     }
@@ -350,35 +365,1173 @@ public class ArrayAndNumbers {
     }
 
     /**
-     * Find the Missing Number (Missing Number).
+     * Game of Life.
      *
-     * Given an array contains N numbers of 0 .. N, find which number doesn't
-     * exist in the array.
+     * According to the Wikipedia's article: "The Game of Life, also known
+     * simply as Life, is a cellular automaton devised by the British
+     * mathematician John Horton Conway in 1970."
      *
-     * Example: Given N = 3 and the array [0, 1, 3], return 2.
+     * Given a board with m by n cells, each cell has an initial state live (1)
+     * or dead (0). Each cell interacts with its eight neighbors (horizontal,
+     * vertical, diagonal) using the following four rules (taken from the above
+     * Wikipedia article):
      *
-     * Challenge: Do it in-place with O(1) extra memory and O(n) time.
+     * Any live cell with fewer than two live neighbors dies, as if caused by
+     * under-population. Any live cell with two or three live neighbors lives on
+     * to the next generation. Any live cell with more than three live neighbors
+     * dies, as if by over-population.. Any dead cell with exactly three live
+     * neighbors becomes a live cell, as if by reproduction.
      *
-     * @param nums:
-     *            an array of integers
-     * @return: an integer
+     * Write a function to compute the next state (after one update) of the
+     * board given its current state.
+     *
+     * Follow up: Could you solve it in-place? Remember that the board needs to
+     * be updated at the same time: You cannot update some cells first and then
+     * use their updated values to update other cells. In this question, we
+     * represent the board using a 2D array. In principle, the board is
+     * infinite, which would cause problems when the active area encroaches the
+     * border of the array. How would you address these problems?
+     *
+     * @param board
      */
     @tags.Array
-    @tags.Math
-    @tags.BitManipulation
-    @tags.Greedy
-    @tags.Company.Bloomberg
-    @tags.Company.Microsoft
-    public int findMissing(int[] nums) {
-        int sum = 0, len = nums.length;
-        for (int i = 0; i < len; i++) {
-            sum += nums[i];
+    @tags.Company.Dropbox
+    @tags.Company.Google
+    @tags.Company.Snapchat
+    public void gameOfLife(int[][] board) {
+        if (board == null || board.length == 0 || board[0].length == 0) {
+            return;
         }
-        return len * (len + 1) / 2 - sum;
+
+        int m = board.length, n = board[0].length;
+        int live = 1, dead = 0, willDie = -1, willLive = 2;
+
+        for (int i = 0; i < m; i++) {
+            for (int j = 0; j < n; j++) {
+                // count live neighbors
+                int liveNeighbor = 0;
+                int[] x = { -1, -1, -1, 0, 0, 1, 1, 1 };
+                int[] y = { -1, 0, 1, -1, 1, -1, 0, 1 };
+                for (int k = 0; k < 8; k++) {
+                    int xx = i + x[k], yy = j + y[k];
+                    if (xx >= 0 && xx < m && yy >= 0 && yy < n) {
+                        if (board[xx][yy] == live || board[xx][yy] == willDie) {
+                            liveNeighbor++;
+                        }
+                    }
+                }
+
+                // mark this cell for next gen
+                if (board[i][j] == live
+                        && (liveNeighbor > 3 || liveNeighbor < 2)) {
+                    board[i][j] = willDie;
+                } else if (board[i][j] == dead && liveNeighbor == 3) {
+                    board[i][j] = willLive;
+                }
+            }
+        }
+
+        // settle down to next gen
+        for (int i = 0; i < m; i++) {
+            for (int j = 0; j < n; j++) {
+                if (board[i][j] == willLive) {
+                    board[i][j] = live;
+                } else if (board[i][j] == willDie) {
+                    board[i][j] = dead;
+                }
+            }
+        }
+    }
+
+    /**
+     * Spiral Matrix.
+     *
+     * Given a matrix of m x n elements (m rows, n columns), return all elements
+     * of the matrix in spiral order.
+     *
+     * Example: Given the following matrix: [ [ 1, 2, 3 ], [ 4, 5, 6 ], [ 7, 8,
+     * 9 ] ] You should return [1,2,3,6,9,8,7,4,5].
+     *
+     * @param matrix
+     *            a matrix of m x n elements
+     * @return an integer list
+     */
+    @tags.Array
+    @tags.Matrix
+    @tags.Company.Google
+    @tags.Company.Microsoft
+    @tags.Company.Uber
+    @tags.Status.Hard
+    public List<Integer> spiralOrder(int[][] matrix) {
+        List<Integer> result = new ArrayList<>();
+        if (matrix == null || matrix.length == 0 || matrix[0].length == 0) {
+            return result;
+        }
+
+        int m = matrix.length, n = matrix[0].length;
+        int iMin = 0, iMax = m - 1, jMin = 0, jMax = n - 1;
+        int i = 0, j = 0, direction = 0;
+
+        while (result.size() < m * n - 1) {
+            switch (direction) {
+            case 0: // right
+                if (j + 1 <= jMax) {
+                    result.add(matrix[i][j]);
+                    j++;
+                } else {
+                    iMin = i + 1;
+                    direction = (direction + 1) % 4;
+                }
+                break;
+            case 1: // down
+                if (i + 1 <= iMax) {
+                    result.add(matrix[i][j]);
+                    i++;
+                } else {
+                    jMax = j - 1;
+                    direction = (direction + 1) % 4;
+                }
+                break;
+            case 2: // left
+                if (j - 1 >= jMin) {
+                    result.add(matrix[i][j]);
+                    j--;
+                } else {
+                    iMax = i - 1;
+                    direction = (direction + 1) % 4;
+                }
+                break;
+            case 3: // up
+                if (i - 1 >= iMin) {
+                    result.add(matrix[i][j]);
+                    i--;
+                } else {
+                    jMin = j + 1;
+                    direction = (direction + 1) % 4;
+                }
+                break;
+            }
+        }
+
+        result.add(matrix[i][j]);
+        return result;
+    }
+
+    /** Spiral Matrix - another shorter solution. */
+    public List<Integer> spiralOrder2(int[][] matrix) {
+        List<Integer> result = new ArrayList<>();
+        if (matrix == null || matrix.length == 0 || matrix[0].length == 0) {
+            return result;
+        }
+        int m = matrix.length, n = matrix[0].length;
+        int loop = 0;
+
+        while (result.size() < m * n) {
+            // top side
+            for (int i = loop, j = loop; j < n - loop; j++) {
+                result.add(matrix[i][j]);
+            }
+
+            // right side
+            for (int i = loop + 1, j = n - loop - 1; i < m - loop; i++) {
+                result.add(matrix[i][j]);
+            }
+
+            // if only one row or col remains, necessary when m != n
+            if (m - 2 * loop == 1 || n - 2 * loop == 1) {
+                break;
+            }
+
+            // bottom side
+            for (int i = m - loop - 1, j = n - loop - 2; j >= loop; j--) {
+                result.add(matrix[i][j]);
+            }
+
+            // left side
+            for (int i = m - loop - 2, j = loop; i > loop; i--) {
+                result.add(matrix[i][j]);
+            }
+
+            loop++;
+        }
+
+        return result;
+    }
+
+    /**
+     * Spiral Matrix II.
+     *
+     * Given an integer n, generate a square matrix filled with elements from 1
+     * to n^2 in spiral order.
+     *
+     * Example: Given n = 3, You should return the following matrix: [ [ 1, 2, 3
+     * ], [ 8, 9, 4 ], [ 7, 6, 5 ] ].
+     *
+     * @param n
+     *            an integer
+     * @return a square matrix
+     */
+    @tags.Array
+    public int[][] generateMatrix(int n) {
+        int[][] matrix = new int[n][n];
+        int loop = 0, num = 1;
+
+        while (num <= n * n) {
+            // top
+            for (int i = loop, j = loop; j < n - loop; j++) {
+                matrix[i][j] = num++;
+            }
+
+            // right
+            for (int i = loop + 1, j = n - loop - 1; i < n - loop; i++) {
+                matrix[i][j] = num++;
+            }
+
+            // bottom
+            for (int i = n - loop - 1, j = n - loop - 2; j >= loop; j--) {
+                matrix[i][j] = num++;
+            }
+
+            // left
+            for (int i = n - loop - 2, j = loop; i >= loop + 1; i--) {
+                matrix[i][j] = num++;
+            }
+
+            loop++;
+        }
+
+        return matrix;
+    }
+
+    /**
+     * Reverse Pairs.
+     *
+     * For an array A, if i < j, and A [i] > A [j], called (A [i], A [j]) is a
+     * reverse pair. return total of reverse pairs in A.
+     *
+     * Example: Given A = [2, 4, 1, 3, 5] , (2, 1), (4, 1), (4, 3) are reverse
+     * pairs. return 3
+     *
+     * @param A
+     *            an array
+     * @return total of reverse pairs
+     */
+    @tags.Array
+    @tags.MergeSort
+    @tags.Status.Hard
+    public long reversePairs(int[] A) {
+        return mergeSort(A, 0, A.length - 1);
+    }
+
+    private int mergeSort(int[] A, int start, int end) {
+        if (start >= end) { // > just for empty input
+            return 0;
+        }
+
+        int mid = (start + end) >>> 1;
+        int count = mergeSort(A, start, mid);
+        count += mergeSort(A, mid + 1, end);
+        count += merge(A, start, mid + 1, end);
+        return count;
+    }
+
+    private int merge(int[] A, int start1, int start2, int end) {
+        int count = 0;
+        int[] temp = new int[end - start1 + 1];
+
+        int i = 0, i1 = start1, i2 = start2;
+        while (i1 < start2 && i2 <= end) {
+            if (A[i1] <= A[i2]) {
+                temp[i++] = A[i1++];
+            } else {
+                count += start2 - i1;
+                temp[i++] = A[i2++];
+            }
+        }
+
+        while (i1 < start2) {
+            temp[i++] = A[i1++];
+        }
+        while (i2 <= end) {
+            temp[i++] = A[i2++];
+        }
+
+        for (i = 0; i < temp.length; i++) {
+            A[start1++] = temp[i];
+        }
+
+        return count;
+    }
+
+    /**
+     * Set Matrix Zeroes.
+     *
+     * Given a m x n matrix, if an element is 0, set its entire row and column
+     * to 0. Do it in place.
+     *
+     * Example: Given a matrix [ [1,2], [0,3] ], return [ [0,2], [0,0] ].
+     *
+     * Challenge: Did you use extra space? A straight forward solution using
+     * O(mn) space is probably a bad idea. A simple improvement uses O(m + n)
+     * space, but still not the best solution. Could you devise a constant space
+     * solution?
+     *
+     * @param matrix:
+     *            A list of lists of integers
+     * @return: Void
+     */
+    @tags.Matrix
+    @tags.Source.CrackingTheCodingInterview
+    @tags.Company.Cloudera
+    @tags.Company.Microsoft
+    @tags.Status.OK
+    public void setZeroes(int[][] matrix) {
+        if (matrix == null || matrix.length == 0 || matrix[0].length == 0) {
+            return;
+        }
+
+        int m = matrix.length, n = matrix[0].length;
+
+        // check first row and column
+        boolean firstRow = false, firstCol = false;
+        for (int i = 0; i < n; i++) {
+            if (matrix[0][i] == 0) {
+                firstRow = true;
+                break;
+            }
+        }
+        for (int i = 0; i < m; i++) {
+            if (matrix[i][0] == 0) {
+                firstCol = true;
+                break;
+            }
+        }
+
+        // traverse and mark
+        for (int i = 1; i < m; i++) {
+            for (int j = 1; j < n; j++) {
+                if (matrix[i][j] == 0) {
+                    matrix[i][0] = matrix[0][j] = 0;
+                }
+            }
+        }
+
+        // set 0
+        for (int i = 1; i < m; i++) {
+            for (int j = 1; j < n; j++) {
+                if (matrix[0][j] == 0 || matrix[i][0] == 0) {
+                    matrix[i][j] = 0;
+                }
+            }
+        }
+
+        // mark first row and first column
+        if (firstRow) {
+            for (int i = 0; i < n; i++) {
+                matrix[0][i] = 0;
+            }
+        }
+        if (firstCol) {
+            for (int i = 0; i < m; i++) {
+                matrix[i][0] = 0;
+            }
+        }
+    }
+
+    /**
+     * Sparse Matrix Multiplication.
+     *
+     * Given two sparse matrices A and B, return the result of AB.
+     *
+     * You may assume that A's column number is equal to B's row number.
+     *
+     * @param A
+     * @param B
+     * @return
+     */
+    @tags.HashTable
+    @tags.Company.Facebook
+    @tags.Company.LinkedIn
+    public int[][] multiply(int[][] A, int[][] B) {
+        if (A == null || B == null) {
+            return null;
+        }
+
+        int mA = A.length, nA = A[0].length;
+        int mB = B.length, nB = B[0].length;
+        Map<Integer, Set<Integer>> rowToCol = new HashMap<>();
+        Map<Integer, Set<Integer>> colToRow = new HashMap<>();
+
+        // record non-zero columns for each row
+        for (int i = 0; i < mA; i++) {
+            rowToCol.put(i, new HashSet<Integer>());
+            for (int j = 0; j < nA; j++) {
+                if (A[i][j] != 0) {
+                    rowToCol.get(i).add(j);
+                }
+            }
+        }
+
+        // record non-zero rows for each column
+        for (int j = 0; j < nB; j++) {
+            colToRow.put(j, new HashSet<Integer>());
+            for (int i = 0; i < mB; i++) {
+                if (B[i][j] != 0) {
+                    colToRow.get(j).add(i);
+                }
+            }
+        }
+
+        // multiply two matrix
+        int[][] result = new int[mA][nB];
+        for (int i = 0; i < mA; i++) {
+            for (int j = 0; j < nB; j++) {
+                for (Integer col : rowToCol.get(i)) {
+                    if (colToRow.get(j).contains(col)) {
+                        result[i][j] += A[i][col] * B[col][j];
+                    }
+                }
+            }
+        }
+
+        return result;
+    }
+
+    /**
+     * Find the Celebrity.
+     *
+     * Suppose you are at a party with n people (labeled from 0 to n - 1) and
+     * among them, there may exist one celebrity. The definition of a celebrity
+     * is that all the other n - 1 people know him/her but he/she does not know
+     * any of them.
+     *
+     * Now you want to find out who the celebrity is or verify that there is not
+     * one. The only thing you are allowed to do is to ask questions like: "Hi,
+     * A. Do you know B?" to get information of whether A knows B. You need to
+     * find out the celebrity (or verify there is not one) by asking as few
+     * questions as possible (in the asymptotic sense).
+     *
+     * You are given a helper function bool knows(a, b) which tells you whether
+     * A knows B. Implement a function int findCelebrity(n), your function
+     * should minimize the number of calls to knows.
+     *
+     * Note: There will be exactly one celebrity if he/she is in the party.
+     * Return the celebrity's label if there is a celebrity in the party. If
+     * there is no celebrity, return -1.
+     *
+     * @param n
+     * @return
+     */
+    @tags.Array
+    @tags.Matrix
+    @tags.Company.Facebook
+    @tags.Company.LinkedIn
+    public int findCelebrity(int n) {
+        // everyone is possible
+        Set<Integer> possible = new HashSet<>();
+        for (int i = 0; i < n; i++) {
+            possible.add(i);
+        }
+
+        // loop through every comibnation
+        for (int i = 0; i < n; i++) {
+            for (int j = 0; j < n; j++) {
+                // no possible one, return -1
+                if (possible.isEmpty()) {
+                    return -1;
+                }
+
+                // skip diagnal and impossible pairs
+                if (i != j && (possible.contains(i) || possible.contains(j))) {
+                    if (knows(i, j)) {
+                        // i knows j means i is not celebrity
+                        possible.remove(i);
+                    } else {
+                        // i doesn't know j means j is not celebrity
+                        possible.remove(j);
+                    }
+                }
+            }
+        }
+
+        // expect single result only
+        if (possible.size() != 1) {
+            return -1;
+        }
+
+        return possible.iterator().next();
+    }
+
+    // Created for compilation
+    private boolean knows(int a, int b) {
+        return false;
+    }
+
+    /**
+     * Rotate Array.
+     *
+     * Rotate an array of n elements to the right by k steps.
+     *
+     * For example, with n = 7 and k = 3, the array [1,2,3,4,5,6,7] is rotated
+     * to [5,6,7,1,2,3,4].
+     *
+     * Note: Try to come up as many solutions as you can, there are at least 3
+     * different ways to solve this problem.
+     *
+     * Hint: Could you do it in-place with O(1) extra space?
+     *
+     * @param nums
+     * @param k
+     */
+    @tags.Array
+    @tags.Company.Bloomberg
+    @tags.Company.LinkedIn
+    @tags.Company.Microsoft
+    public void rotate(int[] nums, int k) {
+        int n = nums.length;
+        k = k % n;
+        if (k != 0) {
+           reverse(nums, 0, n - k - 1);
+            reverse(nums, n - k, n - 1);
+            reverse(nums, 0, n - 1);
+        }
+    }
+
+    private void reverse(int[] nums, int start, int end) {
+        while (start < end) {
+            int tmp = nums[start];
+            nums[start] = nums[end];
+            nums[end] = tmp;
+            start++;
+            end--;
+        }
     }
 
     // ---------------------------------------------------------------------- //
-    // ----------------------------- TWO POINTERS --------------------------- //
+    // ----------------------- Shortest Word Distance ----------------------- //
+    // ---------------------------------------------------------------------- //
+
+    /**
+     * Shortest Word Distance.
+     *
+     * Given a list of words and two words word1 and word2, return the shortest
+     * distance between these two words in the list.
+     *
+     * For example, Assume that words = ["practice", "makes", "perfect",
+     * "coding", "makes"]. Given word1 = ¡°coding¡±, word2 = ¡°practice¡±, return 3.
+     * Given word1 = "makes", word2 = "coding", return 1.
+     *
+     * Note: You may assume that word1 does not equal to word2, and word1 and
+     * word2 are both in the list.
+     *
+     * @param words
+     * @param word1
+     * @param word2
+     * @return
+     */
+    @tags.Array
+    @tags.Company.LinkedIn
+    @tags.Status.NeedPractice
+    public int shortestDistance(String[] words, String word1, String word2) {
+        if (words == null || words.length == 0) {
+            throw new IllegalArgumentException();
+        }
+
+        int n = words.length;
+        int pos1 = findWord(words, word1, 0);
+        int pos2 = findWord(words, word2, 0);
+        int min = n - 1;
+
+        while (true) {
+            min = Math.min(min, Math.abs(pos1 - pos2));
+            if (pos1 < pos2) {
+                int next = findWord(words, word1, pos1 + 1);
+                if (next != n) {
+                    pos1 = next;
+                    continue;
+                } else {
+                    break;
+                }
+            }
+            if (pos2 < pos1) {
+                int next = findWord(words, word2, pos2 + 1);
+                if (next != n) {
+                    pos2 = next;
+                    continue;
+                } else {
+                    break;
+                }
+            }
+        }
+
+        return min;
+    }
+
+    private int findWord(String[] words, String word, int pos) {
+        for (int i = pos; i < words.length; i++) {
+            if (words[i].equals(word)) {
+                return i;
+            }
+        }
+        return words.length;
+    }
+
+    /**
+     * Shortest Word Distance II.
+     *
+     * This is a follow up of Shortest Word Distance. The only difference is now
+     * you are given the list of words and your method will be called repeatedly
+     * many times with different parameters. How would you optimize it? Design a
+     * class which receives a list of words in the constructor, and implements a
+     * method that takes two words word1 and word2 and return the shortest
+     * distance between these two words in the list.
+     *
+     * For example, Assume that words = ["practice", "makes", "perfect",
+     * "coding", "makes"].
+     *
+     * Given word1 = ¡°coding¡±, word2 = ¡°practice¡±, return 3. Given word1 =
+     * "makes", word2 = "coding", return 1.
+     *
+     * Note: You may assume that word1 does not equal to word2, and word1 and
+     * word2 are both in the list.
+     */
+    @tags.Design
+    @tags.HashTable
+    @tags.Company.LinkedIn
+    @tags.Status.NeedPractice
+    public class WordDistance {
+        // Your WordDistance object will be instantiated and called as such:
+        // WordDistance wordDistance = new WordDistance(words);
+        // wordDistance.shortest("word1", "word2");
+        // wordDistance.shortest("anotherWord1", "anotherWord2");
+        Map<String, List<Integer>> map = new HashMap<>();
+
+        public WordDistance(String[] words) {
+            for (int i = 0; i < words.length; i++) {
+                if (map.containsKey(words[i])) {
+                    map.get(words[i]).add(i);
+                } else {
+                    List<Integer> list = new ArrayList<>();
+                    list.add(i);
+                    map.put(words[i], list);
+                }
+            }
+        }
+
+        /**
+         * You can further cache the result of this method.
+         */
+        public int shortest(String word1, String word2) {
+            List<Integer> list1 = map.get(word1), list2 = map.get(word2);
+            int pos1 = 0, pos2 = 0;
+            int min = Math.abs(list1.get(0) - list2.get(0));
+
+            while (pos1 < list1.size() && pos2 < list2.size()) {
+                min = Math.min(min, Math.abs(list1.get(pos1) - list2.get(pos2)));
+                if (list1.get(pos1) < list2.get(pos2)) {
+                    pos1++;
+                } else {
+                    pos2++;
+                }
+            }
+
+            return min;
+        }
+    }
+
+    /**
+     * Shortest Word Distance III.
+     *
+     * This is a follow up of Shortest Word Distance. The only difference is now
+     * word1 could be the same as word2. Given a list of words and two words
+     * word1 and word2, return the shortest distance between these two words in
+     * the list. word1 and word2 may be the same and they represent two
+     * individual words in the list.
+     *
+     * For example, Assume that words = ["practice", "makes", "perfect",
+     * "coding", "makes"].
+     *
+     * Given word1 = ¡°makes¡±, word2 = ¡°coding¡±, return 1. Given word1 = "makes",
+     * word2 = "makes", return 3.
+     *
+     * Note: You may assume word1 and word2 are both in the list.
+     *
+     * @param words
+     * @param word1
+     * @param word2
+     * @return
+     */
+    @tags.Array
+    @tags.Company.LinkedIn
+    @tags.Status.NeedPractice
+    public int shortestWordDistance(String[] words, String word1, String word2) {
+        int pos1 = findWord(words, word1, 0, -1);
+        int pos2 = findWord(words, word2, 0, pos1);
+        int n = words.length;
+        int min = n - 1;
+
+        while (pos1 < n && pos2 < n) {
+            System.out.println(pos1 + " " + pos2);
+            min = Math.min(min, Math.abs(pos1 - pos2));
+            if (pos1 < pos2) {
+                pos1 = findWord(words, word1, pos1 + 1, pos2);
+            } else {
+                pos2 = findWord(words, word2, pos2 + 1, pos1);
+            }
+        }
+
+        return min;
+    }
+
+    private int findWord(String[] words, String word, int pos, int except) {
+        for (int i = pos; i < words.length; i++) {
+            if (i == except)
+                continue;
+            if (words[i].equals(word)) {
+                return i;
+            }
+        }
+        return words.length;
+    }
+
+    // ---------------------------------------------------------------------- //
+    // ------------------------------ H-Index ------------------------------- //
+    // ---------------------------------------------------------------------- //
+
+    /**
+     * H-Index.
+     *
+     * Given an array of citations (each citation is a non-negative integer) of
+     * a researcher, write a function to compute the researcher's h-index.
+     *
+     * According to the definition of h-index on Wikipedia: "A scientist has
+     * index h if h of his/her N papers have at least h citations each, and the
+     * other N - h papers have no more than h citations each."
+     *
+     * For example, given citations = [3, 0, 6, 1, 5], which means the
+     * researcher has 5 papers in total and each of them had received 3, 0, 6,
+     * 1, 5 citations respectively. Since the researcher has 3 papers with at
+     * least 3 citations each and the remaining two with no more than 3
+     * citations each, his h-index is 3.
+     *
+     * Note: If there are several possible values for h, the maximum one is
+     * taken as the h-index.
+     *
+     * Hint: An easy approach is to sort the array first.
+     *
+     * @param citations
+     * @return
+     */
+    @tags.Sort
+    @tags.Company.Bloomberg
+    @tags.Company.Facebook
+    @tags.Company.Google
+    @tags.Status.NeedPractice
+    public int hIndex(int[] citations) {
+        // nlogn solution
+
+        Arrays.sort(citations);
+        int h = 0;
+
+        for (int i = 0; i < citations.length; i++) {
+            int countOrCitation = Math.min(citations.length - i, citations[i]);
+            h = Math.max(h, countOrCitation);
+        }
+
+        return h;
+    }
+
+    /** H-Index. */
+    @tags.HashTable
+    @tags.Company.Bloomberg
+    @tags.Company.Facebook
+    @tags.Company.Google
+    @tags.Status.NeedPractice
+    public int hIndex2(int[] citations) {
+        // O(n) time and O(n) space
+
+        int n = citations.length;
+        int[] citationCount = new int[n + 1];
+        for (int i = 0; i < n; i++) {
+            citationCount[citations[i] > n ? n : citations[i]]++;
+        }
+
+        int sum = 0;
+        for (int i = n; i >= 1; i--) {
+            sum += citationCount[i];
+            if (sum >= i) {
+                return i;
+            }
+        }
+        return 0;
+    }
+
+    /**
+     * H-Index II.
+     *
+     * Follow up for H-Index: What if the citations array is sorted in ascending
+     * order? Could you optimize your algorithm?
+     *
+     * Hint: Expected runtime complexity is in O(log n) and the input is sorted.
+     *
+     * @param citations
+     * @return
+     */
+    @tags.BinarySearch
+    @tags.Company.Facebook
+    public int hIndexII(int[] citations) {
+        // O(n) time
+
+        int n = citations.length;
+        int start = 0, end = n - 1;
+        while (start <= end) {
+            int mid = (start + end) >>> 1;
+            int count = n - mid;
+            int citation = citations[mid];
+            if (count > citation) {
+                start = mid + 1;
+            } else if (count < citation) {
+                end = mid - 1;
+            } else {
+                return count;
+            }
+        }
+        return n - start;
+    }
+
+    // ---------------------------------------------------------------------- //
+    // ----------------------------- INTERVALS ------------------------------ //
+    // ---------------------------------------------------------------------- //
+
+    /**
+     * Merge Intervals.
+     *
+     * Given a collection of intervals, merge all overlapping intervals.
+     *
+     * Example: Given intervals => merged intervals:
+     * [[2,3],[2,2],[3,3],[1,3],[5,7],[2,2],[4,6]] => [[1,3],[4,7]].
+     *
+     * Challenge: O(n log n) time and O(1) extra space.
+     *
+     * @param intervals,
+     *            a collection of intervals
+     * @return: A new sorted interval list.
+     */
+    @tags.Array
+    @tags.Sort
+    @tags.Company.Bloomberg
+    @tags.Company.Facebook
+    @tags.Company.Google
+    @tags.Company.LinkedIn
+    @tags.Company.Microsoft
+    @tags.Company.Twitter
+    @tags.Company.Yelp
+    @tags.Status.NeedPractice
+    public List<Interval> merge(List<Interval> intervals) {
+        List<Interval> result = new ArrayList<>();
+        if (intervals == null || intervals.size() == 0) {
+            return result;
+        }
+
+        Collections.sort(intervals, new Comparator<Interval>() {
+            @Override
+            public int compare(Interval i1, Interval i2) {
+                return i1.start - i2.start;
+            }
+        });
+
+        Interval current = intervals.get(0);
+        current = new Interval(current.start, current.end);
+        for (int i = 1; i < intervals.size(); i++) {
+            if (current.end >= intervals.get(i).start) {
+                current.end = Math.max(current.end, intervals.get(i).end);
+            } else {
+                result.add(current);
+                current = intervals.get(i);
+            }
+        }
+
+        result.add(current);
+        return result;
+    }
+
+    /**
+     * Summary Ranges.
+     *
+     * Given a sorted integer array without duplicates, return the summary of
+     * its ranges.
+     *
+     * For example, given [0,1,2,4,5,7], return ["0->2","4->5","7"].
+     *
+     * @param nums
+     * @return
+     */
+    @tags.Array
+    @tags.Company.Google
+    @tags.Status.OK
+    public List<String> summaryRanges(int[] nums) {
+        List<String> result = new ArrayList<>();
+        if (nums == null || nums.length == 0) {
+            return result;
+        }
+
+        int start = nums[0], end = nums[0];
+        for (int i = 1; i < nums.length; i++) {
+            if (nums[i] == end + 1) {
+                end++;
+            } else {
+                result.add(rangeToString(start, end));
+
+                start = nums[i];
+                end = nums[i];
+            }
+        }
+
+        result.add(rangeToString(start, end));
+
+        return result;
+    }
+
+    private String rangeToString(int start, int end) {
+        if (start == end) {
+            return String.valueOf(start);
+        }
+
+        StringBuilder sb = new StringBuilder();
+        sb.append(start);
+        sb.append("->");
+        sb.append(end);
+        return sb.toString();
+    }
+
+    /**
+     * Insert Interval.
+     *
+     * Given a non-overlapping interval list which is sorted by start point.
+     * Insert a new interval into it, make sure the list is still in order and
+     * non-overlapping (merge intervals if necessary).
+     *
+     * Example: Insert [2, 5] into [[1,2], [5,9]], we get [[1,9]]. Insert [3, 4]
+     * into [[1,2], [5,9]], we get [[1,2], [3,4], [5,9]].
+     *
+     * @param intervals:
+     *            Sorted interval list.
+     * @param newInterval:
+     *            A new interval.
+     * @return: A new sorted interval list.
+     */
+    @tags.BasicImplementation
+    @tags.Array
+    @tags.Sort
+    @tags.Company.Facebook
+    @tags.Company.Google
+    @tags.Company.LinkedIn
+    @tags.Status.NeedPractice
+    public ArrayList<Interval> insert(ArrayList<Interval> intervals,
+            Interval newInterval) {
+        ArrayList<Interval> result = new ArrayList<Interval>();
+
+        for (Interval interval : intervals) {
+            if (newInterval == null || interval.end < newInterval.start) {
+                result.add(interval);
+            } else {
+                if (interval.start > newInterval.end) {
+                    result.add(newInterval);
+                    result.add(interval);
+                    newInterval = null;
+                } else {
+                    newInterval.start = Math.min(interval.start,
+                            newInterval.start);
+                    newInterval.end = Math.max(interval.end, newInterval.end);
+                }
+            }
+        }
+
+        if (newInterval != null) {
+            result.add(newInterval);
+        }
+
+        return result;
+    }
+
+    /**
+     * Missing Ranges.
+     *
+     * Given a sorted integer array where the range of elements are [lower,
+     * upper] inclusive, return its missing ranges.
+     *
+     * For example, given [0, 1, 3, 50, 75], lower = 0 and upper = 99, return
+     * ["2", "4->49", "51->74", "76->99"].
+     *
+     * @param nums
+     * @param lower
+     * @param upper
+     * @return
+     */
+    @tags.Array
+    @tags.Company.Google
+    public List<String> findMissingRanges(int[] nums, int lower, int upper) {
+        List<String> ranges = new ArrayList<>();
+        if (nums == null) {
+            return ranges;
+        }
+
+        for (int i = 0; i < nums.length; i++) {
+            if (lower < nums[i]) {
+                ranges.add(rangeToString(lower, nums[i] - 1));
+            }
+            lower = nums[i] + 1;
+        }
+
+        if (lower <= upper) {
+            ranges.add(rangeToString(lower, upper));
+        }
+
+        return ranges;
+    }
+
+    /**
+     * Number of Airplanes in the Sky.
+     *
+     * Given an interval list which are flying and landing time of the flight.
+     * How many airplanes are on the sky at most?
+     *
+     * Notice: If landing and flying happens at the same time, we consider
+     * landing should happen at first.
+     *
+     * Example: For interval list [ [1,10], [2,3], [5,8], [4,7] ], Return 3.
+     *
+     * @param intervals:
+     *            An interval array
+     * @return: Count of airplanes are in the sky.
+     */
+    @tags.Array
+    @tags.Interval
+    @tags.Source.LintCode
+    public int countOfAirplanes(List<Interval> airplanes) {
+        class Point {
+            int time;
+            int isEnter;
+
+            public Point(int time, int isEnter) {
+                this.time = time;
+                this.isEnter = isEnter; // 1 for enter, -1 for exit
+            }
+        }
+
+        List<Point> list = new ArrayList<>();
+        for (Interval i : airplanes) {
+            list.add(new Point(i.start, 1));
+            list.add(new Point(i.end, -1));
+        }
+        Collections.sort(list, new Comparator<Point>() {
+            @Override
+            public int compare(Point p1, Point p2) {
+                if (p1.time != p2.time) {
+                    return p1.time - p2.time;
+                } else {
+                    return p1.isEnter - p2.isEnter;
+                }
+            }
+        });
+
+        int count = 0, max = 0;
+        for (int i = 0; i < list.size(); i++) {
+            count += list.get(i).isEnter;
+            max = Math.max(max, count);
+        }
+
+        return max;
+    }
+
+    /**
+     * Meeting Rooms.
+     *
+     * Given an array of meeting time intervals consisting of start and end
+     * times [[s1,e1],[s2,e2],...] (si < ei), determine if a person could attend
+     * all meetings.
+     *
+     * For example, Given [[0, 30],[5, 10],[15, 20]], return false.
+     *
+     * @param intervals
+     * @return
+     */
+    @tags.Sort
+    @tags.Company.Facebook
+    public boolean canAttendMeetings(Interval[] intervals) {
+        Arrays.sort(intervals, new Comparator<Interval>() {
+            @Override
+            public int compare(Interval i1, Interval i2) {
+                if (i1.start != i2.start) {
+                    return i1.start - i2.start;
+                }
+                return i1.end - i2.end;
+            }
+        });
+
+        for (int i = 1; i < intervals.length; i++) {
+            if (intervals[i].start < intervals[i - 1].end) {
+                return false;
+            }
+        }
+
+        return true;
+    }
+
+    /**
+     * Meeting Rooms II.
+     *
+     * Given an array of meeting time intervals consisting of start and end
+     * times [[s1,e1],[s2,e2],...] (si < ei), find the minimum number of
+     * conference rooms required.
+     *
+     * For example, Given [[0, 30],[5, 10],[15, 20]], return 2.
+     *
+     * @param intervals
+     * @return
+     */
+    @tags.Sort
+    @tags.Company.Facebook
+    public int minMeetingRooms(Interval[] intervals) {
+        class Point {
+            int time;
+            int isStart;
+
+            public Point(int time, int isStart) {
+                this.time = time;
+                this.isStart = isStart;
+            }
+        }
+
+        List<Point> points = new ArrayList<>();
+        for (Interval i : intervals) {
+            points.add(new Point(i.start, 1));
+            points.add(new Point(i.end, -1));
+        }
+
+        Collections.sort(points, new Comparator<Point>() {
+            @Override
+            public int compare(Point p1, Point p2) {
+                if (p1.time != p2.time) {
+                    return p1.time - p2.time;
+                }
+                return p1.isStart - p2.isStart;
+            }
+        });
+
+        int max = 0;
+        int count = 0;
+
+        for (Point p : points) {
+            count += p.isStart;
+            max = Math.max(max, count);
+        }
+
+        return max;
+    }
+
+    // ---------------------------------------------------------------------- //
+    // ---------------------- PARTITION, TWO POINTERS ----------------------- //
     // ---------------------------------------------------------------------- //
 
     /**
@@ -490,6 +1643,63 @@ public class ArrayAndNumbers {
             nums[++last] = nums[n - 1];
         }
         return last + 1;
+    }
+
+    /** Remove Duplicates from Sorted Array II - cleaner solution. */
+    @tags.Array
+    @tags.TwoPointers
+    @tags.Company.Facebook
+    public int removeDuplicatesII2(int[] nums) {
+        if (nums == null || nums.length == 0) {
+            return 0;
+        }
+
+        int last = 0;
+        for (int i = 1; i < nums.length; i++) {
+            if (nums[i] != nums[last] || last == 0
+                    || nums[i] != nums[last - 1]) {
+                nums[++last] = nums[i];
+            }
+        }
+        return last + 1;
+    }
+
+    /**
+     * Partition Array by Odd and Even.
+     *
+     * Partition an integers array into odd number first and even number second.
+     *
+     * Example: Given [1, 2, 3, 4], return [1, 3, 2, 4].
+     *
+     * Challenge: Do it in-place.
+     *
+     * @param nums:
+     *            an array of integers
+     * @return: nothing
+     */
+    @tags.Array
+    @tags.TwoPointers
+    @tags.Status.OK
+    public void partitionArray(int[] nums) {
+        if (nums == null) {
+            return;
+        }
+
+        for (int start = 0, end = nums.length - 1; start < end; start++, end--) {
+            while (nums[start] % 2 == 1) {
+                start++;
+            }
+            while (nums[end] % 2 == 0) {
+                end--;
+            }
+            
+            // swap
+            if (start < end) {
+                int tmp = nums[start];
+                nums[start] = nums[end];
+                nums[end] = tmp;
+            }
+        }
     }
 
     /**
@@ -634,6 +1844,120 @@ public class ArrayAndNumbers {
         }
     }
 
+    /**
+     * Minimum Window Substring.
+     *
+     * Given a string S and a string T, find the minimum window in S which will
+     * contain all the characters in T in complexity O(n).
+     *
+     * For example, S = "ADOBECODEBANC" T = "ABC" Minimum window is "BANC".
+     *
+     * Note: If there is no such window in S that covers all characters in T,
+     * return the empty string "".
+     *
+     * If there are multiple such windows, you are guaranteed that there will
+     * always be only one unique minimum window in S.
+     *
+     * @param s: A string
+     * @param t: A string
+     * @return: A string denote the minimum window
+     *          Return "" if there is no such a string
+     */
+    @tags.String
+    @tags.HashTable
+    @tags.TwoPointers
+    @tags.Company.Facebook
+    @tags.Company.LinkedIn
+    @tags.Company.Snapchat
+    @tags.Company.Uber
+    public String minWindow(String s, String t) {
+        Map<Character, Integer> tCount = new HashMap<>();
+
+        // count target as negative numbers
+        for (int i = 0; i < t.length(); i++) {
+            char c = t.charAt(i);
+            if (!tCount.containsKey(c)) {
+                tCount.put(c, -1);
+            } else {
+                tCount.put(c, tCount.get(c) - 1);
+            }
+        }
+
+        // target is empty
+        if (tCount.isEmpty()) {
+            return "";
+        }
+
+        String window = "";
+        Set<Character> less = new HashSet<>(tCount.keySet());
+        int start = 0, end = -1;
+
+        while (true) {
+            if (less.isEmpty()) { // valid window
+                // shorter window
+                if (window.length() == 0
+                        || (end - start + 1 < window.length())) {
+                    window = s.substring(start, end + 1);
+                }
+
+                // shrink the start
+                char c = s.charAt(start);
+                if (tCount.containsKey(c)) {
+                    tCount.put(c, tCount.get(c) - 1);
+                    if (tCount.get(c) == -1) {
+                        less.add(c);
+                    }
+                }
+                start++;
+            } else { // lacking chars
+                // expand the end
+                end++;
+                if (end == s.length()) {
+                    return window;
+                }
+                char c = s.charAt(end);
+                if (tCount.containsKey(c)) {
+                    tCount.put(c, tCount.get(c) + 1);
+                    if (tCount.get(c) == 0) {
+                        less.remove(c);
+                    }
+                }
+            }
+        }
+    }
+
+    /**
+     * Move Zeroes.
+     *
+     * Given an array nums, write a function to move all 0's to the end of it
+     * while maintaining the relative order of the non-zero elements.
+     *
+     * For example, given nums = [0, 1, 0, 3, 12], after calling your function,
+     * nums should be [1, 3, 12, 0, 0].
+     *
+     * Note: You must do this in-place without making a copy of the array.
+     * Minimize the total number of operations.
+     *
+     * @param nums
+     */
+    @tags.Array
+    @tags.TwoPointers
+    @tags.Company.Bloomberg
+    @tags.Company.Facebook
+    public void moveZeroes(int[] nums) {
+        int last = 0;
+
+        for (int i = 0; i < nums.length; i++) {
+            if (nums[i] != 0) {
+                nums[last++] = nums[i];
+            }
+        }
+
+        for (int i = last; i < nums.length; i++) {
+            nums[i] = 0;
+        }
+    }
+
     // ---------------------------------------------------------------------- //
     // -------------------------- Partition, Top K -------------------------- //
     // ---------------------------------------------------------------------- //
@@ -758,42 +2082,45 @@ public class ArrayAndNumbers {
     @tags.QuickSort
     @tags.Heap
     @tags.DivideAndConquer
+    @tags.Status.NeedPractice
     public int kthLargestElement(int k, int[] nums) {
         if (nums == null || nums.length < k) {
             throw new IllegalArgumentException();
         }
-        return getKthNumber(nums, 0, nums.length - 1, k);
+        return getKthNumber(k, nums, 0, nums.length - 1);
     }
 
-    private int getKthNumber(int[] nums, int start, int end, int k) {
+    private int getKthNumber(int k, int[] nums, int start, int end) {
         int pivot = partition(nums, start, end);
-        if (pivot + 1 == k) {
-            return nums[pivot];
-        } else if (pivot + 1 < k) {
-            return getKthNumber(nums, pivot + 1, end, k);
+        if (pivot < k - 1) {
+            return getKthNumber(k, nums, pivot + 1, end);
+        } else if (pivot > k - 1) {
+            return getKthNumber(k, nums, start, pivot - 1);
         } else {
-            return getKthNumber(nums, start, pivot - 1, k);
+            return nums[pivot];
         }
     }
 
     private int partition(int[] nums, int start, int end) {
         int pivot = start;
-        while (start < end) {
-            while (start < end && nums[end] <= nums[pivot]) {
-                end--;
-            }
-            while (start < end && nums[start] >= nums[pivot]) {
+        while (start <= end) {
+            while (start <= end && nums[start] >= nums[pivot]) {
                 start++;
             }
+            while (start <= end && nums[end] <= nums[pivot]) {
+                end--;
+            }
 
-            int temp = nums[start];
-            nums[start] = nums[end];
-            nums[end] = temp;
+            if (start < end) {
+                int temp = nums[start];
+                nums[start] = nums[end];
+                nums[end] = temp;
+            }
         }
-        int temp = nums[start];
-        nums[start] = nums[pivot];
-        nums[pivot] = temp;
-        return start;
+        int temp = nums[pivot];
+        nums[pivot] = nums[end];
+        nums[end] = temp;
+        return end;
     }
 
     /**
@@ -814,28 +2141,38 @@ public class ArrayAndNumbers {
     @tags.Array
     @tags.SortedArray
     @tags.DivideAndConquer
+    @tags.BinarySearch
+    @tags.Company.Adobe
+    @tags.Company.Apple
+    @tags.Company.Dropbox
     @tags.Company.Google
+    @tags.Company.Microsoft
     @tags.Company.Uber
+    @tags.Company.Yahoo
     @tags.Company.Zenefits
-    public double findMedianSortedArrays(int[] A, int[] B) {
-        if (A == null || B == null) {
+    @tags.Status.Hard
+    public double findMedianSortedArrays(int[] nums1, int[] nums2) {
+        if (nums1 == null || nums2 == null
+                || nums1.length + nums2.length == 0) {
             return 0;
         }
-        int len = A.length + B.length;
+
+        int len = nums1.length + nums2.length;
+
         if (len % 2 == 1) {
-            return findKth(A, 0, B, 0, len / 2 + 1);
+            return findKth(nums1, 0, nums2, 0, len / 2 + 1);
         } else {
-            int left = findKth(A, 0, B, 0, len / 2);
-            int right = findKth(A, 0, B, 0, len / 2 + 1);
+            int left = findKth(nums1, 0, nums2, 0, len / 2);
+            int right = findKth(nums1, 0, nums2, 0, len / 2 + 1);
             return (left + right) / 2.0;
         }
     }
 
-    private int findKth(int[] A, int aStart, int[] B, int bStart, int k) {
-        if (aStart >= A.length) {
+    // k is 1-based, not index
+    public int findKth(int[] A, int aStart, int[] B, int bStart, int k) {
+        if (aStart == A.length) {
             return B[bStart + k - 1];
-        }
-        if (bStart >= B.length) {
+        } else if (bStart == B.length) {
             return A[aStart + k - 1];
         }
 
@@ -843,12 +2180,12 @@ public class ArrayAndNumbers {
             return Math.min(A[aStart], B[bStart]);
         }
 
-        int aNum = aStart + k / 2 - 1 < A.length ? A[aStart + k / 2 - 1]
-                : Integer.MAX_VALUE;
-        int bNum = bStart + k / 2 - 1 < B.length ? B[bStart + k / 2 - 1]
-                : Integer.MAX_VALUE;
+        int aNum = aStart + k / 2 - 1 >= A.length ? Integer.MAX_VALUE
+                : A[aStart + k / 2 - 1];
+        int bNum = bStart + k / 2 - 1 >= B.length ? Integer.MAX_VALUE
+                : B[bStart + k / 2 - 1];
 
-        if (aNum < bNum) {
+        if (aNum <= bNum) {
             return findKth(A, aStart + k / 2, B, bStart, k - k / 2);
         } else {
             return findKth(A, aStart, B, bStart + k / 2, k - k / 2);
@@ -1103,7 +2440,7 @@ public class ArrayAndNumbers {
     // ---------------------------------------------------------------------- //
 
     /**
-     * Subarray Sum
+     * Subarray Sum.
      *
      * Given an integer array, find a subarray where the sum of numbers is zero.
      * Your code should return the index of the first number and the index of
@@ -1411,7 +2748,7 @@ public class ArrayAndNumbers {
     }
 
     /**
-     * Maximum Subarray
+     * Maximum Subarray.
      *
      * Given an array of integers, find a contiguous subarray which has the
      * largest sum.
@@ -1434,7 +2771,9 @@ public class ArrayAndNumbers {
     @tags.DivideAndConquer
     @tags.Greedy
     @tags.Enumeration
+    @tags.Company.Bloomberg
     @tags.Company.LinkedIn
+    @tags.Company.Microsoft
     @tags.Source.LintCode
     @tags.Status.OK
     public int maxSubArray(int[] nums) {
@@ -1478,7 +2817,7 @@ public class ArrayAndNumbers {
     @tags.Enumeration
     @tags.ForwardBackwardTraversal
     @tags.Source.LintCode
-    @tags.Status.OK
+    @tags.Status.NeedPractice
     public int maxTwoSubArrays(ArrayList<Integer> nums) {
         if (nums == null || nums.size() < 2) {
             return 0;
@@ -1530,8 +2869,10 @@ public class ArrayAndNumbers {
     @tags.Subarray
     @tags.DynamicProgramming
     @tags.Source.LintCode
-    @tags.Status.SuperHard
+    @tags.Status.Hard
     public int maxSubArray(int[] nums, int k) {
+        // may need to discuss about the optimization
+
         int n = nums.length;
         int[][] maxToHere = new int[n + 1][k + 1];
         int[][] maxGlobal = new int[n + 1][k + 1];
@@ -1655,7 +2996,7 @@ public class ArrayAndNumbers {
     }
 
     /**
-     * Maximum Product Subarray
+     * Maximum Product Subarray.
      *
      * Find the contiguous subarray within an array (containing at least one
      * number) which has the largest product.
@@ -1671,7 +3012,7 @@ public class ArrayAndNumbers {
     @tags.Subarray
     @tags.DynamicProgramming
     @tags.Company.LinkedIn
-    @tags.Status.NeedPractice
+    @tags.Status.OK
     public int maxProduct(int[] nums) {
         if (nums == null || nums.length == 0) {
             return 0;
@@ -1693,6 +3034,63 @@ public class ArrayAndNumbers {
         }
 
         return max;
+    }
+
+    /**
+     * Maximum Size Subarray Sum Equals k.
+     *
+     * Given an array nums and a target value k, find the maximum length of a
+     * subarray that sums to k. If there isn't one, return 0 instead.
+     *
+     * Note: The sum of the entire nums array is guaranteed to fit within the
+     * 32-bit signed integer range.
+     *
+     * Example 1: Given nums = [1, -1, 5, -2, 3], k = 3, return 4. (because the
+     * subarray [1, -1, 5, -2] sums to 3 and is the longest)
+     *
+     * Example 2: Given nums = [-2, -1, 2, 1], k = 1, return 2. (because the
+     * subarray [-1, 2] sums to 1 and is the longest)
+     *
+     * Follow Up: Can you do it in O(n) time?
+     *
+     * @param nums
+     * @param k
+     * @return
+     */
+    @tags.HashTable
+    @tags.Company.Facebook
+    @tags.Company.Palantir
+    @tags.Status.Hard
+    public int maxSubArrayLen(int[] nums, int k) {
+        if (nums == null || nums.length == 0) {
+            return 0;
+        }
+
+        int n = nums.length;
+        int[] sums = new int[n + 1];
+
+        // get prefix sum array
+        for (int i = n - 1; i >= 0; i--) {
+            sums[i] = sums[i + 1] + nums[i];
+        }
+
+        Map<Integer, Integer> map = new HashMap<>();
+        int maxLen = 0;
+
+        for (int i = n; i >= 0; i--) {
+            int x = sums[i] - k;
+            if (map.containsKey(x)) {
+                int len = map.get(x) - i;
+                if (maxLen < len) {
+                    maxLen = len;
+                }
+            }
+            if (!map.containsKey(sums[i])) {
+                map.put(sums[i], i);
+            }
+        }
+
+        return maxLen;
     }
 
     // ---------------------------------------------------------------------- //
@@ -1736,7 +3134,10 @@ public class ArrayAndNumbers {
     @tags.Company.Uber
     @tags.Company.Yahoo
     @tags.Company.Yelp
+    @tags.Status.OK
     public int[] twoSum(int[] numbers, int target) {
+        // use map instead of 2 pointers since sorting is nlogn
+
         int[] result = new int[2];
         if (numbers == null || numbers.length < 2) {
             return result;
@@ -1794,6 +3195,53 @@ public class ArrayAndNumbers {
         }
 
         return result;
+    }
+
+    /**
+     * Two Sum III - Data structure design.
+     *
+     * Design and implement a TwoSum class. It should support the following
+     * operations: add and find.
+     *
+     * add - Add the number to an internal data structure. find - Find if there
+     * exists any pair of numbers which sum is equal to the value.
+     *
+     * For example, add(1); add(3); add(5); find(4) -> true. find(7) -> false.
+     */
+    @tags.Design
+    @tags.HashTable
+    @tags.Company.LinkedIn
+    public class TwoSum {
+        // Your TwoSum object will be instantiated and called as such:
+        // TwoSum twoSum = new TwoSum();
+        // twoSum.add(number);
+        // twoSum.find(value);
+
+        Map<Integer, Integer> nums = new HashMap<>();
+
+        // Add the number to an internal data structure.
+        public void add(int number) {
+            if (nums.containsKey(number)) {
+                nums.put(number, nums.get(number) + 1);
+            } else {
+                nums.put(number, 1);
+            }
+        }
+
+        // Find if there exists any pair of numbers which sum is equal to the
+        // value.
+        public boolean find(int value) {
+            for (Integer first : nums.keySet()) {
+                int second = value - first;
+                if (nums.containsKey(second)) {
+                    if (first == second && nums.get(second) == 1) {
+                        continue;
+                    }
+                    return true;
+                }
+            }
+            return false;
+        }
     }
 
     /**
@@ -1924,20 +3372,18 @@ public class ArrayAndNumbers {
     @tags.Array
     @tags.TwoPointers
     @tags.Company.Google
+    @tags.Status.NeedPractice
     public int threeSumSmaller(int[] nums, int target) {
         Arrays.sort(nums);
         int count = 0;
 
         for (int i = 0; i < nums.length; i++) {
-            int newTarget = target - nums[i];
-            int start = i + 1, end = nums.length - 1;
-            while (start < end) {
-                int twoSum = nums[start] + nums[end];
-                if (twoSum < newTarget) {
-                    count += end - start;
-                    start++;
+            for (int j = i + 1, k = nums.length - 1; j < k;) {
+                if (nums[i] + nums[j] + nums[k] >= target) {
+                    k--;
                 } else {
-                    end--;
+                    count += k - j;
+                    j++;
                 }
             }
         }
@@ -2565,74 +4011,6 @@ public class ArrayAndNumbers {
         }
 
         return max;
-    }
-
-    /**
-     * Largest Rectangle in Histogram
-     * 
-     * Given n non-negative integers representing the histogram's bar height
-     * where the width of each bar is 1, find the area of largest rectangle in
-     * the histogram.
-     */
-    public int largestRectangleArea(int[] height) {
-        int largest = 0;
-
-        Stack<Integer> stack = new Stack<Integer>();
-        int index = 0;
-        while (index < height.length || !stack.isEmpty()) {
-            if (index < height.length && (stack.isEmpty()
-                    || height[index] >= height[stack.peek()])) {
-                stack.push(index++);
-            } else {
-                int end = index - 1;
-                int h = height[stack.pop()];
-                while (!stack.isEmpty() && height[stack.peek()] == h) {
-                    stack.pop();
-                }
-                int start = stack.isEmpty() ? -1 : stack.peek();
-                largest = Math.max(largest, h * (end - start));
-            }
-        }
-
-        return largest;
-    }
-
-    /**
-     * Given a 2D binary matrix filled with 0's and 1's, find the largest
-     * rectangle containing all ones and return its area.
-     */
-    public int maximalRectangle(char[][] matrix) {
-        int m = matrix.length;
-        if (m == 0)
-            return 0;
-        int n = matrix[0].length;
-        if (n == 0)
-            return 0;
-        int[][] rectangles = new int[m][n];
-
-        // pre-process first row
-        for (int i = 0; i < n; i++) {
-            if (matrix[0][i] == '1') {
-                rectangles[0][i] = 1;
-            }
-        }
-
-        // pre-process other rows
-        for (int i = 1; i < m; i++) {
-            for (int j = 0; j < n; j++) {
-                if (matrix[i][j] == '1')
-                    rectangles[i][j] = rectangles[i - 1][j] + 1;
-            }
-        }
-
-        int area = 0;
-
-        // calculate largest rectangle for each row
-        for (int i = 0; i < m; i++) {
-            area = Math.max(area, largestRectangleArea(rectangles[i]));
-        }
-
-        return area;
     }
 
     // ---------------------------------------------------------------------- //

@@ -5,12 +5,15 @@ import org.junit.Test;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
+import java.util.Deque;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
+import java.util.NoSuchElementException;
 import java.util.PriorityQueue;
 import java.util.Queue;
 import java.util.Set;
@@ -49,6 +52,27 @@ public class DataStructure {
             this.val = val;
             this.left = this.right = null;
         }
+    }
+
+    /**
+     * This is the interface that allows for creating nested lists. You should
+     * not implement it, or speculate about its implementation
+     */
+    public interface NestedInteger {
+
+        // @return true if this NestedInteger holds a single integer,
+        // rather than a nested list.
+        public boolean isInteger();
+
+        // @return the single integer that this NestedInteger holds,
+        // if it holds a single integer
+        // Return null if this NestedInteger holds a nested list
+        public Integer getInteger();
+
+        // @return the nested list that this NestedInteger holds,
+        // if it holds a nested list
+        // Return null if this NestedInteger holds a single integer
+        public List<NestedInteger> getList();
     }
 
     // ---------------------------------------------------------------------- //
@@ -323,7 +347,7 @@ public class DataStructure {
      */
     @tags.Array
     @tags.HashTable
-    @tags.Status.SuperHard
+    @tags.Status.Hard
     public int longestConsecutive(int[] num) {
         if (num == null || num.length == 0) {
             return 0;
@@ -442,6 +466,421 @@ public class DataStructure {
         }
     }
 
+    /**
+     * Longest Absolute File Path.
+     *
+     * Suppose we abstract our file system by a string in the following manner:
+     * The string "dir\n\tsubdir1\n\tsubdir2\n\t\tfile.ext" represents: The
+     * directory dir contains an empty sub-directory subdir1 and a sub-directory
+     * subdir2 containing a file file.ext. The string
+     * "dir\n\tsubdir1\n\t\tfile1.ext\n\t\tsubsubdir1\n\tsubdir2\n\t\tsubsubdir2\n\t\t\tfile2.ext"
+     * represents: The directory dir contains two sub-directories subdir1 and
+     * subdir2. subdir1 contains a file file1.ext and an empty second-level
+     * sub-directory subsubdir1. subdir2 contains a second-level sub-directory
+     * subsubdir2 containing a file file2.ext. We are interested in finding the
+     * longest (number of characters) absolute path to a file within our file
+     * system.
+     *
+     * For example, in the second example above, the longest absolute path is
+     * "dir/subdir2/subsubdir2/file2.ext", and its length is 32 (not including
+     * the double quotes). Given a string representing the file system in the
+     * above format, return the length of the longest absolute path to file in
+     * the abstracted file system. If there is no file in the system, return 0.
+     *
+     * Note: The name of a file contains at least a . and an extension. The name
+     * of a directory or sub-directory will not contain a .. Time complexity
+     * required: O(n) where n is the size of the input string.
+     *
+     * Notice that a/aa/aaa/file1.txt is not the longest file path, if there is
+     * another path aaaaaaaaaaaaaaaaaaaaa/sth.png.
+     *
+     * @param input
+     * @return
+     */
+    @tags.Company.Google
+    @tags.Status.Hard
+    public int lengthLongestPath(String input) {
+        Stack<Integer> stack = new Stack<>();
+        String[] files = input.split("\n");
+        int max = 0;
+
+        for (String file : files) {
+            // find the level of the dir or file
+            int level = file.lastIndexOf('\t') + 1;
+
+            // remove deeper path
+            while (stack.size() > level) {
+                stack.pop();
+            }
+
+            if (isFile(file, level)) {
+                max = Math.max(max,
+                        calculatePrefixLength(stack) + file.length() - level);
+            } else {
+                stack.push(file.length() - level);
+            }
+        }
+
+        return max;
+    }
+
+    private boolean isFile(String file, int start) {
+        for (int i = start; i < file.length(); i++) {
+            if (file.charAt(i) == '.') {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    private int calculatePrefixLength(Stack<Integer> stack) {
+        int len = 0;
+        for (Integer i : stack) {
+            len += i;
+            len++;
+        }
+        return len;
+    }
+
+    // ---------------------------------------------------------------------- //
+    // ------------------------------ Iterator ------------------------------ //
+    // ---------------------------------------------------------------------- //
+
+    /**
+     * Flatten List.
+     *
+     * Given a list, each element in the list can be a list or integer. flatten
+     * it into a simply list with integers.
+     *
+     * Notice: If the element in the given list is a list, it can contain list
+     * too.
+     *
+     * Example: Given [1,2,[1,2]], return [1,2,1,2]. Given [4,[3,[2,[1]]]],
+     * return [4,3,2,1].
+     *
+     * Challenge: Do it in non-recursive.
+     *
+     * Use Queue/Stack for non-recursive solution.
+     *
+     * @param nestedList
+     *            a list of NestedInteger
+     * @return a list of integer
+     */
+    @tags.DFS
+    @tags.BFS
+    @tags.Recursion
+    @tags.NonRecursion
+    @tags.Source.LintCode
+    public List<Integer> flatten(List<NestedInteger> nestedList) {
+        List<Integer> result = new ArrayList<>();
+        flatten(result, nestedList);
+        return result;
+    }
+
+    private void flatten(List<Integer> result, List<NestedInteger> nestedList) {
+        if (nestedList == null)
+            return;
+
+        for (NestedInteger ni : nestedList) {
+            if (ni.isInteger()) {
+                result.add(ni.getInteger());
+            } else {
+                flatten(result, ni.getList());
+            }
+        }
+    }
+
+    /**
+     * Flatten Nested List Iterator.
+     *
+     * Given a nested list of integers, implement an iterator to flatten it.
+     * Each element is either an integer, or a list -- whose elements may also
+     * be integers or other lists.
+     *
+     * Example: Given the list [[1,1],2,[1,1]], By calling next repeatedly until
+     * hasNext returns false, the order of elements returned by next should be:
+     * [1,1,2,1,1]. Given the list [1,[4,[6]]], By calling next repeatedly until
+     * hasNext returns false, the order of elements returned by next should be:
+     * [1,4,6].
+     *
+     * Your NestedIterator object will be instantiated and called as such:
+     * NestedIterator i = new NestedIterator(nestedList); while (i.hasNext())
+     * v.add(i.next());
+     *
+     * This problem is easy without implementing remove().
+     */
+    @tags.Recursion
+    @tags.Stack
+    @tags.DataStructureDesign
+    @tags.Company.Google
+    @tags.Status.NeedPractice
+    public class NestedIterator implements Iterator<Integer> {
+        Stack<Iterator<NestedInteger>> stack = new Stack<>();
+        Integer next = null;
+
+        public NestedIterator(List<NestedInteger> nestedList) {
+            stack.push(nestedList.iterator());
+        }
+
+        // @return {int} the next element in the iteration
+        @Override
+        public Integer next() {
+            if (!hasNext()) {
+                throw new NoSuchElementException();
+            }
+            Integer result = next;
+            next = null;
+            return result;
+        }
+
+        // @return {boolean} true if the iteration has more element or false
+        @Override
+        public boolean hasNext() {
+            while (!stack.isEmpty() && next == null) {
+                if (stack.peek().hasNext()) {
+                    NestedInteger ni = stack.peek().next();
+                    if (ni.isInteger()) {
+                        next = ni.getInteger();
+                    } else {
+                        stack.push(ni.getList().iterator());
+                    }
+                } else {
+                    stack.pop();
+                }
+            }
+
+            return next != null;
+        }
+
+        @Override
+        public void remove() {
+        }
+    }
+
+    /**
+     * Nested List Weight Sum.
+     *
+     * Given a nested list of integers, return the sum of all integers in the
+     * list weighted by their depth. Each element is either an integer, or a
+     * list -- whose elements may also be integers or other lists.
+     *
+     * Example: Given the list [[1,1],2,[1,1]], return 10. (four 1's at depth 2,
+     * one 2 at depth 1, 4 * 1 * 2 + 1 * 2 * 1 = 10) Given the list [1,[4,[6]]],
+     * return 27. (one 1 at depth 1, one 4 at depth 2, and one 6 at depth 3; 1 +
+     * 42 + 63 = 27)
+     *
+     * @param nestedList
+     * @return
+     */
+    @tags.DFS
+    @tags.Company.LinkedIn
+    @tags.Status.OK
+    public int depthSum(List<NestedInteger> nestedList) {
+        return depthSum(nestedList, 1);
+    }
+
+    private int depthSum(List<NestedInteger> nestedList, int depth) {
+        int sum = 0;
+        for (int i = 0; i < nestedList.size(); i++) {
+            NestedInteger ni = nestedList.get(i);
+            if (ni.isInteger()) {
+                sum += ni.getInteger() * depth;
+            } else {
+                sum += depthSum(ni.getList(), depth + 1);
+            }
+        }
+        return sum;
+    }
+
+    /**
+     * Nested List Weight Sum II.
+     *
+     * Given a nested list of integers, return the sum of all integers in the
+     * list weighted by their depth. Each element is either an integer, or a
+     * list -- whose elements may also be integers or other lists. Different
+     * from the previous question where weight is increasing from root to leaf,
+     * now the weight is defined from bottom up. i.e., the leaf level integers
+     * have weight 1, and the root level integers have the largest weight.
+     *
+     * Example 1: Given the list [[1,1],2,[1,1]], return 8. (four 1's at depth
+     * 1, one 2 at depth 2).
+     *
+     * Example 2: Given the list [1,[4,[6]]], return 17. (one 1 at depth 3, one
+     * 4 at depth 2, and one 6 at depth 1; 1*3 + 4*2 + 6*1 = 17).
+     */
+    @tags.DFS
+    @tags.Company.LinkedIn
+    public int depthSumInverse(List<NestedInteger> nestedList) {
+        // Very elegant solution, much better than calculate depth.
+        // Another solution is calculate the unweighted as a list first, then
+        // weight them.
+
+        if (nestedList == null) {
+            return 0;
+        }
+
+        int unweighted = 0;
+        int weighted = 0;
+
+        while (!nestedList.isEmpty()) {
+            List<NestedInteger> nextLevel = new ArrayList<>();
+
+            for (NestedInteger ni : nestedList) {
+                if (ni.isInteger()) {
+                    unweighted += ni.getInteger();
+                } else {
+                    nextLevel.addAll(ni.getList());
+                }
+            }
+
+            // weighted is always aggregating the full result of unweighted
+            weighted += unweighted;
+            nestedList = nextLevel;
+        }
+
+        return weighted;
+    }
+
+    // ---------------------------------------------------------------------- //
+    // -------------------------------- Stack ------------------------------- //
+    // ---------------------------------------------------------------------- //
+
+    /**
+     * Valid Parentheses
+     *
+     * Given a string containing just the characters '(', ')', '{', '}', '[' and
+     * ']', determine if the input string is valid.
+     *
+     * The brackets must close in the correct order, "()" and "()[]{}" are all
+     * valid but "(]" and "([)]" are not.
+     */
+    @tags.Stack
+    @tags.String
+    @tags.Company.Airbnb
+    @tags.Company.Amazon
+    @tags.Company.Bloomberg
+    @tags.Company.Facebook
+    @tags.Company.Google
+    @tags.Company.Microsoft
+    @tags.Company.Twitter
+    @tags.Company.Zenefits
+    @tags.Status.NeedPractice
+    public boolean isValid(String s) {
+        Stack<Character> stack = new Stack<>();
+
+        for (int i = 0; i < s.length(); i++) {
+            switch (s.charAt(i)) {
+            case ')':
+                if (stack.isEmpty() || stack.pop() != '(') {
+                    return false;
+                }
+                break;
+            case ']':
+                if (stack.isEmpty() || stack.pop() != '[') {
+                    return false;
+                }
+                break;
+            case '}':
+                if (stack.isEmpty() || stack.pop() != '{') {
+                    return false;
+                }
+                break;
+            default:
+                stack.push(s.charAt(i));
+                break;
+            }
+        }
+
+        return stack.isEmpty();
+    }
+
+    /**
+     * Longest Valid Parentheses.
+     *
+     * Given a string containing just the characters '(' and ')', find the
+     * length of the longest valid (well-formed) parentheses substring.
+     *
+     * An example is ")()())", where the longest valid parentheses substring is
+     * "()()", which has length = 4.
+     *
+     * DP would work, but this solution is much more elegant.
+     */
+    @tags.Stack
+    @tags.DynamicProgramming
+    @tags.String
+    @tags.Status.Hard
+    public int longestValidParentheses(String s) {
+        Stack<Integer> stack = new Stack<>();
+        int max = 0;
+
+        for (int i = 0; i < s.length(); i++) {
+            if (!stack.isEmpty() && s.charAt(stack.peek()) == '('
+                    && s.charAt(i) == ')') {
+                stack.pop();
+                int lastEnd = stack.isEmpty() ? -1 : stack.peek();
+                max = Math.max(max, i - lastEnd);
+            } else {
+                stack.push(i);
+            }
+        }
+
+        return max;
+    }
+
+    /**
+     * Remove Duplicate Letters.
+     *
+     * Given a string which contains only lowercase letters, remove duplicate
+     * letters so that every letter appear once and only once. You must make
+     * sure your result is the smallest in lexicographical order among all
+     * possible results.
+     *
+     * Example: Given "bcabc", Return "abc". Given "cbacdcbc", Return "acdb".
+     */
+    @tags.Stack
+    @tags.Greedy
+    @tags.Company.Google
+    @tags.Status.Hard
+    public String removeDuplicateLetters(String s) {
+        if (s == null || s.length() < 2) {
+            return s;
+        }
+
+        // count letters
+        Map<Character, Integer> count = new HashMap<>();
+        for (int i = 0; i < s.length(); i++) {
+            char c = s.charAt(i);
+            if (count.containsKey(c)) {
+                count.put(c, count.get(c) + 1);
+            } else {
+                count.put(c, 1);
+            }
+        }
+
+        // find leftmost position each letter can be
+        Set<Character> visited = new HashSet<>();
+        Stack<Character> stack = new Stack<>();
+        for (int i = 0; i < s.length(); i++) {
+            char c = s.charAt(i);
+            if (!visited.contains(c)) {
+                while (!stack.isEmpty() && stack.peek() > c
+                        && count.get(stack.peek()) > 0) {
+                    visited.remove(stack.pop());
+                }
+                stack.push(c);
+                visited.add(c);
+            }
+            count.put(c, count.get(c) - 1);
+        }
+
+        // reverse the stack to a string
+        char[] string = new char[stack.size()];
+        for (int i = string.length - 1; i >= 0; i--) {
+            string[i] = stack.pop();
+        }
+        return String.valueOf(string);
+    }
+
     // ---------------------------------------------------------------------- //
     // --------------------------- Priority Queue --------------------------- //
     // ---------------------------------------------------------------------- //
@@ -473,8 +912,8 @@ public class DataStructure {
         }
 
         // construct min heap
-        PriorityQueue<ListNode> pq = new PriorityQueue<ListNode>(lists.size(),
-                new Comparator<ListNode>() {
+        PriorityQueue<ListNode> minHeap = new PriorityQueue<ListNode>(
+                lists.size(), new Comparator<ListNode>() {
                     @Override
                     public int compare(ListNode n1, ListNode n2) {
                         return n1.val - n2.val;
@@ -484,18 +923,18 @@ public class DataStructure {
         // insert head node of each list
         for (ListNode list : lists) {
             if (list != null) {
-                pq.offer(list);
+                minHeap.offer(list);
             }
         }
 
         // merge
         ListNode dummy = new ListNode(0);
         ListNode prev = dummy;
-        while (!pq.isEmpty()) {
-            prev.next = pq.poll();
+        while (!minHeap.isEmpty()) {
+            prev.next = minHeap.poll();
             prev = prev.next;
             if (prev.next != null) {
-                pq.offer(prev.next);
+                minHeap.offer(prev.next);
             }
         }
 
@@ -567,6 +1006,64 @@ public class DataStructure {
     }
 
     /**
+     * Top K Frequent Elements.
+     *
+     * Given a non-empty array of integers, return the k most frequent elements.
+     *
+     * For example, Given [1,1,1,2,2,3] and k = 2, return [1,2].
+     *
+     * Note: You may assume k is always valid, 1 ¡Ü k ¡Ü number of unique
+     * elements. Your algorithm's time complexity must be better than O(n log
+     * n), where n is the array's size.
+     *
+     * @param nums
+     * @param k
+     * @return
+     */
+    @tags.Heap
+    @tags.PriorityQueue
+    @tags.HashTable
+    @tags.Company.LinkedIn
+    @tags.Company.PocketGems
+    @tags.Company.Yelp
+    public List<Integer> topKFrequent(int[] nums, int k) {
+        // count frequency
+        final Map<Integer, Integer> count = new HashMap<>();
+        for (int i = 0; i < nums.length; i++) {
+            if (!count.containsKey(nums[i])) {
+                count.put(nums[i], 1);
+            } else {
+                count.put(nums[i], count.get(nums[i]) + 1);
+            }
+        }
+
+        // min heap with k elements (nlogk)
+        PriorityQueue<Integer> minHeap = new PriorityQueue<>(k + 1,
+                new Comparator<Integer>() {
+                    @Override
+                    public int compare(Integer i1, Integer i2) {
+                        return count.get(i1) - count.get(i2);
+                    }
+                });
+
+        // compare all numbers' frequency
+        for (Integer num : count.keySet()) {
+            minHeap.offer(num);
+            if (minHeap.size() == k + 1) {
+                minHeap.poll();
+            }
+        }
+
+        // add remaining elements in result
+        List<Integer> topK = new ArrayList<>(k);
+        while (!minHeap.isEmpty()) {
+            topK.add(minHeap.poll());
+        }
+
+        return topK;
+    }
+
+    /**
      * Data Stream Median.
      *
      * Numbers keep coming, return the median of numbers at every time a new
@@ -589,32 +1086,78 @@ public class DataStructure {
     @tags.Status.NeedPractice
     public int[] medianII(int[] nums) {
         if (nums == null || nums.length == 0) {
-            return null;
+            return new int[0];
         }
 
         int n = nums.length;
-        PriorityQueue<Integer> minHeap = new PriorityQueue<>(n / 2 + 1);
-        PriorityQueue<Integer> maxHeap = new PriorityQueue<>(n / 2 + 1,
-                new Comparator<Integer>() {
-                    @Override
-                    public int compare(Integer i1, Integer i2) {
-                        return i2 - i1;
-                    }
-                });
-
         int[] medians = new int[n];
-        for (int i = 0; i < nums.length; i++) {
-            if (minHeap.size() == maxHeap.size()) {
+        PriorityQueue<Integer> maxHeap = new PriorityQueue<>((n + 1) / 2,
+                Collections.reverseOrder());
+        PriorityQueue<Integer> minHeap = new PriorityQueue<>();
+
+        for (int i = 0; i < n; i++) {
+            if (maxHeap.size() == minHeap.size()) {
                 minHeap.offer(nums[i]);
                 maxHeap.offer(minHeap.poll());
             } else {
                 maxHeap.offer(nums[i]);
                 minHeap.offer(maxHeap.poll());
             }
+
             medians[i] = maxHeap.peek();
         }
 
         return medians;
+    }
+
+    /**
+     * Find Median from Data Stream - same as above.
+     *
+     * Median is the middle value in an ordered integer list. If the size of the
+     * list is even, there is no middle value. So the median is the mean of the
+     * two middle value.
+     *
+     * Examples: [2,3,4] , the median is 3. [2,3], the median is (2 + 3) / 2 =
+     * 2.5.
+     *
+     * Design a data structure that supports the following two operations: void
+     * addNum(int num) - Add a integer number from the data stream to the data
+     * structure. double findMedian() - Return the median of all elements so
+     * far.
+     *
+     * For example: add(1), add(2), findMedian() -> 1.5, add(3), findMedian() ->
+     * 2.
+     */
+    @tags.Heap
+    @tags.Design
+    @tags.Company.Google
+    @tags.Status.NeedPractice
+    public class MedianFinder {
+        // Your MedianFinder object will be instantiated and called as such:
+        // MedianFinder mf = new MedianFinder();
+        // mf.addNum(1);
+        // mf.findMedian();
+
+        private PriorityQueue<Integer> small = new PriorityQueue<>(1,
+                Collections.reverseOrder());
+        private PriorityQueue<Integer> large = new PriorityQueue<>();
+
+        // Adds a number into the data structure.
+        public void addNum(int num) {
+            if (small.size() == large.size()) {
+                large.offer(num);
+                small.offer(large.poll());
+            } else {
+                small.offer(num);
+                large.offer(small.poll());
+            }
+        }
+
+        // Returns the median of current data stream
+        public double findMedian() {
+            return small.size() > large.size() ? (double) small.peek()
+                    : ((double) small.peek() + large.peek()) / 2;
+        }
     }
 
     /**
@@ -649,38 +1192,120 @@ public class DataStructure {
         }
 
         int n = nums.length;
-        PriorityQueue<Integer> more = new PriorityQueue<>();
-        PriorityQueue<Integer> less = new PriorityQueue<>(n / 2 + 1,
-                new Comparator<Integer>() {
-                    @Override
-                    public int compare(Integer i1, Integer i2) {
-                        return i2 - i1;
-                    }
-                });
+        PriorityQueue<Integer> maxHeap = new PriorityQueue<>((n + 1) / 2,
+                Collections.reverseOrder());
+        PriorityQueue<Integer> minHeap = new PriorityQueue<>();
 
-        // init 2 min heap with balanced count
-        for (int i = 0; i < k; i++) {
-            more.offer(nums[i]);
-        }
-        for (int i = 0; i < (k + 1) / 2; i++) {
-            less.offer(more.poll());
-        }
-
-        // sliding
-        medians.add(less.peek());
-        for (int i = k; i < n; i++) {
-            if (less.remove(nums[i - k])) {
-                more.offer(nums[i]);
-                less.offer(more.poll());
-            } else {
-                more.remove(nums[i - k]);
-                less.offer(nums[i]);
-                more.offer(less.poll());
+        for (int i = 0; i < n; i++) {
+            if (maxHeap.size() + minHeap.size() == k) {
+                if (!minHeap.remove(nums[i - k])) {
+                    maxHeap.remove(nums[i - k]);
+                }
             }
-            medians.add(less.peek());
+            if (maxHeap.size() <= minHeap.size()) {
+                minHeap.offer(nums[i]);
+                maxHeap.offer(minHeap.poll());
+            } else {
+                maxHeap.offer(nums[i]);
+                minHeap.offer(maxHeap.poll());
+            }
+
+            if (maxHeap.size() + minHeap.size() == k) {
+                medians.add(maxHeap.peek());
+            }
         }
 
         return medians;
+    }
+
+    /**
+     * Sliding Window Maximum.
+     *
+     * Given an array of n integer with duplicate number, and a moving
+     * window(size k), move the window at each iteration from the start of the
+     * array, find the maximum number inside the window at each moving.
+     *
+     * Example: For array [1,2,7,7,8], moving window size k = 3. return [7,7,8].
+     *
+     * At first the window is at the start of the array like this,
+     * [|1,2,7|,7,8], return the maximum 7; then the window move one step
+     * forward.
+     *
+     * [1,|2,7,7|,8], return the maximum 7; then the window move one step
+     * forward again.
+     *
+     * [1,2,|7,7,8|], return the maximum 8;
+     *
+     * Challenge: o(n) time and O(k) memory.
+     *
+     * @param nums:
+     *            A list of integers.
+     * @return: The maximum number inside the window at each moving.
+     */
+    @tags.Deque
+    @tags.Company.Zenefits
+    @tags.Source.LintCode
+    @tags.Status.Hard
+    public ArrayList<Integer> maxSlidingWindow(int[] nums, int k) {
+        ArrayList<Integer> max = new ArrayList<>();
+        Deque<Integer> deque = new LinkedList<>();
+
+        for (int i = 0; i < nums.length; i++) {
+            // first is the max
+            // insert new number next to the larger one (keep descending order)
+
+            while (!deque.isEmpty() && nums[i] > deque.peekLast()) {
+                deque.pollLast();
+            }
+            deque.offerLast(nums[i]);
+
+            if (i >= k && deque.peekFirst() == nums[i - k]) {
+                deque.pollFirst();
+            }
+
+            if (i >= k - 1) {
+                max.add(deque.peekFirst());
+            }
+        }
+
+        return max;
+    }
+
+    /**
+     * Moving Average from Data Stream.
+     *
+     * Given a stream of integers and a window size, calculate the moving
+     * average of all integers in the sliding window.
+     *
+     * For example, MovingAverage m = new MovingAverage(3); m.next(1) = 1,
+     * m.next(10) = (1 + 10) / 2, m.next(3) = (1 + 10 + 3) / 3, m.next(5) = (10
+     * + 3 + 5) / 3.
+     *
+     */
+    @tags.Design
+    @tags.Queue
+    @tags.Company.Google
+    public class MovingAverage {
+        // Your MovingAverage object will be instantiated and called as such:
+        // MovingAverage obj = new MovingAverage(size);
+        // double param_1 = obj.next(val);
+
+        Queue<Integer> queue = new LinkedList<>();
+        int sum, capacity;
+
+        /** Initialize your data structure here. */
+        public MovingAverage(int size) {
+            capacity = size;
+        }
+
+        public double next(int val) {
+            if (queue.size() == capacity) {
+                sum -= queue.poll();
+            }
+            queue.offer(val);
+            sum += val;
+            return (double) sum / queue.size();
+        }
     }
 
     // ---------------------------------------------------------------------- //
@@ -930,17 +1555,19 @@ public class DataStructure {
     @tags.Source.LintCode
     @tags.Status.NeedPractice
     public int nthUglyNumber(int n) {
-        List<Integer> uglyNums = new ArrayList<>();
-        uglyNums.add(1);
+        int[] uglyNums = new int[n];
+        uglyNums[0] = 1;
         int ptr2 = 0, ptr3 = 0, ptr5 = 0;
 
-        while (uglyNums.size() < n) {
-            int n2 = uglyNums.get(ptr2) * 2;
-            int n3 = uglyNums.get(ptr3) * 3;
-            int n5 = uglyNums.get(ptr5) * 5;
+        for (int i = 1; i < n; i++) {
+            int n2 = uglyNums[ptr2] * 2;
+            int n3 = uglyNums[ptr3] * 3;
+            int n5 = uglyNums[ptr5] * 5;
+
             int min = Math.min(n2, n3);
             min = Math.min(min, n5);
-            uglyNums.add(min);
+            uglyNums[i] = min;
+
             if (min == n2) {
                 ptr2++;
             }
@@ -952,7 +1579,7 @@ public class DataStructure {
             }
         }
 
-        return uglyNums.get(n - 1);
+        return uglyNums[n - 1];
     }
 
     /**
@@ -1008,7 +1635,7 @@ public class DataStructure {
     // ---------------------------------------------------------------------- //
 
     /**
-     * LRU Cache
+     * LRU Cache.
      *
      * Design and implement a data structure for Least Recently Used (LRU)
      * cache. It should support the following operations: get and set.
@@ -1021,9 +1648,19 @@ public class DataStructure {
      * least recently used item before inserting a new item.
      */
     @tags.LinkedList
+    @tags.Design
+    @tags.Company.Amazon
+    @tags.Company.Bloomberg
+    @tags.Company.Facebook
     @tags.Company.Google
+    @tags.Company.Microsoft
+    @tags.Company.Palantir
+    @tags.Company.Snapchat
+    @tags.Company.Twitter
     @tags.Company.Uber
+    @tags.Company.Yahoo
     @tags.Company.Zenefits
+    @tags.Status.Hard
     public class LRUCache {
         private LinkedHashMap<Integer, Integer> map;
         private int cacheSize;
@@ -1108,6 +1745,20 @@ public class DataStructure {
     }
 
     /** Raw implementation of LinkedHashMap */
+    @tags.LinkedList
+    @tags.Design
+    @tags.Company.Amazon
+    @tags.Company.Bloomberg
+    @tags.Company.Facebook
+    @tags.Company.Google
+    @tags.Company.Microsoft
+    @tags.Company.Palantir
+    @tags.Company.Snapchat
+    @tags.Company.Twitter
+    @tags.Company.Uber
+    @tags.Company.Yahoo
+    @tags.Company.Zenefits
+    @tags.Status.NeedPractice
     public class MyLRUCacheRaw {
         class Node {
             int key;
@@ -1208,6 +1859,7 @@ public class DataStructure {
     @tags.PriorityQueue
     @tags.HashTable
     @tags.LinkedList
+    @tags.Status.Hard
     public class LFUCache {
         class Node {
             int key;
@@ -1340,14 +1992,14 @@ public class DataStructure {
 
         public void push(int number) {
             stack.push(number);
-            if (minStack.isEmpty() || minStack.peek() >= number) {
+            if (minStack.isEmpty() || minStack.peek() >= number) { // empty case
                 minStack.push(number);
             }
         }
 
         public int pop() {
             int number = stack.pop();
-            if (minStack.peek() == number) {
+            if (minStack.peek() == number) { // easy to get this wrong
                 minStack.pop();
             }
             return number;
@@ -1379,7 +2031,7 @@ public class DataStructure {
      */
     @tags.Stack
     @tags.Array
-    @tags.Status.SuperHard
+    @tags.Status.Hard
     public int largestRectangleArea(int[] height) {
         if (height == null || height.length == 0) {
             return 0;
@@ -1543,6 +2195,81 @@ public class DataStructure {
     // ---------------------------------------------------------------------- //
     // -------------------------------- Trie -------------------------------- //
     // ---------------------------------------------------------------------- //
+    
+    /**
+     * Word Search.
+     *
+     * Given a 2D board and a word, find if the word exists in the grid.
+     *
+     * The word can be constructed from letters of sequentially adjacent cell,
+     * where "adjacent" cells are those horizontally or vertically neighboring.
+     * The same letter cell may not be used more than once.
+     *
+     * Example Given board = [ "ABCE", "SFCS", "ADEE" ]
+     *
+     * word = "ABCCED", -> returns true,
+     * word = "SEE", -> returns true,
+     * word = "ABCB", -> returns false.
+     *
+     * @param board: A list of lists of character
+     * @param word: A string
+     * @return: A boolean
+     */
+    @tags.Array
+    @tags.DFS
+    @tags.Backtracking
+    @tags.Company.Bloomberg
+    @tags.Company.Facebook
+    @tags.Company.Microsoft
+    public boolean exist(char[][] board, String word) {
+        if (board == null || board.length == 0 || board[0].length == 0) {
+            return false;
+        }
+
+        int m = board.length, n = board[0].length;
+
+        for (int i = 0; i < m; i++) {
+            for (int j = 0; j < n; j++) {
+                if (exist(board, i, j, word, 0)) {
+                    return true;
+                }
+            }
+        }
+
+        return false;
+    }
+
+    private boolean exist(char[][] board, int i, int j, String word, int pos) {
+        if (pos == word.length()) {
+            return true;
+        }
+
+        // index out of board
+        int m = board.length, n = board[0].length;
+        if (i < 0 || i >= m || j < 0 || j >= n) {
+            return false;
+        }
+
+        // mismatch
+        char c = board[i][j];
+        if (c != word.charAt(pos)) {
+            return false;
+        }
+
+        // down, right, up, left
+        int[] xs = { 1, 0, -1, 0 };
+        int[] ys = { 0, 1, 0, -1 };
+
+        for (int k = 0; k < 4; k++) {
+            board[i][j] = '#';
+            if (exist(board, i + xs[k], j + ys[k], word, pos + 1)) {
+                return true;
+            }
+            board[i][j] = c;
+        }
+
+        return false;
+    }
 
     /**
      * Word Search II.
@@ -1564,9 +2291,12 @@ public class DataStructure {
      * @return: A list of string
      */
     @tags.Trie
+    @tags.Backtracking
     @tags.Source.LintCode
     @tags.Company.Airbnb
-    @tags.Status.SuperHard
+    @tags.Company.Google
+    @tags.Company.Microsoft
+    @tags.Status.Hard
     public ArrayList<String> wordSearchII(char[][] board,
             ArrayList<String> words) {
         ArrayList<String> result = new ArrayList<>();
@@ -1635,6 +2365,301 @@ public class DataStructure {
     }
 
     // ---------------------------------------------------------------------- //
+    // -------------------------- Range Sum Query --------------------------- //
+    // ---------------------------------------------------------------------- //
+
+    /**
+     * Range Sum Query - Immutable.
+     *
+     * Given an integer array nums, find the sum of the elements between indices
+     * i and j (i ¡Ü j), inclusive.
+     *
+     * Example: Given nums = [-2, 0, 3, -5, 2, -1].
+     *
+     * sumRange(0, 2) -> 1. sumRange(2, 5) -> -1. sumRange(0, 5) -> -3.
+     *
+     * Note: You may assume that the array does not change. There are many calls
+     * to sumRange function.
+     */
+    @tags.DynamicProgramming
+    @tags.Company.Palantir
+    public class NumArray {
+        // Your NumArray object will be instantiated and called as such:
+        // NumArray numArray = new NumArray(nums);
+        // numArray.sumRange(0, 1);
+        // numArray.sumRange(1, 2);
+
+        int[] sum; // sum to the end
+
+        public NumArray(int[] nums) {
+            if (nums == null || nums.length == 0) {
+                sum = new int[1];
+            }
+            sum = new int[nums.length + 1];
+            for (int i = nums.length - 1; i >= 0; i--) {
+                sum[i] = nums[i] + sum[i + 1];
+            }
+        }
+
+        public int sumRange(int i, int j) {
+            return sum[i] - sum[j + 1];
+        }
+    }
+
+    /**
+     * Range Sum Query - Mutable.
+     *
+     * Given an integer array nums, find the sum of the elements between indices
+     * i and j (i ¡Ü j), inclusive.
+     *
+     * The update(i, val) function modifies nums by updating the element at
+     * index i to val. Example: Given nums = [1, 3, 5]
+     *
+     * sumRange(0, 2) -> 9 update(1, 2) sumRange(0, 2) -> 8 Note: The array is
+     * only modifiable by the update function. You may assume the number of
+     * calls to update and sumRange function is distributed evenly.
+     */
+    @tags.SegmentTree
+    @tags.BinaryIndexedTree
+    public class NumArrayII {
+        // Your NumMatrix object will be instantiated and called as such:
+        // NumMatrix numMatrix = new NumMatrix(matrix);
+        // numMatrix.sumRegion(0, 1, 2, 3);
+        // numMatrix.sumRegion(1, 2, 3, 4);
+
+        public NumArrayII(int[] nums) {
+            // TODO
+        }
+
+        void update(int i, int val) {
+
+        }
+
+        public int sumRange(int i, int j) {
+            return 0;
+        }
+    }
+
+    /**
+     * Range Sum Query 2D - Immutable.
+     *
+     * Given a 2D matrix matrix, find the sum of the elements inside the
+     * rectangle defined by its upper left corner (row1, col1) and lower right
+     * corner (row2, col2).
+     *
+     * Example: Given matrix = [ [3, 0, 1, 4, 2], [5, 6, 3, 2, 1], [1, 2, 0, 1,
+     * 5], [4, 1, 0, 1, 7], [1, 0, 3, 0, 5] ].
+     *
+     * sumRegion(2, 1, 4, 3) -> 8. sumRegion(1, 1, 2, 2) -> 11. sumRegion(1, 2,
+     * 2, 4) -> 12.
+     *
+     * Note: You may assume that the matrix does not change. There are many
+     * calls to sumRegion function. You may assume that row1 ¡Ü row2 and col1 ¡Ü
+     * col2.
+     */
+    @tags.DynamicProgramming
+    @tags.Company.Cloudera
+    public class NumMatrix {
+        // Your NumMatrix object will be instantiated and called as such:
+        // NumMatrix numMatrix = new NumMatrix(matrix);
+        // numMatrix.sumRegion(0, 1, 2, 3);
+        // numMatrix.sumRegion(1, 2, 3, 4);
+
+        int[][] sum; // sum to the right bottom corner
+
+        public NumMatrix(int[][] matrix) {
+            if (matrix == null || matrix.length == 0 || matrix[0].length == 0) {
+                sum = new int[1][1];
+                return;
+            }
+
+            int m = matrix.length, n = matrix[0].length;
+            sum = new int[m + 1][n + 1];
+            sum[m - 1][n - 1] = matrix[m - 1][n - 1];
+
+            for (int i = m - 1; i >= 0; i--) {
+                for (int j = n - 1; j >= 0; j--) {
+                    sum[i][j] = matrix[i][j] + sum[i + 1][j] + sum[i][j + 1]
+                            - sum[i + 1][j + 1];
+                }
+            }
+        }
+
+        public int sumRegion(int row1, int col1, int row2, int col2) {
+            return sum[row1][col1] + sum[row2 + 1][col2 + 1]
+                    - sum[row1][col2 + 1] - sum[row2 + 1][col1];
+        }
+    }
+
+    /**
+     * Range Sum Query 2D - Mutable.
+     *
+     * Given a 2D matrix matrix, find the sum of the elements inside the
+     * rectangle defined by its upper left corner (row1, col1) and lower right
+     * corner (row2, col2).
+     *
+     * Example: Given matrix = [ [3, 0, 1, 4, 2], [5, 6, 3, 2, 1], [1, 2, 0, 1,
+     * 5], [4, 1, 0, 1, 7], [1, 0, 3, 0, 5] ]
+     *
+     * sumRegion(2, 1, 4, 3) -> 8. update(3, 2, 2). sumRegion(2, 1, 4, 3) -> 10.
+     * Note: The matrix is only modifiable by the update function. You may
+     * assume the number of calls to update and sumRegion function is
+     * distributed evenly. You may assume that row1 ¡Ü row2 and col1 ¡Ü col2.
+     */
+    @tags.SegmentTree
+    @tags.BinaryIndexedTree
+    @tags.Company.Google
+    public class NumMatrixII {
+        // Your NumMatrix object will be instantiated and called as such:
+        // NumMatrix numMatrix = new NumMatrix(matrix);
+        // numMatrix.sumRegion(0, 1, 2, 3);
+        // numMatrix.update(1, 1, 10);
+        // numMatrix.sumRegion(1, 2, 3, 4);
+
+        public NumMatrixII(int[][] matrix) {
+            // TODO
+        }
+
+        public void update(int row, int col, int val) {
+
+        }
+
+        public int sumRegion(int row1, int col1, int row2, int col2) {
+            return 0;
+        }
+    }
+
+    /**
+     * The Skyline Problem (Building Outline).
+     *
+     * A city's skyline is the outer contour of the silhouette formed by all the
+     * buildings in that city when viewed from a distance. Now suppose you are
+     * given the locations and height of all the buildings as shown on a
+     * cityscape photo (Figure A), write a program to output the skyline formed
+     * by these buildings collectively.
+     *
+     * Buildings Skyline Contour The geometric information of each building is
+     * represented by a triplet of integers [Li, Ri, Hi], where Li and Ri are
+     * the x coordinates of the left and right edge of the ith building,
+     * respectively, and Hi is its height. It is guaranteed that 0 ¡Ü Li, Ri ¡Ü
+     * INT_MAX, 0 < Hi ¡Ü INT_MAX, and Ri - Li > 0. You may assume all buildings
+     * are perfect rectangles grounded on an absolutely flat surface at height
+     * 0.
+     *
+     * For instance, the dimensions of all buildings in Figure A are recorded
+     * as: [ [2 9 10], [3 7 15], [5 12 12], [15 20 10], [19 24 8] ] .
+     *
+     * The output is a list of "key points" (red dots in Figure B) in the format
+     * of [ [x1,y1], [x2, y2], [x3, y3], ... ] that uniquely defines a skyline.
+     * A key point is the left endpoint of a horizontal line segment. Note that
+     * the last key point, where the rightmost building ends, is merely used to
+     * mark the termination of the skyline, and always has zero height. Also,
+     * the ground in between any two adjacent buildings should be considered
+     * part of the skyline contour.
+     *
+     * For instance, the skyline in Figure B should be represented as:[ [2 10],
+     * [3 15], [7 12], [12 0], [15 10], [20 8], [24, 0] ].
+     *
+     * Notes: The number of buildings in any input list is guaranteed to be in
+     * the range [0, 10000]. The input list is already sorted in ascending order
+     * by the left x position Li. The output list must be sorted by the x
+     * position. There must be no consecutive horizontal lines of equal height
+     * in the output skyline. For instance, [...[2 3], [4 5], [7 5], [11 5], [12
+     * 7]...] is not acceptable; the three lines of height 5 should be merged
+     * into one in the final output as such: [...[2 3], [4 5], [12 7], ...]
+     *
+     * @param buildings: A list of lists of integers
+     * @return: Find the outline of those buildings
+     */
+    @tags.Heap
+    @tags.BinaryIndexedTree
+    @tags.SegmentTree
+    @tags.DivideAndConquer
+    @tags.Source.LeetCode
+    @tags.Source.LintCode
+    @tags.Company.Facebook
+    @tags.Company.Google
+    @tags.Company.Microsoft
+    @tags.Company.Twitter
+    @tags.Company.Yelp
+    public List<int[]> getSkyline(int[][] buildings) {
+        // TODO this is not a binary indexed tree solution
+
+        List<int[]> skyline = new ArrayList<>();
+        if (buildings == null || buildings.length == 0) {
+            return skyline;
+        }
+
+        class Point {
+            int x, h;
+            boolean start;
+
+            public Point(int x, int h, boolean start) {
+                this.x = x;
+                this.h = h;
+                this.start = start;
+            }
+        }
+
+        List<Point> list = new ArrayList<>();
+        for (int[] building : buildings) {
+            list.add(new Point(building[0], building[2], true));
+            list.add(new Point(building[1], building[2], false));
+        }
+
+        Collections.sort(list, new Comparator<Point>() {
+            @Override
+            public int compare(Point p1, Point p2) {
+                if (p1.x != p2.x) {
+                    return p1.x - p2.x;
+                } else {
+                    if (p2.start && !p1.start) {
+                        return 1;
+                    }
+                    return -1;
+                }
+            }
+        });
+
+        PriorityQueue<Integer> maxHeap = new PriorityQueue<>(buildings.length,
+                Collections.reverseOrder());
+        List<int[]> tmp = new ArrayList<>();
+        for (Point p : list) {
+            boolean ending = !maxHeap.isEmpty();
+            if (p.start) {
+                maxHeap.offer(p.h);
+            } else {
+                maxHeap.remove(p.h);
+            }
+
+            if (!maxHeap.isEmpty()) {
+                tmp.add(new int[] { p.x, maxHeap.peek() });
+            } else if (ending) {
+                tmp.add(new int[] { p.x, 0 });
+            }
+        }
+
+        skyline.add(tmp.get(0));
+        for (int i = 1; i < tmp.size(); i++) {
+            int[] figure = tmp.get(i);
+            int[] prev = skyline.get(skyline.size() - 1);
+            if (prev[0] == figure[0]) {
+                if (figure[1] == 0) {
+                    prev[1] = 0;
+                } else {
+                    prev[1] = Math.max(prev[1], figure[1]);
+                }
+            } else {
+                if (figure[1] != prev[1]) {
+                    skyline.add(figure);
+                }
+            }
+        }
+
+        return skyline;
+    }
+
+    // ---------------------------------------------------------------------- //
     // ------------------------------ Unit Tests ---------------------------- //
     // ---------------------------------------------------------------------- //
 
@@ -1642,6 +2667,7 @@ public class DataStructure {
     public void test() {
         hashCodeTest();
         isUglyTest();
+        nthSuperUglyNumberTest();
         LFUCacheTest();
         largestRectangleAreaTest();
     }
@@ -1659,6 +2685,12 @@ public class DataStructure {
     private void isUglyTest() {
         Assert.assertTrue(isUgly(8));
         Assert.assertFalse(isUgly(14));
+    }
+
+    private void nthSuperUglyNumberTest() {
+        int n = 45;
+        int[] primes = {2,3,7,13,17,23,31,41,43,47};
+        Assert.assertEquals(82, nthSuperUglyNumber(n, primes));
     }
 
     private void LFUCacheTest() {

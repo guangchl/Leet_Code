@@ -97,6 +97,8 @@ public class BinarySearch {
     @tags.Array
     @tags.SortedArray
     @tags.BinarySearch
+    @tags.Company.LinkedIn
+    @tags.Status.OK
     public int[] searchRange(int[] A, int target) {
         int[] range = new int[2];
         range[0] = -1;
@@ -502,10 +504,11 @@ public class BinarySearch {
      * @return An integer which is the first bad version.
      */
     @tags.BinarySearch
+    @tags.Source.LeetCode
     @tags.Source.LintCode
     @tags.Company.Facebook
+    @tags.Status.Easy
     public int findFirstBadVersion(int n) {
-        // write your code here
         if (n < 1) {
             return -1;
         }
@@ -884,6 +887,7 @@ public class BinarySearch {
     @tags.Company.Facebook
     @tags.Company.LinkedIn
     @tags.Company.Uber
+    @tags.Status.NeedPractice
     public int search(int[] A, int target) {
         if (A == null || A.length == 0) {
             return -1;

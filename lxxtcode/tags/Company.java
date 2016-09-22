@@ -2,6 +2,18 @@ package tags;
 
 public @interface Company {
 
+    public @interface Thumbtack {
+
+    }
+
+    public @interface Cloudera {
+
+    }
+
+    public @interface Palantir {
+
+    }
+
     @interface Adobe {
     }
 

@@ -11,6 +11,6 @@ public @interface Status {
     @interface NeedPractice {
     }
 
-    @interface SuperHard {
+    @interface Hard {
     }
 }

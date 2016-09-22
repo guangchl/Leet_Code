@@ -272,6 +272,7 @@ public class LinkedLists {
      */
     @tags.LinkedList
     @tags.TwoPointers
+    @tags.Status.OK
     public ListNode removeNthFromEnd(ListNode head, int n) {
         ListNode dummy = new ListNode(0);
         dummy.next = head;
@@ -341,7 +342,7 @@ public class LinkedLists {
     }
 
     /**
-     * Remove Duplicates from Sorted List
+     * Remove Duplicates from Sorted List.
      *
      * Given a sorted linked list, delete all duplicates such that each element
      * appear only once.
@@ -357,16 +358,17 @@ public class LinkedLists {
      * @return: ListNode head of linked list
      */
     @tags.LinkedList
+    @tags.Status.Easy
     public ListNode deleteDuplicates(ListNode head) {
         if (head == null)
             return head;
 
-        ListNode current = head;
-        while (current.next != null) {
-            if (current.val == current.next.val) {
-                current.next = current.next.next;
+        ListNode prev = head;
+        while (prev.next != null) {
+            if (prev.val == prev.next.val) {
+                prev.next = prev.next.next;
             } else {
-                current = current.next;
+                prev = prev.next;
             }
         }
 
@@ -374,7 +376,7 @@ public class LinkedLists {
     }
 
     /**
-     * Remove Duplicates from Sorted List II
+     * Remove Duplicates from Sorted List II¡£
      *
      * Given a sorted linked list, delete all nodes that have duplicate numbers,
      * leaving only distinct numbers from the original list.
@@ -387,20 +389,27 @@ public class LinkedLists {
      * @return: ListNode head of the linked list
      */
     @tags.LinkedList
+    @tags.Status.NeedPractice
     public ListNode deleteDuplicatesII(ListNode head) {
+        if (head == null) {
+            return head;
+        }
+
         ListNode dummy = new ListNode(0);
         dummy.next = head;
-        head = dummy;
+        ListNode prev = dummy;
 
-        while (head != null && head.next != null) {
-            ListNode current = head.next;
-            while (current.next != null && current.next.val == head.next.val) {
-                current = current.next;
+        while (prev.next != null) {
+            ListNode last = prev.next;
+
+            while (last.next != null && last.val == last.next.val) {
+                last = last.next;
             }
-            if (head.next == current) {
-                head = current;
+
+            if (prev.next == last) {
+                prev = prev.next;
             } else {
-                head.next = current.next;
+                prev.next = last.next;
             }
         }
 
@@ -533,6 +542,7 @@ public class LinkedLists {
     @tags.Company.Bloomberg
     @tags.Company.Microsoft
     @tags.Company.Uber
+    @tags.Status.OK
     public RandomListNode copyRandomList(RandomListNode head) {
         // copy nodes and append copy after each original node
         RandomListNode current = head;
@@ -770,6 +780,7 @@ public class LinkedLists {
     @tags.Company.Bloomberg
     @tags.Company.Microsoft
     @tags.Company.Yahoo
+    @tags.Status.OK
     public boolean hasCycle(ListNode head) {
         ListNode slow = head, fast = head;
 
@@ -799,6 +810,7 @@ public class LinkedLists {
      */
     @tags.TwoPointers
     @tags.LinkedList
+    @tags.Status.NeedPractice
     public ListNode detectCycle(ListNode head) {
         ListNode slow = head, fast = head;
 
@@ -892,6 +904,7 @@ public class LinkedLists {
      */
     @tags.LinkedList
     @tags.Source.CrackingTheCodingInterview
+    @tags.Status.OK
     public void deleteNode(ListNode node) {
         if (node == null || node.next == null) {
             throw new NullPointerException("Input node is null or tail.");
@@ -1047,7 +1060,43 @@ public class LinkedLists {
     }
 
     /**
-     * Merge Two Sorted Lists
+     * Add Binary.
+     *
+     * Given two binary strings, return their sum (also a binary string).
+     *
+     * For example, a = "11", b = "1", Return "100".
+     *
+     * @param a
+     * @param b
+     * @return
+     */
+    @tags.Math
+    @tags.Binary
+    @tags.String
+    @tags.Company.Facebook
+    @tags.Status.Easy
+    public String addBinary(String a, String b) {
+        StringBuilder sb = new StringBuilder();
+        int carry = 0;
+        for (int i = a.length() - 1, j = b.length() - 1; carry != 0 || i >= 0
+                || j >= 0; i--, j--) {
+            int num = carry;
+            if (i >= 0 && a.charAt(i) == '1') {
+                num += 1;
+            }
+            if (j >= 0 && b.charAt(j) == '1') {
+                num += 1;
+            }
+
+            sb.append(num % 2);
+            carry = num / 2;
+        }
+
+        return sb.reverse().toString();
+    }
+
+    /**
+     * Merge Two Sorted Lists.
      *
      * Merge two sorted (ascending) linked lists and return it as a new sorted
      * list. The new sorted list should be made by splicing together the nodes
@@ -1067,6 +1116,7 @@ public class LinkedLists {
     @tags.Company.Apple
     @tags.Company.LinkedIn
     @tags.Company.Microsoft
+    @tags.Status.OK
     public ListNode mergeTwoLists(ListNode l1, ListNode l2) {
         ListNode dummy = new ListNode(0);
         ListNode prev = dummy;
@@ -1247,35 +1297,30 @@ public class LinkedLists {
 
     /** Iterative solution */
     @tags.LinkedList
+    @tags.Status.NeedPractice
     public DoublyListNode bstToDoublyListIter(TreeNode root) {
-        if (root == null) {
-            return null;
-        }
-
-        DoublyListNode dummy = new DoublyListNode(0);
-        DoublyListNode prev = dummy;
         Stack<TreeNode> stack = new Stack<>();
         TreeNode current = root;
+        DoublyListNode head = null;
+
         while (current != null || !stack.isEmpty()) {
             while (current != null) {
                 stack.push(current);
-                current = current.left;
+                current = current.right;
             }
 
             TreeNode node = stack.pop();
-
-            // connect the new node
-            prev.next = new DoublyListNode(node.val);
-            prev.next.prev = prev;
-            prev = prev.next;
-
-            if (node.right != null) {
-                current = node.right;
+            DoublyListNode newHead = new DoublyListNode(node.val);
+            if (head != null) {
+                newHead.next = head;
+                head.prev = newHead;
             }
+            head = newHead;
+
+            current = node.left;
         }
 
-        dummy.next.prev = null;
-        return dummy.next;
+        return head;
     }
 
     /**
@@ -1373,6 +1418,59 @@ public class LinkedLists {
             prev = head;
             head = newHead;
         }
+    }
+
+    /**
+     * Intersection of Two Linked Lists.
+     *
+     * Write a program to find the node at which the intersection of two singly
+     * linked lists begins.
+     *
+     * Notice: If the two linked lists have no intersection at all, return null.
+     * The linked lists must retain their original structure after the function
+     * returns. You may assume there are no cycles anywhere in the entire linked
+     * structure.
+     *
+     * Challenge: Your code should preferably run in O(n) time and use only O(1)
+     * memory.
+     *
+     * @param headA:
+     *            the first list
+     * @param headB:
+     *            the second list
+     * @return: a ListNode
+     */
+    @tags.LinkedList
+    @tags.Status.OK
+    public ListNode getIntersectionNode(ListNode headA, ListNode headB) {
+        int len1 = 0, len2 = 0;
+        ListNode l1 = headA, l2 = headB;
+        while (l1 != null) {
+            len1++;
+            l1 = l1.next;
+        }
+        while (l2 != null) {
+            len2++;
+            l2 = l2.next;
+        }
+
+        l1 = headA;
+        l2 = headB;
+        while (len1 > len2) {
+            l1 = l1.next;
+            len1--;
+        }
+        while (len2 > len1) {
+            l2 = l2.next;
+            len2--;
+        }
+
+        while (len1-- > 0 && l1 != l2) {
+            l1 = l1.next;
+            l2 = l2.next;
+        }
+
+        return l1;
     }
 
     public static void main(String[] args) {
